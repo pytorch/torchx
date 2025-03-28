@@ -134,8 +134,8 @@
                   <span class=dropdown-title>Developer Resources</span>
                   <p>Find resources and get questions answered</p>
                 </a>
-                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2023">
-                  <span class="dropdown-title">Contributor Awards - 2023</span>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">Contributor Awards - 2024</span>
                   <p>Award winners announced at this year's PyTorch Conference</p>
                 </a>
               </div>
@@ -155,6 +155,9 @@
                 <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
                   <span class="dropdown-title">ExecuTorch</span>
                   <p>End-to-end solution for enabling on-device inference capabilities across mobile and edge devices</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch Docs</span>
                 </a>
               </div>
             </div>  
@@ -203,6 +206,10 @@
                   <span class="dropdown-title">Events</span>
                   <p>Find events, webinars, and podcasts</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">Newsletter</span>
+                  <p>Stay up-to-date with the latest updates</p>
+                </a>
             </div>
           </li>
 
@@ -218,7 +225,18 @@
                 </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
                   <span class="dropdown-title">Governing Board</span>
-                  <p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">Cloud Credit Program</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">Technical Advisory Council</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">Staff</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">Contact Us</span>
                 </a>
               </div>
             </div>
@@ -448,19 +466,19 @@
 
 <span class="c1"># pyre-strict</span>
 
-<span class="kn">import</span> <span class="nn">asyncio</span>
-<span class="kn">import</span> <span class="nn">copy</span>
-<span class="kn">import</span> <span class="nn">inspect</span>
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">logging</span> <span class="k">as</span> <span class="nn">logger</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">typing</span>
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">asdict</span><span class="p">,</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
-<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
-<span class="kn">from</span> <span class="nn">json</span> <span class="kn">import</span> <span class="n">JSONDecodeError</span>
-<span class="kn">from</span> <span class="nn">string</span> <span class="kn">import</span> <span class="n">Template</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">logger</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">typing</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">asdict</span><span class="p">,</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">json</span><span class="w"> </span><span class="kn">import</span> <span class="n">JSONDecodeError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">string</span><span class="w"> </span><span class="kn">import</span> <span class="n">Template</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">Any</span><span class="p">,</span>
     <span class="n">Callable</span><span class="p">,</span>
     <span class="n">Dict</span><span class="p">,</span>
@@ -477,7 +495,7 @@
     <span class="n">Union</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">torchx.util.types</span> <span class="kn">import</span> <span class="n">to_dict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.util.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">to_dict</span>
 
 <span class="n">_APP_STATUS_FORMAT_TEMPLATE</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;AppStatus:</span>
 <span class="s2">    State: $</span><span class="si">{state}</span>
@@ -504,12 +522,15 @@
 <span class="c1">#     (most recent call first):</span>
 <span class="n">_EMBEDDED_ERROR_MESSAGE_RE</span><span class="p">:</span> <span class="n">Pattern</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(?P&lt;msg&gt;.+)\nException.*&quot;</span><span class="p">)</span>
 
+<span class="n">YELLOW_BOLD</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[1;33m&quot;</span>
+<span class="n">RESET</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[0m&quot;</span>
+
 
 <span class="c1"># ========================================</span>
 <span class="c1"># ==== Distributed AppDef API =======</span>
 <span class="c1"># ========================================</span>
 <div class="viewcode-block" id="Resource"><a class="viewcode-back" href="../../../specs.html#torchx.specs.Resource">[docs]</a><span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">Resource</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Resource</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Represents resource requirements for a ``Role``.</span>
 
@@ -533,7 +554,7 @@
     <span class="n">devices</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Resource.copy"><a class="viewcode-back" href="../../../specs.html#torchx.specs.Resource.copy">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="n">original</span><span class="p">:</span> <span class="s2">&quot;Resource&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">capabilities</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Resource&quot;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">copy</span><span class="p">(</span><span class="n">original</span><span class="p">:</span> <span class="s2">&quot;Resource&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">capabilities</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Resource&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Copies a resource and applies new capabilities. If the same capabilities</span>
 <span class="sd">        are present in the original resource and as parameter, the one from parameter</span>
@@ -556,7 +577,7 @@
 
 <span class="c1"># no-arg static factory method to use with default_factory in @dataclass</span>
 <span class="c1"># needed to support python 3.11 since mutable defaults for dataclasses are not allowed in 3.11</span>
-<span class="k">def</span> <span class="nf">_null_resource</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Resource</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_null_resource</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Resource</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">NULL_RESOURCE</span>
 
 
@@ -570,7 +591,7 @@
 <span class="n">NONE</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&lt;NONE&gt;&quot;</span>
 
 
-<div class="viewcode-block" id="macros"><a class="viewcode-back" href="../../../specs.html#torchx.specs.macros">[docs]</a><span class="k">class</span> <span class="nc">macros</span><span class="p">:</span>
+<div class="viewcode-block" id="macros"><a class="viewcode-back" href="../../../specs.html#torchx.specs.macros">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">macros</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Defines macros that can be used in the elements of ``Role.args``</span>
 <span class="sd">    values of ``Role.env``. The macros will be substituted at runtime</span>
@@ -619,14 +640,14 @@
     <span class="n">rank0_env</span> <span class="o">=</span> <span class="s2">&quot;$</span><span class="si">{rank0_env}</span><span class="s2">&quot;</span>
 
 <div class="viewcode-block" id="macros.Values"><a class="viewcode-back" href="../../../specs.html#torchx.specs.macros.Values">[docs]</a>    <span class="nd">@dataclass</span>
-    <span class="k">class</span> <span class="nc">Values</span><span class="p">:</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Values</span><span class="p">:</span>
         <span class="n">img_root</span><span class="p">:</span> <span class="nb">str</span>
         <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span>
         <span class="n">replica_id</span><span class="p">:</span> <span class="nb">str</span>
         <span class="n">rank0_env</span><span class="p">:</span> <span class="nb">str</span>
         <span class="n">base_img_root</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;DEPRECATED&quot;</span>
 
-<div class="viewcode-block" id="macros.Values.apply"><a class="viewcode-back" href="../../../specs.html#torchx.specs.macros.Values.apply">[docs]</a>        <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="s2">&quot;Role&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Role&quot;</span><span class="p">:</span>
+<div class="viewcode-block" id="macros.Values.apply"><a class="viewcode-back" href="../../../specs.html#torchx.specs.macros.Values.apply">[docs]</a>        <span class="k">def</span><span class="w"> </span><span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="s2">&quot;Role&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Role&quot;</span><span class="p">:</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            apply applies the values to a copy the specified role and returns it.</span>
 <span class="sd">            &quot;&quot;&quot;</span>
@@ -647,7 +668,7 @@
 
             <span class="k">return</span> <span class="n">role</span></div>
 
-        <span class="k">def</span> <span class="nf">_apply_nested</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">_apply_nested</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
             <span class="n">stack</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span><span class="p">]</span>
             <span class="k">while</span> <span class="n">stack</span><span class="p">:</span>
                 <span class="n">current_dict</span> <span class="o">=</span> <span class="n">stack</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
@@ -662,14 +683,14 @@
                                 <span class="n">v</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
             <span class="k">return</span> <span class="n">d</span>
 
-<div class="viewcode-block" id="macros.Values.substitute"><a class="viewcode-back" href="../../../specs.html#torchx.specs.macros.Values.substitute">[docs]</a>        <span class="k">def</span> <span class="nf">substitute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="macros.Values.substitute"><a class="viewcode-back" href="../../../specs.html#torchx.specs.macros.Values.substitute">[docs]</a>        <span class="k">def</span><span class="w"> </span><span class="nf">substitute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            substitute applies the values to the template arg.</span>
 <span class="sd">            &quot;&quot;&quot;</span>
             <span class="k">return</span> <span class="n">Template</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span><span class="o">.</span><span class="n">safe_substitute</span><span class="p">(</span><span class="o">**</span><span class="n">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span></div></div></div>
 
 
-<div class="viewcode-block" id="RetryPolicy"><a class="viewcode-back" href="../../../specs.html#torchx.specs.RetryPolicy">[docs]</a><span class="k">class</span> <span class="nc">RetryPolicy</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<div class="viewcode-block" id="RetryPolicy"><a class="viewcode-back" href="../../../specs.html#torchx.specs.RetryPolicy">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">RetryPolicy</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Defines the retry policy for the ``Roles`` in the ``AppDef``.</span>
 <span class="sd">    The policy defines the behavior when the role replica encounters a failure:</span>
@@ -699,14 +720,14 @@
     <span class="n">ROLE</span> <span class="o">=</span> <span class="s2">&quot;ROLE&quot;</span></div>
 
 
-<span class="k">class</span> <span class="nc">MountType</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MountType</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
     <span class="n">BIND</span> <span class="o">=</span> <span class="s2">&quot;bind&quot;</span>
     <span class="n">VOLUME</span> <span class="o">=</span> <span class="s2">&quot;volume&quot;</span>
     <span class="n">DEVICE</span> <span class="o">=</span> <span class="s2">&quot;device&quot;</span>
 
 
 <div class="viewcode-block" id="BindMount"><a class="viewcode-back" href="../../../specs.html#torchx.specs.BindMount">[docs]</a><span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">BindMount</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BindMount</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Defines a bind mount to `mount --bind` a host path into the worker</span>
 <span class="sd">    environment. See scheduler documentation on how bind mounts operate for each</span>
@@ -724,7 +745,7 @@
 
 
 <div class="viewcode-block" id="VolumeMount"><a class="viewcode-back" href="../../../specs.html#torchx.specs.VolumeMount">[docs]</a><span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">VolumeMount</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">VolumeMount</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Defines a persistent volume mount to mount into the worker environment.</span>
 <span class="sd">    Args:</span>
@@ -739,7 +760,7 @@
 
 
 <div class="viewcode-block" id="DeviceMount"><a class="viewcode-back" href="../../../specs.html#torchx.specs.DeviceMount">[docs]</a><span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">DeviceMount</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DeviceMount</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Defines a host device to mount into the container.</span>
 <span class="sd">    Args:</span>
@@ -754,7 +775,7 @@
 
 
 <div class="viewcode-block" id="Role"><a class="viewcode-back" href="../../../specs.html#torchx.specs.Role">[docs]</a><span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">Role</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Role</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A set of nodes that perform a specific duty within the ``AppDef``.</span>
 <span class="sd">    Examples:</span>
@@ -826,7 +847,7 @@
     <span class="n">overrides</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
 
     <span class="c1"># pyre-ignore</span>
-    <span class="k">def</span> <span class="fm">__getattribute__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attrname</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getattribute__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attrname</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">attrname</span> <span class="o">==</span> <span class="s2">&quot;overrides&quot;</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="n">attrname</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
@@ -839,10 +860,10 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">result</span> <span class="o">=</span> <span class="n">ov</span><span class="p">[</span><span class="n">attrname</span><span class="p">]()</span>
             <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attrname</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
-            <span class="k">del</span> <span class="n">ov</span><span class="p">[</span><span class="n">attrname</span><span class="p">]</span>
+            <span class="n">ov</span><span class="p">[</span><span class="n">attrname</span><span class="p">]</span> <span class="o">=</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">result</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="n">attrname</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Role.pre_proc"><a class="viewcode-back" href="../../../specs.html#torchx.specs.Role.pre_proc">[docs]</a>    <span class="k">def</span> <span class="nf">pre_proc</span><span class="p">(</span>
+<div class="viewcode-block" id="Role.pre_proc"><a class="viewcode-back" href="../../../specs.html#torchx.specs.Role.pre_proc">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">pre_proc</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="c1"># pyre-fixme[24]: AppDryRunInfo was designed to work with Any request object</span>
@@ -859,7 +880,7 @@
 
 
 <div class="viewcode-block" id="AppDef"><a class="viewcode-back" href="../../../specs.html#torchx.specs.AppDef">[docs]</a><span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">AppDef</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AppDef</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Represents a distributed application made up of multiple ``Roles``</span>
 <span class="sd">    and metadata. Contains the necessary information for the driver</span>
@@ -876,7 +897,7 @@
     <span class="n">metadata</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="AppState"><a class="viewcode-back" href="../../../specs.html#torchx.specs.AppState">[docs]</a><span class="k">class</span> <span class="nc">AppState</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<div class="viewcode-block" id="AppState"><a class="viewcode-back" href="../../../specs.html#torchx.specs.AppState">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">AppState</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    State of the application. An application starts from an initial</span>
 <span class="sd">    ``UNSUBMITTED`` state and moves through ``SUBMITTED``, ``PENDING``,</span>
@@ -909,10 +930,10 @@
     <span class="n">CANCELLED</span> <span class="o">=</span> <span class="mi">6</span>
     <span class="n">UNKNOWN</span> <span class="o">=</span> <span class="mi">7</span>
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">)&quot;</span></div>
 
 
@@ -927,11 +948,11 @@
 <span class="p">]</span>
 
 
-<span class="k">def</span> <span class="nf">is_terminal</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">AppState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_terminal</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">AppState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">_TERMINAL_STATES</span>
 
 
-<span class="k">def</span> <span class="nf">is_started</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">AppState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_started</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">AppState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">_STARTED_STATES</span>
 
 
@@ -944,7 +965,7 @@
 
 
 <span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">ReplicaStatus</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ReplicaStatus</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The status of the replica during the job execution.</span>
 
@@ -964,7 +985,7 @@
 
 
 <span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">RoleStatus</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RoleStatus</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The status of the role during the job execution.</span>
 
@@ -978,7 +999,7 @@
 
 
 <div class="viewcode-block" id="AppStatus"><a class="viewcode-back" href="../../../specs.html#torchx.specs.AppStatus">[docs]</a><span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">AppStatus</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AppStatus</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The runtime status of the ``AppDef``. The scheduler can</span>
 <span class="sd">    return an arbitrary text message (msg field).</span>
@@ -998,10 +1019,10 @@
     <span class="n">ui_url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">roles</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">RoleStatus</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">is_terminal</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_terminal</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">is_terminal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">app_status_dict</span> <span class="o">=</span> <span class="n">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">structured_error_msg</span> <span class="o">=</span> <span class="n">app_status_dict</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;structured_error_msg&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">structured_error_msg</span> <span class="o">!=</span> <span class="n">NONE</span><span class="p">:</span>
@@ -1011,18 +1032,18 @@
         <span class="n">app_status_dict</span><span class="p">[</span><span class="s2">&quot;structured_error_msg&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">structured_error_msg_parsed</span>
         <span class="n">app_status_dict</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">repr</span><span class="p">(</span><span class="n">app_status_dict</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">])</span>
 
-        <span class="kn">import</span> <span class="nn">yaml</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
 
         <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">({</span><span class="s2">&quot;AppStatus&quot;</span><span class="p">:</span> <span class="n">app_status_dict</span><span class="p">})</span>
 
-<div class="viewcode-block" id="AppStatus.raise_for_status"><a class="viewcode-back" href="../../../specs.html#torchx.specs.AppStatus.raise_for_status">[docs]</a>    <span class="k">def</span> <span class="nf">raise_for_status</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="AppStatus.raise_for_status"><a class="viewcode-back" href="../../../specs.html#torchx.specs.AppStatus.raise_for_status">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">raise_for_status</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        raise_for_status will raise an AppStatusError if the state is not SUCCEEDED.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">!=</span> <span class="n">AppState</span><span class="o">.</span><span class="n">SUCCEEDED</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">AppStatusError</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;job did not succeed: </span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">_format_error_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">header</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">80</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_format_error_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">header</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">80</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">header</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">width</span>
 
         <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">_RPC_ERROR_MESSAGE_RE</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
@@ -1044,7 +1065,7 @@
             <span class="n">length</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_format_replica_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">replica_status</span><span class="p">:</span> <span class="n">ReplicaStatus</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_format_replica_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">replica_status</span><span class="p">:</span> <span class="n">ReplicaStatus</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">replica_status</span><span class="o">.</span><span class="n">structured_error_msg</span> <span class="o">!=</span> <span class="n">NONE</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">error_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">replica_status</span><span class="o">.</span><span class="n">structured_error_msg</span><span class="p">)</span>
@@ -1076,7 +1097,7 @@
 
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="n">header</span><span class="si">}{</span><span class="n">replica_status</span><span class="o">.</span><span class="n">role</span><span class="si">}</span><span class="s2">[</span><span class="si">{</span><span class="n">replica_status</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">]:</span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span>
 
-    <span class="k">def</span> <span class="nf">_get_role_statuses</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_role_statuses</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">roles</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">RoleStatus</span><span class="p">],</span> <span class="n">filter_roles</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">RoleStatus</span><span class="p">]:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">filter_roles</span><span class="p">:</span>
@@ -1085,7 +1106,7 @@
             <span class="n">role_status</span> <span class="k">for</span> <span class="n">role_status</span> <span class="ow">in</span> <span class="n">roles</span> <span class="k">if</span> <span class="n">role_status</span><span class="o">.</span><span class="n">role</span> <span class="ow">in</span> <span class="n">filter_roles</span>
         <span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">_format_role_status</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_format_role_status</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">role_status</span><span class="p">:</span> <span class="n">RoleStatus</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -1095,7 +1116,7 @@
             <span class="n">replica_data</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_replica_status</span><span class="p">(</span><span class="n">replica</span><span class="p">)</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">replica_data</span><span class="si">}</span><span class="s2">&quot;</span>
 
-<div class="viewcode-block" id="AppStatus.format"><a class="viewcode-back" href="../../../specs.html#torchx.specs.AppStatus.format">[docs]</a>    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span>
+<div class="viewcode-block" id="AppStatus.format"><a class="viewcode-back" href="../../../specs.html#torchx.specs.AppStatus.format">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">format</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">filter_roles</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -1122,13 +1143,13 @@
         <span class="p">)</span></div></div>
 
 
-<span class="k">class</span> <span class="nc">AppStatusError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AppStatusError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    AppStatusError is raised when the job status is in an exceptional state i.e.</span>
 <span class="sd">    not SUCCEEDED.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="p">:</span> <span class="n">AppStatus</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="p">:</span> <span class="n">AppStatus</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">status</span>
@@ -1144,7 +1165,7 @@
 <span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;T&quot;</span><span class="p">)</span>
 
 
-<span class="k">class</span> <span class="nc">AppDryRunInfo</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AppDryRunInfo</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returned by ``Scheduler.submit_dryrun``. Represents the</span>
 <span class="sd">    request that would have been made to the scheduler.</span>
@@ -1154,7 +1175,7 @@
 <span class="sd">    readable representation of the underlying request.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="n">fmt</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">T</span><span class="p">],</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="n">fmt</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">T</span><span class="p">],</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">request</span> <span class="o">=</span> <span class="n">request</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_fmt</span> <span class="o">=</span> <span class="n">fmt</span>
 
@@ -1170,11 +1191,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_scheduler</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fmt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">get_type_name</span><span class="p">(</span><span class="n">tp</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">CfgVal</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_type_name</span><span class="p">(</span><span class="n">tp</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">CfgVal</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Gets the type&#39;s name as a string. If ``tp` is a primitive class like int, str, etc, then</span>
 <span class="sd">    uses its attribute ``__name__``. Otherwise, use ``str(tp)``.</span>
@@ -1188,7 +1209,7 @@
 
 
 <span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">runopt</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">runopt</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Represents the metadata about the specific run option</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1199,7 +1220,7 @@
     <span class="n">help</span><span class="p">:</span> <span class="nb">str</span>
 
 
-<div class="viewcode-block" id="runopts"><a class="viewcode-back" href="../../../specs.html#torchx.specs.runopts">[docs]</a><span class="k">class</span> <span class="nc">runopts</span><span class="p">:</span>
+<div class="viewcode-block" id="runopts"><a class="viewcode-back" href="../../../specs.html#torchx.specs.runopts">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">runopts</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Holds the accepted scheduler run configuration</span>
 <span class="sd">    keys, default value (if any), and help message string.</span>
@@ -1232,17 +1253,17 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_opts</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">runopt</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
-    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">runopt</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">runopt</span><span class="p">]]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_opts</span><span class="o">.</span><span class="n">items</span><span class="p">()</span><span class="o">.</span><span class="fm">__iter__</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_opts</span><span class="p">)</span>
 
 <div class="viewcode-block" id="runopts.is_type"><a class="viewcode-back" href="../../../specs.html#torchx.specs.runopts.is_type">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">is_type</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">CfgVal</span><span class="p">,</span> <span class="n">tp</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">CfgVal</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_type</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">CfgVal</span><span class="p">,</span> <span class="n">tp</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">CfgVal</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns True if ``obj`` is type of ``tp``. Similar to isinstance() but supports</span>
 <span class="sd">        tp = List[str], thus can be used to validate ConfigValue.</span>
@@ -1259,13 +1280,13 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">False</span></div>
 
-<div class="viewcode-block" id="runopts.get"><a class="viewcode-back" href="../../../specs.html#torchx.specs.runopts.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">runopt</span><span class="p">]:</span>
+<div class="viewcode-block" id="runopts.get"><a class="viewcode-back" href="../../../specs.html#torchx.specs.runopts.get">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">runopt</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns option if any was registered, or None otherwise</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_opts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="runopts.resolve"><a class="viewcode-back" href="../../../specs.html#torchx.specs.runopts.resolve">[docs]</a>    <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">]:</span>
+<div class="viewcode-block" id="runopts.resolve"><a class="viewcode-back" href="../../../specs.html#torchx.specs.runopts.resolve">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Checks the given config against this ``runopts`` and sets default configs</span>
 <span class="sd">        if not set.</span>
@@ -1301,7 +1322,7 @@
                 <span class="n">resolved_cfg</span><span class="p">[</span><span class="n">cfg_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">runopt</span><span class="o">.</span><span class="n">default</span>
         <span class="k">return</span> <span class="n">resolved_cfg</span></div>
 
-<div class="viewcode-block" id="runopts.cfg_from_str"><a class="viewcode-back" href="../../../specs.html#torchx.specs.runopts.cfg_from_str">[docs]</a>    <span class="k">def</span> <span class="nf">cfg_from_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">]:</span>
+<div class="viewcode-block" id="runopts.cfg_from_str"><a class="viewcode-back" href="../../../specs.html#torchx.specs.runopts.cfg_from_str">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">cfg_from_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parses scheduler ``cfg`` from a string literal and returns</span>
 <span class="sd">        a cfg map where the cfg values have been cast into the appropriate</span>
@@ -1357,7 +1378,7 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">def</span> <span class="nf">_cast_to_type</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">opt_type</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">CfgVal</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">CfgVal</span><span class="p">:</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">_cast_to_type</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">opt_type</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">CfgVal</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">CfgVal</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">opt_type</span> <span class="o">==</span> <span class="nb">bool</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span>
             <span class="k">elif</span> <span class="n">opt_type</span> <span class="o">==</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
@@ -1378,9 +1399,13 @@
             <span class="n">runopt_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">runopt_</span><span class="p">:</span>
                 <span class="n">cfg</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">_cast_to_type</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">runopt_</span><span class="o">.</span><span class="n">opt_type</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">YELLOW_BOLD</span><span class="si">}</span><span class="s2">Unknown run option passed to scheduler: </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">val</span><span class="si">}{</span><span class="n">RESET</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
         <span class="k">return</span> <span class="n">cfg</span></div>
 
-<div class="viewcode-block" id="runopts.cfg_from_json_repr"><a class="viewcode-back" href="../../../specs.html#torchx.specs.runopts.cfg_from_json_repr">[docs]</a>    <span class="k">def</span> <span class="nf">cfg_from_json_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json_repr</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">]:</span>
+<div class="viewcode-block" id="runopts.cfg_from_json_repr"><a class="viewcode-back" href="../../../specs.html#torchx.specs.runopts.cfg_from_json_repr">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">cfg_from_json_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json_repr</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Converts the given dict to a valid cfg for this ``runopts`` object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1389,7 +1414,12 @@
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">cfg_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">runopt_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">runopt_</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">runopt_</span><span class="o">.</span><span class="n">opt_type</span> <span class="o">==</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+                <span class="c1"># Optional runopt cfg values default their value to None,</span>
+                <span class="c1"># but use `_type` to specify their type when provided.</span>
+                <span class="c1"># Make sure not to treat None&#39;s as lists/dictionaries</span>
+                <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">cfg</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+                <span class="k">elif</span> <span class="n">runopt_</span><span class="o">.</span><span class="n">opt_type</span> <span class="o">==</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
                     <span class="n">cfg</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">val</span><span class="p">]</span>
                 <span class="k">elif</span> <span class="n">runopt_</span><span class="o">.</span><span class="n">opt_type</span> <span class="o">==</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
                     <span class="n">cfg</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">val</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
@@ -1397,7 +1427,7 @@
                     <span class="n">cfg</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
         <span class="k">return</span> <span class="n">cfg</span></div>
 
-<div class="viewcode-block" id="runopts.add"><a class="viewcode-back" href="../../../specs.html#torchx.specs.runopts.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span>
+<div class="viewcode-block" id="runopts.add"><a class="viewcode-back" href="../../../specs.html#torchx.specs.runopts.add">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">cfg_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">type_</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">CfgVal</span><span class="p">],</span>
@@ -1423,10 +1453,10 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_opts</span><span class="p">[</span><span class="n">cfg_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">runopt</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="n">type_</span><span class="p">,</span> <span class="n">required</span><span class="p">,</span> <span class="n">help</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">&quot;runopts&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">&quot;runopts&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_opts</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">_opts</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">required</span> <span class="o">=</span> <span class="p">[(</span><span class="n">key</span><span class="p">,</span> <span class="n">opt</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">opt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_opts</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">is_required</span><span class="p">]</span>
         <span class="n">optional</span> <span class="o">=</span> <span class="p">[</span>
             <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">opt</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">opt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_opts</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">opt</span><span class="o">.</span><span class="n">is_required</span>
@@ -1455,14 +1485,14 @@
         <span class="k">return</span> <span class="n">out</span></div>
 
 
-<span class="k">class</span> <span class="nc">InvalidRunConfigException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">InvalidRunConfigException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Raised when the supplied run cfg does not satisfy the</span>
 <span class="sd">    ``runopts``, either due to missing required configs or value</span>
 <span class="sd">    type mismatch.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">invalid_reason</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cfg_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">given</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span> <span class="k">if</span> <span class="n">cfg</span> <span class="k">else</span> <span class="s2">&quot;&lt;EMPTY&gt;&quot;</span>
@@ -1470,19 +1500,19 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">cfg_key</span> <span class="o">=</span> <span class="n">cfg_key</span>
 
 
-<span class="k">class</span> <span class="nc">MalformedAppHandleException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MalformedAppHandleException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Raised when APIs are given a bad app handle.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_handle</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_handle</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">app_handle</span><span class="si">}</span><span class="s2"> is not of the form: &lt;scheduler_backend&gt;://&lt;session_name&gt;/&lt;app_id&gt;&quot;</span>
         <span class="p">)</span>
 
 
-<span class="k">class</span> <span class="nc">UnknownSchedulerException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scheduler_backend</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">UnknownSchedulerException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scheduler_backend</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;Scheduler backend: </span><span class="si">{</span><span class="n">scheduler_backend</span><span class="si">}</span><span class="s2"> does not exist.&quot;</span>
             <span class="sa">f</span><span class="s2">&quot; Use session.scheduler_backends() to see all supported schedulers&quot;</span>
@@ -1494,7 +1524,7 @@
 <span class="n">AppHandle</span> <span class="o">=</span> <span class="nb">str</span>
 
 
-<span class="k">class</span> <span class="nc">ParsedAppHandle</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ParsedAppHandle</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Individual accessible components of the `AppHandle`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1504,27 +1534,27 @@
     <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span>
 
 
-<span class="k">class</span> <span class="nc">UnknownAppException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">UnknownAppException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Raised by ``Session`` APIs when either the application does not</span>
 <span class="sd">    exist or the application is not owned by the session.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_handle</span><span class="p">:</span> <span class="s2">&quot;AppHandle&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_handle</span><span class="p">:</span> <span class="s2">&quot;AppHandle&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;Unknown app = </span><span class="si">{</span><span class="n">app_handle</span><span class="si">}</span><span class="s2">. Did you forget to call session.run()?&quot;</span>
             <span class="sa">f</span><span class="s2">&quot; Otherwise, the app may have already finished and purged by the scheduler&quot;</span>
         <span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">parse_app_handle</span><span class="p">(</span><span class="n">app_handle</span><span class="p">:</span> <span class="n">AppHandle</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParsedAppHandle</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_app_handle</span><span class="p">(</span><span class="n">app_handle</span><span class="p">:</span> <span class="n">AppHandle</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParsedAppHandle</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    parses the app handle into ```(scheduler_backend, session_name, and app_id)```</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># parse it manually b/c currently torchx does not</span>
     <span class="c1"># define allowed characters nor length for session name and app_id</span>
-    <span class="kn">import</span> <span class="nn">re</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 
     <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;(?P&lt;scheduler_backend&gt;.+)://(?P&lt;session_name&gt;.+)/(?P&lt;app_id&gt;.+)&quot;</span>
     <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">app_handle</span><span class="p">)</span>
@@ -1759,7 +1789,7 @@
                <a href="https://pytorch.org/resources">Developer Resources</a>
              </li>
              <li>
-               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2023</a>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2024</a>
              </li>
            </ul>
 
@@ -1774,6 +1804,9 @@
              
              <li>
                <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch Documentation</a>
              </li>
            </ul>
 
@@ -1813,6 +1846,9 @@
             <li>
               <a href="https://pytorch.org/events">Events</a>
             </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">Newsletter</a>
+             </li>
           </ul>
           
           <li class="resources-mobile-menu-title">
@@ -1825,6 +1861,18 @@
             </li>
             <li>
               <a href="https://pytorch.org/governing-board">Governing Board</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">Cloud Credit Program</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">Technical Advisory Council</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">Staff</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">Contact Us</a>
             </li>
           </ul>
         </ul>

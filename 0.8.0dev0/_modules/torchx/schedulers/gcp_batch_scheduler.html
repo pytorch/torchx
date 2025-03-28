@@ -134,8 +134,8 @@
                   <span class=dropdown-title>Developer Resources</span>
                   <p>Find resources and get questions answered</p>
                 </a>
-                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2023">
-                  <span class="dropdown-title">Contributor Awards - 2023</span>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">Contributor Awards - 2024</span>
                   <p>Award winners announced at this year's PyTorch Conference</p>
                 </a>
               </div>
@@ -155,6 +155,9 @@
                 <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
                   <span class="dropdown-title">ExecuTorch</span>
                   <p>End-to-end solution for enabling on-device inference capabilities across mobile and edge devices</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch Docs</span>
                 </a>
               </div>
             </div>  
@@ -203,6 +206,10 @@
                   <span class="dropdown-title">Events</span>
                   <p>Find events, webinars, and podcasts</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">Newsletter</span>
+                  <p>Stay up-to-date with the latest updates</p>
+                </a>
             </div>
           </li>
 
@@ -218,7 +225,18 @@
                 </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
                   <span class="dropdown-title">Governing Board</span>
-                  <p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">Cloud Credit Program</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">Technical Advisory Council</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">Staff</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">Contact Us</span>
                 </a>
               </div>
             </div>
@@ -463,28 +481,28 @@
 
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
 
-<span class="kn">import</span> <span class="nn">torchx</span>
-<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torchx</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
 
-<span class="kn">from</span> <span class="nn">torchx.schedulers.api</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.schedulers.api</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">AppDryRunInfo</span><span class="p">,</span>
     <span class="n">DescribeAppResponse</span><span class="p">,</span>
     <span class="n">ListAppResponse</span><span class="p">,</span>
     <span class="n">Scheduler</span><span class="p">,</span>
     <span class="n">Stream</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">torchx.schedulers.ids</span> <span class="kn">import</span> <span class="n">make_unique</span>
-<span class="kn">from</span> <span class="nn">torchx.specs.api</span> <span class="kn">import</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">AppState</span><span class="p">,</span> <span class="n">macros</span><span class="p">,</span> <span class="n">Resource</span><span class="p">,</span> <span class="n">Role</span><span class="p">,</span> <span class="n">runopts</span>
-<span class="kn">from</span> <span class="nn">torchx.util.strings</span> <span class="kn">import</span> <span class="n">normalize_str</span>
-<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">TypedDict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.schedulers.ids</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_unique</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.specs.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">AppState</span><span class="p">,</span> <span class="n">macros</span><span class="p">,</span> <span class="n">Resource</span><span class="p">,</span> <span class="n">Role</span><span class="p">,</span> <span class="n">runopts</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.util.strings</span><span class="w"> </span><span class="kn">import</span> <span class="n">normalize_str</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TypedDict</span>
 
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">google.cloud</span> <span class="kn">import</span> <span class="n">batch_v1</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">google.cloud</span><span class="w"> </span><span class="kn">import</span> <span class="n">batch_v1</span>
 
 
 <span class="n">JOB_STATE</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">AppState</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
@@ -527,25 +545,25 @@
 
 
 <div class="viewcode-block" id="GCPBatchJob"><a class="viewcode-back" href="../../../schedulers/gcp_batch.html#torchx.schedulers.gcp_batch_scheduler.GCPBatchJob">[docs]</a><span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">GCPBatchJob</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GCPBatchJob</span><span class="p">:</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">project</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">location</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">job_def</span><span class="p">:</span> <span class="s2">&quot;batch_v1.Job&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">job_def</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 
-<span class="k">class</span> <span class="nc">GCPBatchOpts</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GCPBatchOpts</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="n">project</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
     <span class="n">location</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="GCPBatchScheduler"><a class="viewcode-back" href="../../../schedulers/gcp_batch.html#torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler">[docs]</a><span class="k">class</span> <span class="nc">GCPBatchScheduler</span><span class="p">(</span><span class="n">Scheduler</span><span class="p">[</span><span class="n">GCPBatchOpts</span><span class="p">]):</span>
+<div class="viewcode-block" id="GCPBatchScheduler"><a class="viewcode-back" href="../../../schedulers/gcp_batch.html#torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">GCPBatchScheduler</span><span class="p">(</span><span class="n">Scheduler</span><span class="p">[</span><span class="n">GCPBatchOpts</span><span class="p">,</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">AppDryRunInfo</span><span class="p">[</span><span class="n">GCPBatchJob</span><span class="p">]]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    GCPBatchScheduler is a TorchX scheduling interface to GCP Batch.</span>
 
@@ -579,7 +597,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="c1"># pyre-fixme[2]: Parameter annotation cannot be `Any`.</span>
@@ -592,9 +610,9 @@
 
     <span class="nd">@property</span>
     <span class="c1"># pyre-fixme[3]: Return annotation cannot be `Any`.</span>
-    <span class="k">def</span> <span class="nf">_client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-        <span class="kn">from</span> <span class="nn">google.api_core</span> <span class="kn">import</span> <span class="n">gapic_v1</span>
-        <span class="kn">from</span> <span class="nn">google.cloud</span> <span class="kn">import</span> <span class="n">batch_v1</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">google.api_core</span><span class="w"> </span><span class="kn">import</span> <span class="n">gapic_v1</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">google.cloud</span><span class="w"> </span><span class="kn">import</span> <span class="n">batch_v1</span>
 
         <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__client</span>
         <span class="k">if</span> <span class="n">c</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -604,8 +622,8 @@
             <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__client</span> <span class="o">=</span> <span class="n">batch_v1</span><span class="o">.</span><span class="n">BatchServiceClient</span><span class="p">(</span><span class="n">client_info</span><span class="o">=</span><span class="n">client_info</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">c</span>
 
-<div class="viewcode-block" id="GCPBatchScheduler.schedule"><a class="viewcode-back" href="../../../schedulers/gcp_batch.html#torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler.schedule">[docs]</a>    <span class="k">def</span> <span class="nf">schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dryrun_info</span><span class="p">:</span> <span class="n">AppDryRunInfo</span><span class="p">[</span><span class="n">GCPBatchJob</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="kn">from</span> <span class="nn">google.cloud</span> <span class="kn">import</span> <span class="n">batch_v1</span>
+<div class="viewcode-block" id="GCPBatchScheduler.schedule"><a class="viewcode-back" href="../../../schedulers/gcp_batch.html#torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler.schedule">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dryrun_info</span><span class="p">:</span> <span class="n">AppDryRunInfo</span><span class="p">[</span><span class="n">GCPBatchJob</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">google.cloud</span><span class="w"> </span><span class="kn">import</span> <span class="n">batch_v1</span>
 
         <span class="n">req</span> <span class="o">=</span> <span class="n">dryrun_info</span><span class="o">.</span><span class="n">request</span>
         <span class="k">assert</span> <span class="n">req</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dryrun_info</span><span class="si">}</span><span class="s2"> missing request&quot;</span>
@@ -619,8 +637,8 @@
         <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">create_job</span><span class="p">(</span><span class="n">request</span><span class="o">=</span><span class="n">request</span><span class="p">)</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">req</span><span class="o">.</span><span class="n">project</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">req</span><span class="o">.</span><span class="n">location</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">req</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span></div>
 
-    <span class="k">def</span> <span class="nf">_app_to_job</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;batch_v1.Job&quot;</span><span class="p">:</span>
-        <span class="kn">from</span> <span class="nn">google.cloud</span> <span class="kn">import</span> <span class="n">batch_v1</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_app_to_job</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;batch_v1.Job&quot;</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">google.cloud</span><span class="w"> </span><span class="kn">import</span> <span class="n">batch_v1</span>
 
         <span class="n">name</span> <span class="o">=</span> <span class="n">normalize_str</span><span class="p">(</span><span class="n">make_unique</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
 
@@ -731,12 +749,12 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">job</span>
 
-    <span class="k">def</span> <span class="nf">_get_project</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="kn">from</span> <span class="nn">google.cloud</span> <span class="kn">import</span> <span class="n">runtimeconfig</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_project</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">google.cloud</span><span class="w"> </span><span class="kn">import</span> <span class="n">runtimeconfig</span>
 
         <span class="k">return</span> <span class="n">runtimeconfig</span><span class="o">.</span><span class="n">Client</span><span class="p">()</span><span class="o">.</span><span class="n">project</span>
 
-    <span class="k">def</span> <span class="nf">_submit_dryrun</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_submit_dryrun</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">GCPBatchOpts</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppDryRunInfo</span><span class="p">[</span><span class="n">GCPBatchJob</span><span class="p">]:</span>
         <span class="n">proj</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;project&quot;</span><span class="p">)</span>
@@ -759,7 +777,7 @@
 
         <span class="k">return</span> <span class="n">AppDryRunInfo</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="nb">repr</span><span class="p">)</span>
 
-<div class="viewcode-block" id="GCPBatchScheduler.run_opts"><a class="viewcode-back" href="../../../schedulers/gcp_batch.html#torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler.run_opts">[docs]</a>    <span class="k">def</span> <span class="nf">run_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">runopts</span><span class="p">:</span>
+<div class="viewcode-block" id="GCPBatchScheduler.run_opts"><a class="viewcode-back" href="../../../schedulers/gcp_batch.html#torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler.run_opts">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">run_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">runopts</span><span class="p">:</span>
         <span class="n">opts</span> <span class="o">=</span> <span class="n">runopts</span><span class="p">()</span>
         <span class="n">opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
             <span class="s2">&quot;project&quot;</span><span class="p">,</span>
@@ -774,7 +792,7 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">opts</span></div>
 
-    <span class="k">def</span> <span class="nf">_app_id_to_job_full_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_app_id_to_job_full_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        app_id format: f&quot;{project}:{location}:{name}&quot;</span>
 <span class="sd">        job_full_name format: f&quot;projects/{project}/locations/{location}/jobs/{name}&quot;</span>
@@ -785,8 +803,8 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;app_id not in expected format: </span><span class="si">{</span><span class="n">app_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;projects/</span><span class="si">{</span><span class="n">app_id_splits</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">/locations/</span><span class="si">{</span><span class="n">app_id_splits</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">/jobs/</span><span class="si">{</span><span class="n">app_id_splits</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
 
-    <span class="k">def</span> <span class="nf">_get_job</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;batch_v1.Job&quot;</span><span class="p">:</span>
-        <span class="kn">from</span> <span class="nn">google.cloud</span> <span class="kn">import</span> <span class="n">batch_v1</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_job</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;batch_v1.Job&quot;</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">google.cloud</span><span class="w"> </span><span class="kn">import</span> <span class="n">batch_v1</span>
 
         <span class="n">job_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app_id_to_job_full_name</span><span class="p">(</span><span class="n">app_id</span><span class="p">)</span>
         <span class="n">request</span> <span class="o">=</span> <span class="n">batch_v1</span><span class="o">.</span><span class="n">GetJobRequest</span><span class="p">(</span>
@@ -794,7 +812,7 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get_job</span><span class="p">(</span><span class="n">request</span><span class="o">=</span><span class="n">request</span><span class="p">)</span>
 
-<div class="viewcode-block" id="GCPBatchScheduler.describe"><a class="viewcode-back" href="../../../schedulers/gcp_batch.html#torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler.describe">[docs]</a>    <span class="k">def</span> <span class="nf">describe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DescribeAppResponse</span><span class="p">]:</span>
+<div class="viewcode-block" id="GCPBatchScheduler.describe"><a class="viewcode-back" href="../../../schedulers/gcp_batch.html#torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler.describe">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">describe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DescribeAppResponse</span><span class="p">]:</span>
         <span class="n">job</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_job</span><span class="p">(</span><span class="n">app_id</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">job</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;app not found: </span><span class="si">{</span><span class="n">app_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -834,7 +852,7 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">desc</span></div>
 
-<div class="viewcode-block" id="GCPBatchScheduler.log_iter"><a class="viewcode-back" href="../../../schedulers/gcp_batch.html#torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler.log_iter">[docs]</a>    <span class="k">def</span> <span class="nf">log_iter</span><span class="p">(</span>
+<div class="viewcode-block" id="GCPBatchScheduler.log_iter"><a class="viewcode-back" href="../../../schedulers/gcp_batch.html#torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler.log_iter">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">log_iter</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">role_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
@@ -872,14 +890,14 @@
         <span class="nb">filter</span> <span class="o">=</span> <span class="s2">&quot; AND &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_batch_log_iter</span><span class="p">(</span><span class="nb">filter</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">_batch_log_iter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">filter</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="kn">from</span> <span class="nn">google.cloud</span> <span class="kn">import</span> <span class="n">logging</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_batch_log_iter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">filter</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">google.cloud</span><span class="w"> </span><span class="kn">import</span> <span class="n">logging</span>
 
         <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">Client</span><span class="p">()</span><span class="o">.</span><span class="n">logger</span><span class="p">(</span><span class="n">BATCH_LOGGER_NAME</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">logger</span><span class="o">.</span><span class="n">list_entries</span><span class="p">(</span><span class="n">filter_</span><span class="o">=</span><span class="nb">filter</span><span class="p">):</span>
             <span class="k">yield</span> <span class="n">entry</span><span class="o">.</span><span class="n">payload</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
 
-    <span class="k">def</span> <span class="nf">_job_full_name_to_app_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_full_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_job_full_name_to_app_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_full_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        job_full_name format: f&quot;projects/{project}/locations/{location}/jobs/{name}&quot;</span>
 <span class="sd">        app_id format: f&quot;{project}:{location}:{name}&quot;</span>
@@ -890,7 +908,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;job full name not in expected format: </span><span class="si">{</span><span class="n">job_full_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">job_name_splits</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">job_name_splits</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">job_name_splits</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
 
-<div class="viewcode-block" id="GCPBatchScheduler.list"><a class="viewcode-back" href="../../../schedulers/gcp_batch.html#torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler.list">[docs]</a>    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ListAppResponse</span><span class="p">]:</span>
+<div class="viewcode-block" id="GCPBatchScheduler.list"><a class="viewcode-back" href="../../../schedulers/gcp_batch.html#torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler.list">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ListAppResponse</span><span class="p">]:</span>
         <span class="n">all_jobs</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">proj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_project</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">loc</span> <span class="ow">in</span> <span class="n">LOCATIONS</span><span class="p">:</span>
@@ -905,12 +923,12 @@
             <span class="k">for</span> <span class="n">job</span> <span class="ow">in</span> <span class="n">all_jobs</span>
         <span class="p">]</span></div>
 
-    <span class="k">def</span> <span class="nf">_validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">GCPBatchOpts</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># Skip validation step</span>
         <span class="k">pass</span>
 
-    <span class="k">def</span> <span class="nf">_cancel_existing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="kn">from</span> <span class="nn">google.cloud</span> <span class="kn">import</span> <span class="n">batch_v1</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_cancel_existing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">google.cloud</span><span class="w"> </span><span class="kn">import</span> <span class="n">batch_v1</span>
 
         <span class="n">job_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app_id_to_job_full_name</span><span class="p">(</span><span class="n">app_id</span><span class="p">)</span>
         <span class="n">request</span> <span class="o">=</span> <span class="n">batch_v1</span><span class="o">.</span><span class="n">DeleteJobRequest</span><span class="p">(</span>
@@ -920,7 +938,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">delete_job</span><span class="p">(</span><span class="n">request</span><span class="o">=</span><span class="n">request</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="create_scheduler"><a class="viewcode-back" href="../../../schedulers/gcp_batch.html#torchx.schedulers.gcp_batch_scheduler.create_scheduler">[docs]</a><span class="k">def</span> <span class="nf">create_scheduler</span><span class="p">(</span>
+<div class="viewcode-block" id="create_scheduler"><a class="viewcode-back" href="../../../schedulers/gcp_batch.html#torchx.schedulers.gcp_batch_scheduler.create_scheduler">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">create_scheduler</span><span class="p">(</span>
     <span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="c1"># pyre-fixme[2]: Parameter annotation cannot be `Any`.</span>
     <span class="n">client</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1157,7 +1175,7 @@
                <a href="https://pytorch.org/resources">Developer Resources</a>
              </li>
              <li>
-               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2023</a>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2024</a>
              </li>
            </ul>
 
@@ -1172,6 +1190,9 @@
              
              <li>
                <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch Documentation</a>
              </li>
            </ul>
 
@@ -1211,6 +1232,9 @@
             <li>
               <a href="https://pytorch.org/events">Events</a>
             </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">Newsletter</a>
+             </li>
           </ul>
           
           <li class="resources-mobile-menu-title">
@@ -1223,6 +1247,18 @@
             </li>
             <li>
               <a href="https://pytorch.org/governing-board">Governing Board</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">Cloud Credit Program</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">Technical Advisory Council</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">Staff</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">Contact Us</a>
             </li>
           </ul>
         </ul>

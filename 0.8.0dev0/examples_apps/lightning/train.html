@@ -42,7 +42,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Trainer Datasets Example" href="data.html" />
-    <link rel="prev" title="Model Interpretability Example" href="interpret.html" />
+    <link rel="prev" title="Tiny ImageNet Model" href="model.html" />
   <!-- Google Tag Manager -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -137,8 +137,8 @@
                   <span class=dropdown-title>Developer Resources</span>
                   <p>Find resources and get questions answered</p>
                 </a>
-                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2023">
-                  <span class="dropdown-title">Contributor Awards - 2023</span>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">Contributor Awards - 2024</span>
                   <p>Award winners announced at this year's PyTorch Conference</p>
                 </a>
               </div>
@@ -158,6 +158,9 @@
                 <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
                   <span class="dropdown-title">ExecuTorch</span>
                   <p>End-to-end solution for enabling on-device inference capabilities across mobile and edge devices</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch Docs</span>
                 </a>
               </div>
             </div>  
@@ -206,6 +209,10 @@
                   <span class="dropdown-title">Events</span>
                   <p>Find events, webinars, and podcasts</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">Newsletter</span>
+                  <p>Stay up-to-date with the latest updates</p>
+                </a>
             </div>
           </li>
 
@@ -221,7 +228,18 @@
                 </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
                   <span class="dropdown-title">Governing Board</span>
-                  <p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">Cloud Credit Program</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">Technical Advisory Council</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">Staff</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">Contact Us</span>
                 </a>
               </div>
             </div>
@@ -499,33 +517,34 @@ application arguments.</p>
 specify the scheduler with the <code class="docutils literal notranslate"><span class="pre">-s</span></code> option. Depending on the type of remote scheduler
 you may have to pass additional scheduler cfgs with the <code class="docutils literal notranslate"><span class="pre">-cfg</span></code> option.
 See <a class="reference internal" href="../../quickstart.html#Remote-Schedulers"><span class="std std-ref">Remote Schedulers</span></a> for more details.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">argparse</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">tempfile</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <a href="https://docs.python.org/3/library/typing.html#typing.List" title="typing.List" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">List</span></a><span class="p">,</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/typing.html#typing.List" title="typing.List" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">List</span></a><span class="p">,</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a>
 
-<span class="kn">import</span> <span class="nn">pytorch_lightning</span> <span class="k">as</span> <span class="nn">pl</span>
-<span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">from</span> <span class="nn">pytorch_lightning.callbacks</span> <span class="kn">import</span> <span class="n">ModelCheckpoint</span>
-<span class="kn">from</span> <span class="nn">pytorch_lightning.loggers</span> <span class="kn">import</span> <span class="n">TensorBoardLogger</span>
-<span class="kn">from</span> <span class="nn">torchx.examples.apps.lightning.data</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytorch_lightning</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pytorch_lightning.callbacks</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelCheckpoint</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pytorch_lightning.loggers</span><span class="w"> </span><span class="kn">import</span> <span class="n">TensorBoardLogger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torch.distributed.elastic.multiprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">errors</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.examples.apps.lightning.data</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">create_random_data</span><span class="p">,</span>
     <span class="n">download_data</span><span class="p">,</span>
     <span class="n">TinyImageNetDataModule</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">torchx.examples.apps.lightning.model</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.examples.apps.lightning.model</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">export_inference_model</span><span class="p">,</span>
     <span class="n">TinyImageNetModel</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">torchx.examples.apps.lightning.profiler</span> <span class="kn">import</span> <span class="n">SimpleLoggingProfiler</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.examples.apps.lightning.profiler</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimpleLoggingProfiler</span>
 
 
 <span class="c1"># ensure data and module are on the path</span>
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.List" title="typing.List" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">List</span></a><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <a href="https://docs.python.org/3/library/argparse.html#argparse.Namespace" title="argparse.Namespace" class="sphx-glr-backref-module-argparse sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span></a><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.List" title="typing.List" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">List</span></a><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <a href="https://docs.python.org/3/library/argparse.html#argparse.Namespace" title="argparse.Namespace" class="sphx-glr-backref-module-argparse sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span></a><span class="p">:</span>
     <span class="n">parser</span> <span class="o">=</span> <a href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" title="argparse.ArgumentParser" class="sphx-glr-backref-module-argparse sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span></a><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;pytorch lightning TorchX example app&quot;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--epochs&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;number of epochs to train&quot;</span>
@@ -534,7 +553,12 @@ See <a class="reference internal" href="../../quickstart.html#Remote-Schedulers"
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--batch_size&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;batch size to use for training&quot;</span>
     <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--num_samples&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;num_samples&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--num_samples&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;number of samples in the dataset&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--data_path&quot;</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
@@ -562,7 +586,7 @@ See <a class="reference internal" href="../../quickstart.html#Remote-Schedulers"
     <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">get_model_checkpoint</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <a href="https://docs.python.org/3/library/argparse.html#argparse.Namespace" title="argparse.Namespace" class="sphx-glr-backref-module-argparse sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span></a><span class="p">)</span> <span class="o">-&gt;</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a><span class="p">[</span><span class="n">ModelCheckpoint</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_model_checkpoint</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <a href="https://docs.python.org/3/library/argparse.html#argparse.Namespace" title="argparse.Namespace" class="sphx-glr-backref-module-argparse sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span></a><span class="p">)</span> <span class="o">-&gt;</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a><span class="p">[</span><span class="n">ModelCheckpoint</span><span class="p">]:</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">output_path</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="c1"># Note: It is important that each rank behaves the same.</span>
@@ -575,7 +599,8 @@ See <a class="reference internal" href="../../quickstart.html#Remote-Schedulers"
     <span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">argv</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.List" title="typing.List" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">List</span></a><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="nd">@errors</span><span class="o">.</span><span class="n">record</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">argv</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.List" title="typing.List" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">List</span></a><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">with</span> <a href="https://docs.python.org/3/library/tempfile.html#tempfile.TemporaryDirectory" title="tempfile.TemporaryDirectory" class="sphx-glr-backref-module-tempfile sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span></a><span class="p">()</span> <span class="k">as</span> <span class="n">tmpdir</span><span class="p">:</span>
         <span class="n">args</span> <span class="o">=</span> <span class="n">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
 
@@ -587,7 +612,7 @@ See <a class="reference internal" href="../../quickstart.html#Remote-Schedulers"
         <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">data_path</span><span class="p">:</span>
             <span class="n">data_path</span> <span class="o">=</span> <a href="https://docs.python.org/3/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><span class="n">tmpdir</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">)</span>
             <a href="https://docs.python.org/3/library/os.html#os.makedirs" title="os.makedirs" class="sphx-glr-backref-module-os sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">makedirs</span></a><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
-            <span class="n">create_random_data</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
+            <span class="n">create_random_data</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">num_samples</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">data_path</span> <span class="o">=</span> <span class="n">download_data</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">data_path</span><span class="p">,</span> <span class="n">tmpdir</span><span class="p">)</span>
 
@@ -664,7 +689,7 @@ See <a class="reference internal" href="../../quickstart.html#Remote-Schedulers"
         <a href="data.html" class="btn btn-neutral float-right" title="Trainer Datasets Example" accesskey="n" rel="next">Next <img src="../../_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
-        <a href="interpret.html" class="btn btn-neutral" title="Model Interpretability Example" accesskey="p" rel="prev"><img src="../../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+        <a href="model.html" class="btn btn-neutral" title="Tiny ImageNet Model" accesskey="p" rel="prev"><img src="../../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
       
     </div>
   
@@ -894,7 +919,7 @@ See <a class="reference internal" href="../../quickstart.html#Remote-Schedulers"
                <a href="https://pytorch.org/resources">Developer Resources</a>
              </li>
              <li>
-               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2023</a>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2024</a>
              </li>
            </ul>
 
@@ -909,6 +934,9 @@ See <a class="reference internal" href="../../quickstart.html#Remote-Schedulers"
              
              <li>
                <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch Documentation</a>
              </li>
            </ul>
 
@@ -948,6 +976,9 @@ See <a class="reference internal" href="../../quickstart.html#Remote-Schedulers"
             <li>
               <a href="https://pytorch.org/events">Events</a>
             </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">Newsletter</a>
+             </li>
           </ul>
           
           <li class="resources-mobile-menu-title">
@@ -960,6 +991,18 @@ See <a class="reference internal" href="../../quickstart.html#Remote-Schedulers"
             </li>
             <li>
               <a href="https://pytorch.org/governing-board">Governing Board</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">Cloud Credit Program</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">Technical Advisory Council</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">Staff</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">Contact Us</a>
             </li>
           </ul>
         </ul>

@@ -137,8 +137,8 @@
                   <span class=dropdown-title>Developer Resources</span>
                   <p>Find resources and get questions answered</p>
                 </a>
-                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2023">
-                  <span class="dropdown-title">Contributor Awards - 2023</span>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">Contributor Awards - 2024</span>
                   <p>Award winners announced at this year's PyTorch Conference</p>
                 </a>
               </div>
@@ -158,6 +158,9 @@
                 <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
                   <span class="dropdown-title">ExecuTorch</span>
                   <p>End-to-end solution for enabling on-device inference capabilities across mobile and edge devices</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch Docs</span>
                 </a>
               </div>
             </div>  
@@ -206,6 +209,10 @@
                   <span class="dropdown-title">Events</span>
                   <p>Find events, webinars, and podcasts</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">Newsletter</span>
+                  <p>Stay up-to-date with the latest updates</p>
+                </a>
             </div>
           </li>
 
@@ -221,7 +228,18 @@
                 </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
                   <span class="dropdown-title">Governing Board</span>
-                  <p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">Cloud Credit Program</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">Technical Advisory Council</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">Staff</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">Contact Us</span>
                 </a>
               </div>
             </div>
@@ -470,8 +488,8 @@ and <a class="reference internal" href="advanced.html#registering-custom-schedul
 <span id="scheduler-functions"></span><h2>Scheduler Functions<a class="headerlink" href="#module-torchx.schedulers" title="Permalink to this heading">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="torchx.schedulers.get_scheduler_factories">
-<span class="sig-prename descclassname"><span class="pre">torchx.schedulers.</span></span><span class="sig-name descname"><span class="pre">get_scheduler_factories</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#torchx.schedulers.SchedulerFactory" title="torchx.schedulers.SchedulerFactory"><span class="pre">SchedulerFactory</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/torchx/schedulers.html#get_scheduler_factories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.get_scheduler_factories" title="Permalink to this definition">¶</a></dt>
-<dd><p>get_scheduler_factories returns all the available schedulers names and the
+<span class="sig-prename descclassname"><span class="pre">torchx.schedulers.</span></span><span class="sig-name descname"><span class="pre">get_scheduler_factories</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'torchx.schedulers'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_defaults</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#torchx.schedulers.SchedulerFactory" title="torchx.schedulers.SchedulerFactory"><span class="pre">SchedulerFactory</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/torchx/schedulers.html#get_scheduler_factories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.get_scheduler_factories" title="Permalink to this definition">¶</a></dt>
+<dd><p>get_scheduler_factories returns all the available schedulers names under <cite>group</cite> and the
 method to instantiate them.</p>
 <p>The first scheduler in the dictionary is used as the default scheduler.</p>
 </dd></dl>
@@ -633,7 +651,7 @@ Basically a <code class="docutils literal notranslate"><span class="pre">--help<
 
 <dl class="py method">
 <dt class="sig sig-object py" id="torchx.schedulers.Scheduler.schedule">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">schedule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dryrun_info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">AppDryRunInfo</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></span><a class="reference internal" href="_modules/torchx/schedulers/api.html#Scheduler.schedule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.Scheduler.schedule" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">schedule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dryrun_info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">D</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></span><a class="reference internal" href="_modules/torchx/schedulers/api.html#Scheduler.schedule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.Scheduler.schedule" title="Permalink to this definition">¶</a></dt>
 <dd><p>Same as <code class="docutils literal notranslate"><span class="pre">submit</span></code> except that it takes an <code class="docutils literal notranslate"><span class="pre">AppDryRunInfo</span></code>.
 Implementers are encouraged to implement this method rather than
 directly implementing <code class="docutils literal notranslate"><span class="pre">submit</span></code> since <code class="docutils literal notranslate"><span class="pre">submit</span></code> can be trivially
@@ -646,7 +664,7 @@ implemented by:</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="torchx.schedulers.Scheduler.submit">
-<span class="sig-name descname"><span class="pre">submit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="specs.html#torchx.specs.AppDef" title="torchx.specs.api.AppDef"><span class="pre">AppDef</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">T</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">workspace</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.13)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></span><a class="reference internal" href="_modules/torchx/schedulers/api.html#Scheduler.submit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.Scheduler.submit" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">submit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">T</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">workspace</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.13)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></span><a class="reference internal" href="_modules/torchx/schedulers/api.html#Scheduler.submit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.Scheduler.submit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Submits the application to be run by the scheduler.</p>
 <p>WARNING: Mostly used for tests. Users should prefer to use the TorchX runner instead.</p>
 <dl class="field-list simple">
@@ -658,7 +676,7 @@ implemented by:</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="torchx.schedulers.Scheduler.submit_dryrun">
-<span class="sig-name descname"><span class="pre">submit_dryrun</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="specs.html#torchx.specs.AppDef" title="torchx.specs.api.AppDef"><span class="pre">AppDef</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">T</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">AppDryRunInfo</span></span></span><a class="reference internal" href="_modules/torchx/schedulers/api.html#Scheduler.submit_dryrun"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.Scheduler.submit_dryrun" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">submit_dryrun</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">T</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">D</span></span></span><a class="reference internal" href="_modules/torchx/schedulers/api.html#Scheduler.submit_dryrun"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.Scheduler.submit_dryrun" title="Permalink to this definition">¶</a></dt>
 <dd><p>Rather than submitting the request to run the app, returns the
 request object that would have been submitted to the underlying
 service. The type of the request object is scheduler dependent.
@@ -952,7 +970,7 @@ simple and chose to access the member vars directly rather than provide accessor
                <a href="https://pytorch.org/resources">Developer Resources</a>
              </li>
              <li>
-               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2023</a>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2024</a>
              </li>
            </ul>
 
@@ -967,6 +985,9 @@ simple and chose to access the member vars directly rather than provide accessor
              
              <li>
                <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch Documentation</a>
              </li>
            </ul>
 
@@ -1006,6 +1027,9 @@ simple and chose to access the member vars directly rather than provide accessor
             <li>
               <a href="https://pytorch.org/events">Events</a>
             </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">Newsletter</a>
+             </li>
           </ul>
           
           <li class="resources-mobile-menu-title">
@@ -1018,6 +1042,18 @@ simple and chose to access the member vars directly rather than provide accessor
             </li>
             <li>
               <a href="https://pytorch.org/governing-board">Governing Board</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">Cloud Credit Program</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">Technical Advisory Council</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">Staff</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">Contact Us</a>
             </li>
           </ul>
         </ul>

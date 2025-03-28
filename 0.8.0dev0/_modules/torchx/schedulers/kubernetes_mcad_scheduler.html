@@ -134,8 +134,8 @@
                   <span class=dropdown-title>Developer Resources</span>
                   <p>Find resources and get questions answered</p>
                 </a>
-                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2023">
-                  <span class="dropdown-title">Contributor Awards - 2023</span>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">Contributor Awards - 2024</span>
                   <p>Award winners announced at this year's PyTorch Conference</p>
                 </a>
               </div>
@@ -155,6 +155,9 @@
                 <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
                   <span class="dropdown-title">ExecuTorch</span>
                   <p>End-to-end solution for enabling on-device inference capabilities across mobile and edge devices</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch Docs</span>
                 </a>
               </div>
             </div>  
@@ -203,6 +206,10 @@
                   <span class="dropdown-title">Events</span>
                   <p>Find events, webinars, and podcasts</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">Newsletter</span>
+                  <p>Stay up-to-date with the latest updates</p>
+                </a>
             </div>
           </li>
 
@@ -218,7 +225,18 @@
                 </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
                   <span class="dropdown-title">Governing Board</span>
-                  <p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">Cloud Credit Program</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">Technical Advisory Council</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">Staff</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">Contact Us</span>
                 </a>
               </div>
             </div>
@@ -470,14 +488,14 @@
 
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 
-<span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">Any</span><span class="p">,</span>
     <span class="n">cast</span><span class="p">,</span>
     <span class="n">Dict</span><span class="p">,</span>
@@ -489,9 +507,9 @@
     <span class="n">TYPE_CHECKING</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="kn">import</span> <span class="nn">torchx</span>
-<span class="kn">import</span> <span class="nn">yaml</span>
-<span class="kn">from</span> <span class="nn">torchx.schedulers.api</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torchx</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.schedulers.api</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">AppDryRunInfo</span><span class="p">,</span>
     <span class="n">DescribeAppResponse</span><span class="p">,</span>
     <span class="n">filter_regex</span><span class="p">,</span>
@@ -500,8 +518,8 @@
     <span class="n">split_lines</span><span class="p">,</span>
     <span class="n">Stream</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">torchx.schedulers.ids</span> <span class="kn">import</span> <span class="n">make_unique</span>
-<span class="kn">from</span> <span class="nn">torchx.specs.api</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.schedulers.ids</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_unique</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.specs.api</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">AppDef</span><span class="p">,</span>
     <span class="n">AppState</span><span class="p">,</span>
     <span class="n">BindMount</span><span class="p">,</span>
@@ -518,13 +536,13 @@
     <span class="n">VolumeMount</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">torchx.workspace.docker_workspace</span> <span class="kn">import</span> <span class="n">DockerWorkspaceMixin</span>
-<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">TypedDict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.workspace.docker_workspace</span><span class="w"> </span><span class="kn">import</span> <span class="n">DockerWorkspaceMixin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TypedDict</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">docker</span> <span class="kn">import</span> <span class="n">DockerClient</span>
-    <span class="kn">from</span> <span class="nn">kubernetes.client</span> <span class="kn">import</span> <span class="n">ApiClient</span><span class="p">,</span> <span class="n">CustomObjectsApi</span>
-    <span class="kn">from</span> <span class="nn">kubernetes.client.models</span> <span class="kn">import</span> <span class="p">(</span>  <span class="c1"># noqa: F401 imported but unused</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">docker</span><span class="w"> </span><span class="kn">import</span> <span class="n">DockerClient</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">kubernetes.client</span><span class="w"> </span><span class="kn">import</span> <span class="n">ApiClient</span><span class="p">,</span> <span class="n">CustomObjectsApi</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">kubernetes.client.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>  <span class="c1"># noqa: F401 imported but unused</span>
         <span class="n">V1Container</span><span class="p">,</span>
         <span class="n">V1ContainerPort</span><span class="p">,</span>
         <span class="n">V1EnvVar</span><span class="p">,</span>
@@ -533,7 +551,7 @@
         <span class="n">V1ResourceRequirements</span><span class="p">,</span>
         <span class="n">V1Service</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="kn">from</span> <span class="nn">kubernetes.client.rest</span> <span class="kn">import</span> <span class="n">ApiException</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">kubernetes.client.rest</span><span class="w"> </span><span class="kn">import</span> <span class="n">ApiException</span>
 
 <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -601,14 +619,14 @@
 <span class="n">LABEL_INSTANCE_TYPE</span> <span class="o">=</span> <span class="s2">&quot;node.kubernetes.io/instance-type&quot;</span>
 
 
-<div class="viewcode-block" id="sanitize_for_serialization"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.sanitize_for_serialization">[docs]</a><span class="k">def</span> <span class="nf">sanitize_for_serialization</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">kubernetes</span> <span class="kn">import</span> <span class="n">client</span>
+<div class="viewcode-block" id="sanitize_for_serialization"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.sanitize_for_serialization">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">sanitize_for_serialization</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">kubernetes</span><span class="w"> </span><span class="kn">import</span> <span class="n">client</span>
 
     <span class="n">api</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">ApiClient</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">api</span><span class="o">.</span><span class="n">sanitize_for_serialization</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="role_to_pod"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.role_to_pod">[docs]</a><span class="k">def</span> <span class="nf">role_to_pod</span><span class="p">(</span>
+<div class="viewcode-block" id="role_to_pod"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.role_to_pod">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">role_to_pod</span><span class="p">(</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">unique_app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">namespace</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -619,7 +637,7 @@
     <span class="n">priority_class_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">network</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;V1Pod&quot;</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">kubernetes.client.models</span> <span class="kn">import</span> <span class="p">(</span>  <span class="c1"># noqa: F811 redefinition of unused</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">kubernetes.client.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>  <span class="c1"># noqa: F811 redefinition of unused</span>
         <span class="n">V1Container</span><span class="p">,</span>
         <span class="n">V1ContainerPort</span><span class="p">,</span>
         <span class="n">V1EmptyDirVolumeSource</span><span class="p">,</span>
@@ -808,7 +826,7 @@
     <span class="p">)</span></div>
 
 
-<span class="k">def</span> <span class="nf">create_pod_group</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_pod_group</span><span class="p">(</span>
     <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">,</span> <span class="n">role_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">namespace</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Dict[str, Any]&quot;</span><span class="p">:</span>
     <span class="n">pod_group_name</span> <span class="o">=</span> <span class="n">app_id</span> <span class="o">+</span> <span class="s2">&quot;-pg&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">role_idx</span><span class="p">)</span>
@@ -836,10 +854,10 @@
     <span class="k">return</span> <span class="n">genericitem_pod_group</span>
 
 
-<div class="viewcode-block" id="mcad_svc"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.mcad_svc">[docs]</a><span class="k">def</span> <span class="nf">mcad_svc</span><span class="p">(</span>
+<div class="viewcode-block" id="mcad_svc"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.mcad_svc">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">mcad_svc</span><span class="p">(</span>
     <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">svc_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">namespace</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">service_port</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;V1Service&quot;</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">kubernetes.client.models</span> <span class="kn">import</span> <span class="p">(</span>  <span class="c1"># noqa: F401, F811</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">kubernetes.client.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>  <span class="c1"># noqa: F401, F811</span>
         <span class="n">V1Container</span><span class="p">,</span>
         <span class="n">V1ContainerPort</span><span class="p">,</span>
         <span class="n">V1EmptyDirVolumeSource</span><span class="p">,</span>
@@ -889,7 +907,7 @@
     <span class="p">)</span></div>
 
 
-<span class="k">def</span> <span class="nf">cleanup_str</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">cleanup_str</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Invokes ``lower`` on thes string and removes all</span>
 <span class="sd">    characters that do not satisfy ``[a-z0-9]`` pattern.</span>
@@ -902,7 +920,7 @@
     <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">lower</span><span class="p">()))</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;0123456789&quot;</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">get_unique_truncated_appid</span><span class="p">(</span><span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_unique_truncated_appid</span><span class="p">(</span><span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Some Kubernetes objects need to have names that are</span>
 <span class="sd">    63 characters or less. When creating the unique app_id,</span>
@@ -931,7 +949,7 @@
     <span class="k">return</span> <span class="n">unique_app_id</span>
 
 
-<div class="viewcode-block" id="get_port_for_service"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.get_port_for_service">[docs]</a><span class="k">def</span> <span class="nf">get_port_for_service</span><span class="p">(</span><span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="get_port_for_service"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.get_port_for_service">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_port_for_service</span><span class="p">(</span><span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="c1"># Initialize port to default</span>
     <span class="n">port</span> <span class="o">=</span> <span class="s2">&quot;29500&quot;</span>
 
@@ -949,7 +967,7 @@
     <span class="k">return</span> <span class="n">port</span></div>
 
 
-<span class="k">def</span> <span class="nf">enable_retry</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">enable_retry</span><span class="p">(</span>
     <span class="n">job_spec</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">appwrapper_retries</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">total_pods</span><span class="p">:</span> <span class="nb">int</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">requeue_dict</span> <span class="o">=</span> <span class="p">{</span>
@@ -962,7 +980,7 @@
     <span class="n">job_spec</span><span class="p">[</span><span class="s2">&quot;schedulingSpec&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nested_specs</span>
 
 
-<div class="viewcode-block" id="app_to_resource"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.app_to_resource">[docs]</a><span class="k">def</span> <span class="nf">app_to_resource</span><span class="p">(</span>
+<div class="viewcode-block" id="app_to_resource"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.app_to_resource">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">app_to_resource</span><span class="p">(</span>
     <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span>
     <span class="n">namespace</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">service_account</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
@@ -1082,7 +1100,7 @@
 
 
 <span class="c1"># Helper function for MCAD generic items information -&gt; TorchX Role</span>
-<div class="viewcode-block" id="get_role_information"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.get_role_information">[docs]</a><span class="k">def</span> <span class="nf">get_role_information</span><span class="p">(</span><span class="n">generic_items</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<div class="viewcode-block" id="get_role_information"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.get_role_information">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_role_information</span><span class="p">(</span><span class="n">generic_items</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
     <span class="c1"># Store unique role information</span>
     <span class="n">roles</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -1183,7 +1201,7 @@
     <span class="k">return</span> <span class="n">roles</span></div>
 
 
-<div class="viewcode-block" id="get_appwrapper_status"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.get_appwrapper_status">[docs]</a><span class="k">def</span> <span class="nf">get_appwrapper_status</span><span class="p">(</span><span class="n">app</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">AppState</span><span class="p">:</span>
+<div class="viewcode-block" id="get_appwrapper_status"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.get_appwrapper_status">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_appwrapper_status</span><span class="p">(</span><span class="n">app</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">AppState</span><span class="p">:</span>
     <span class="k">if</span> <span class="s2">&quot;status&quot;</span> <span class="ow">in</span> <span class="n">app</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
         <span class="c1"># pyre-fixme</span>
         <span class="k">return</span> <span class="n">JOB_STATE</span><span class="p">[</span><span class="n">app</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">][</span><span class="s2">&quot;state&quot;</span><span class="p">]]</span>
@@ -1193,7 +1211,7 @@
 
 
 <span class="c1"># Does not handle not ready to dispatch case</span>
-<div class="viewcode-block" id="get_tasks_status_description"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.get_tasks_status_description">[docs]</a><span class="k">def</span> <span class="nf">get_tasks_status_description</span><span class="p">(</span><span class="n">status</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<div class="viewcode-block" id="get_tasks_status_description"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.get_tasks_status_description">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_tasks_status_description</span><span class="p">(</span><span class="n">status</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
     <span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="c1"># Keys related to tasks and status</span>
@@ -1215,18 +1233,18 @@
 
 
 <div class="viewcode-block" id="KubernetesMCADJob"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.KubernetesMCADJob">[docs]</a><span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">KubernetesMCADJob</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KubernetesMCADJob</span><span class="p">:</span>
     <span class="n">images_to_push</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span>
     <span class="n">resource</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">sanitize_for_serialization</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">resource</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 
-<span class="k">class</span> <span class="nc">KubernetesMCADOpts</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KubernetesMCADOpts</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="n">namespace</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
     <span class="n">image_repo</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
     <span class="n">service_account</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
@@ -1237,7 +1255,9 @@
     <span class="n">network</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="KubernetesMCADScheduler"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.KubernetesMCADScheduler">[docs]</a><span class="k">class</span> <span class="nc">KubernetesMCADScheduler</span><span class="p">(</span><span class="n">DockerWorkspaceMixin</span><span class="p">,</span> <span class="n">Scheduler</span><span class="p">[</span><span class="n">KubernetesMCADOpts</span><span class="p">]):</span>
+<div class="viewcode-block" id="KubernetesMCADScheduler"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.KubernetesMCADScheduler">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">KubernetesMCADScheduler</span><span class="p">(</span>
+    <span class="n">DockerWorkspaceMixin</span><span class="p">,</span> <span class="n">Scheduler</span><span class="p">[</span><span class="n">KubernetesMCADOpts</span><span class="p">,</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">AppDryRunInfo</span><span class="p">]</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    KubernetesMCADScheduler is a TorchX scheduling interface to Kubernetes.</span>
 
@@ -1334,7 +1354,7 @@
 <span class="sd">            elasticity: false</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">client</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;ApiClient&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1345,8 +1365,8 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">client</span>
 
-    <span class="k">def</span> <span class="nf">_api_client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ApiClient&quot;</span><span class="p">:</span>
-        <span class="kn">from</span> <span class="nn">kubernetes</span> <span class="kn">import</span> <span class="n">client</span><span class="p">,</span> <span class="n">config</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_api_client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ApiClient&quot;</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">kubernetes</span><span class="w"> </span><span class="kn">import</span> <span class="n">client</span><span class="p">,</span> <span class="n">config</span>
 
         <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span>
         <span class="k">if</span> <span class="n">c</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1360,27 +1380,27 @@
 
         <span class="k">return</span> <span class="n">c</span>
 
-    <span class="k">def</span> <span class="nf">_custom_objects_api</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;CustomObjectsApi&quot;</span><span class="p">:</span>
-        <span class="kn">from</span> <span class="nn">kubernetes</span> <span class="kn">import</span> <span class="n">client</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_custom_objects_api</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;CustomObjectsApi&quot;</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">kubernetes</span><span class="w"> </span><span class="kn">import</span> <span class="n">client</span>
 
         <span class="n">api_client</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">CustomObjectsApi</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_api_client</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">api_client</span>
 
-    <span class="k">def</span> <span class="nf">_get_job_name_from_exception</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span> <span class="s2">&quot;ApiException&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_job_name_from_exception</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span> <span class="s2">&quot;ApiException&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">body</span><span class="p">)[</span><span class="s2">&quot;details&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Unable to retrieve job name, got exception&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">_get_active_context</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-        <span class="kn">from</span> <span class="nn">kubernetes</span> <span class="kn">import</span> <span class="n">config</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_active_context</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">kubernetes</span><span class="w"> </span><span class="kn">import</span> <span class="n">config</span>
 
         <span class="n">contexts</span><span class="p">,</span> <span class="n">active_context</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">list_kube_config_contexts</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">active_context</span>
 
-<div class="viewcode-block" id="KubernetesMCADScheduler.schedule"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.KubernetesMCADScheduler.schedule">[docs]</a>    <span class="k">def</span> <span class="nf">schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dryrun_info</span><span class="p">:</span> <span class="n">AppDryRunInfo</span><span class="p">[</span><span class="n">KubernetesMCADJob</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="kn">from</span> <span class="nn">kubernetes.client.rest</span> <span class="kn">import</span> <span class="n">ApiException</span>
+<div class="viewcode-block" id="KubernetesMCADScheduler.schedule"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.KubernetesMCADScheduler.schedule">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dryrun_info</span><span class="p">:</span> <span class="n">AppDryRunInfo</span><span class="p">[</span><span class="n">KubernetesMCADJob</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">kubernetes.client.rest</span><span class="w"> </span><span class="kn">import</span> <span class="n">ApiException</span>
 
         <span class="n">cfg</span> <span class="o">=</span> <span class="n">dryrun_info</span><span class="o">.</span><span class="n">_cfg</span>
         <span class="k">assert</span> <span class="n">cfg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dryrun_info</span><span class="si">}</span><span class="s2"> missing cfg&quot;</span>
@@ -1404,13 +1424,13 @@
                 <span class="n">job_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_job_name_from_exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;Job `</span><span class="si">{</span><span class="n">job_name</span><span class="si">}</span><span class="s2">` already exists. This seems like a transient exception, try resubmitting job&quot;</span>
-                <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+                <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span>
 
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">namespace</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="n">resp</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span></div>
 
-    <span class="k">def</span> <span class="nf">_submit_dryrun</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_submit_dryrun</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">KubernetesMCADOpts</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppDryRunInfo</span><span class="p">[</span><span class="n">KubernetesMCADJob</span><span class="p">]:</span>
         <span class="c1"># map any local images to the remote image</span>
@@ -1474,11 +1494,11 @@
         <span class="n">info</span><span class="o">.</span><span class="n">_cfg</span> <span class="o">=</span> <span class="n">cfg</span>
         <span class="k">return</span> <span class="n">info</span>
 
-    <span class="k">def</span> <span class="nf">_validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">KubernetesMCADOpts</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># Skip validation step</span>
         <span class="k">pass</span>
 
-    <span class="k">def</span> <span class="nf">_cancel_existing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_cancel_existing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">namespace</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">app_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_custom_objects_api</span><span class="p">()</span><span class="o">.</span><span class="n">delete_namespaced_custom_object</span><span class="p">(</span>
             <span class="n">group</span><span class="o">=</span><span class="s2">&quot;workload.codeflare.dev&quot;</span><span class="p">,</span>
@@ -1488,7 +1508,7 @@
             <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
         <span class="p">)</span>
 
-<div class="viewcode-block" id="KubernetesMCADScheduler.run_opts"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.KubernetesMCADScheduler.run_opts">[docs]</a>    <span class="k">def</span> <span class="nf">run_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">runopts</span><span class="p">:</span>
+<div class="viewcode-block" id="KubernetesMCADScheduler.run_opts"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.KubernetesMCADScheduler.run_opts">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">run_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">runopts</span><span class="p">:</span>
         <span class="n">opts</span> <span class="o">=</span> <span class="n">runopts</span><span class="p">()</span>
         <span class="n">opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
             <span class="s2">&quot;namespace&quot;</span><span class="p">,</span>
@@ -1533,9 +1553,9 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">opts</span></div>
 
-<div class="viewcode-block" id="KubernetesMCADScheduler.describe"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.KubernetesMCADScheduler.describe">[docs]</a>    <span class="k">def</span> <span class="nf">describe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DescribeAppResponse</span><span class="p">]:</span>
+<div class="viewcode-block" id="KubernetesMCADScheduler.describe"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.KubernetesMCADScheduler.describe">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">describe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DescribeAppResponse</span><span class="p">]:</span>
         <span class="n">namespace</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">app_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
-        <span class="kn">from</span> <span class="nn">kubernetes.client.rest</span> <span class="kn">import</span> <span class="n">ApiException</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">kubernetes.client.rest</span><span class="w"> </span><span class="kn">import</span> <span class="n">ApiException</span>
 
         <span class="n">roles</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">roles_statuses</span> <span class="o">=</span> <span class="p">{}</span>
@@ -1554,9 +1574,9 @@
             <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="mi">404</span> <span class="ow">and</span> <span class="n">e</span><span class="o">.</span><span class="n">reason</span> <span class="o">==</span> <span class="s2">&quot;Not Found&quot;</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="s2">&quot;Kubernetes client not found. Check access to Kubernetes cluster.&quot;</span>
-                <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+                <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
             <span class="k">elif</span> <span class="n">e</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="mi">401</span> <span class="ow">and</span> <span class="n">e</span><span class="o">.</span><span class="n">reason</span> <span class="o">==</span> <span class="s2">&quot;Unauthorized&quot;</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unauthorized Kubernetes access error.&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unauthorized Kubernetes access error.&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span>
 
@@ -1610,7 +1630,7 @@
             <span class="n">state</span><span class="o">=</span><span class="n">app_state</span><span class="p">,</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="KubernetesMCADScheduler.log_iter"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.KubernetesMCADScheduler.log_iter">[docs]</a>    <span class="k">def</span> <span class="nf">log_iter</span><span class="p">(</span>
+<div class="viewcode-block" id="KubernetesMCADScheduler.log_iter"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.KubernetesMCADScheduler.log_iter">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">log_iter</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">role_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -1628,7 +1648,7 @@
                 <span class="s2">&quot;KubernetesMCADScheduler only supports COMBINED log stream&quot;</span>
             <span class="p">)</span>
 
-        <span class="kn">from</span> <span class="nn">kubernetes</span> <span class="kn">import</span> <span class="n">client</span><span class="p">,</span> <span class="n">watch</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">kubernetes</span><span class="w"> </span><span class="kn">import</span> <span class="n">client</span><span class="p">,</span> <span class="n">watch</span>
 
         <span class="n">namespace</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">app_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
 
@@ -1655,7 +1675,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">iterator</span></div>
 
-<div class="viewcode-block" id="KubernetesMCADScheduler.list"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.KubernetesMCADScheduler.list">[docs]</a>    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ListAppResponse</span><span class="p">]:</span>
+<div class="viewcode-block" id="KubernetesMCADScheduler.list"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.KubernetesMCADScheduler.list">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ListAppResponse</span><span class="p">]:</span>
         <span class="n">active_context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_active_context</span><span class="p">()</span>
         <span class="n">namespace</span> <span class="o">=</span> <span class="n">active_context</span><span class="p">[</span><span class="s2">&quot;context&quot;</span><span class="p">][</span><span class="s2">&quot;namespace&quot;</span><span class="p">]</span>
 
@@ -1676,7 +1696,7 @@
         <span class="p">]</span></div></div>
 
 
-<div class="viewcode-block" id="create_scheduler"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.create_scheduler">[docs]</a><span class="k">def</span> <span class="nf">create_scheduler</span><span class="p">(</span>
+<div class="viewcode-block" id="create_scheduler"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.create_scheduler">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">create_scheduler</span><span class="p">(</span>
     <span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">client</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;ApiClient&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">docker_client</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;DockerClient&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1689,7 +1709,7 @@
     <span class="p">)</span></div>
 
 
-<span class="k">def</span> <span class="nf">object_labels</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">object_labels</span><span class="p">(</span>
     <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span>
     <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
@@ -1700,7 +1720,7 @@
     <span class="p">}</span>
 
 
-<div class="viewcode-block" id="pod_labels"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.pod_labels">[docs]</a><span class="k">def</span> <span class="nf">pod_labels</span><span class="p">(</span>
+<div class="viewcode-block" id="pod_labels"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.pod_labels">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">pod_labels</span><span class="p">(</span>
     <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span>
     <span class="n">role_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">,</span>
@@ -1949,7 +1969,7 @@
                <a href="https://pytorch.org/resources">Developer Resources</a>
              </li>
              <li>
-               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2023</a>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2024</a>
              </li>
            </ul>
 
@@ -1964,6 +1984,9 @@
              
              <li>
                <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch Documentation</a>
              </li>
            </ul>
 
@@ -2003,6 +2026,9 @@
             <li>
               <a href="https://pytorch.org/events">Events</a>
             </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">Newsletter</a>
+             </li>
           </ul>
           
           <li class="resources-mobile-menu-title">
@@ -2015,6 +2041,18 @@
             </li>
             <li>
               <a href="https://pytorch.org/governing-board">Governing Board</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">Cloud Credit Program</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">Technical Advisory Council</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">Staff</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">Contact Us</a>
             </li>
           </ul>
         </ul>

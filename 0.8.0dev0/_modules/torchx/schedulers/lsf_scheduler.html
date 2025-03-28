@@ -134,8 +134,8 @@
                   <span class=dropdown-title>Developer Resources</span>
                   <p>Find resources and get questions answered</p>
                 </a>
-                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2023">
-                  <span class="dropdown-title">Contributor Awards - 2023</span>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">Contributor Awards - 2024</span>
                   <p>Award winners announced at this year's PyTorch Conference</p>
                 </a>
               </div>
@@ -155,6 +155,9 @@
                 <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
                   <span class="dropdown-title">ExecuTorch</span>
                   <p>End-to-end solution for enabling on-device inference capabilities across mobile and edge devices</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch Docs</span>
                 </a>
               </div>
             </div>  
@@ -203,6 +206,10 @@
                   <span class="dropdown-title">Events</span>
                   <p>Find events, webinars, and podcasts</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">Newsletter</span>
+                  <p>Stay up-to-date with the latest updates</p>
+                </a>
             </div>
           </li>
 
@@ -218,7 +225,18 @@
                 </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
                   <span class="dropdown-title">Governing Board</span>
-                  <p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">Cloud Credit Program</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">Technical Advisory Council</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">Staff</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">Contact Us</span>
                 </a>
               </div>
             </div>
@@ -464,16 +482,16 @@
 <span class="sd">See the LSF documentation for more details:</span>
 <span class="sd">https://www.ibm.com/docs/en/cloud-private/3.2.x?topic=paks-spectrum-lsf-community-edition</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">os.path</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">subprocess</span>
-<span class="kn">import</span> <span class="nn">tempfile</span>
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os.path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
-<span class="kn">import</span> <span class="nn">torchx</span>
-<span class="kn">from</span> <span class="nn">torchx.schedulers.api</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torchx</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.schedulers.api</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">AppDryRunInfo</span><span class="p">,</span>
     <span class="n">DescribeAppResponse</span><span class="p">,</span>
     <span class="n">filter_regex</span><span class="p">,</span>
@@ -482,9 +500,9 @@
     <span class="n">split_lines_iterator</span><span class="p">,</span>
     <span class="n">Stream</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">torchx.schedulers.ids</span> <span class="kn">import</span> <span class="n">make_unique</span>
-<span class="kn">from</span> <span class="nn">torchx.schedulers.local_scheduler</span> <span class="kn">import</span> <span class="n">LogIterator</span>
-<span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.schedulers.ids</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_unique</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.schedulers.local_scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogIterator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.specs</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">AppDef</span><span class="p">,</span>
     <span class="n">AppState</span><span class="p">,</span>
     <span class="n">BindMount</span><span class="p">,</span>
@@ -497,8 +515,8 @@
     <span class="n">runopts</span><span class="p">,</span>
     <span class="n">VolumeMount</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">torchx.util</span> <span class="kn">import</span> <span class="n">shlex</span>
-<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">TypedDict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">shlex</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TypedDict</span>
 
 <span class="n">JOB_STATE</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">AppState</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;DONE&quot;</span><span class="p">:</span> <span class="n">AppState</span><span class="o">.</span><span class="n">SUCCEEDED</span><span class="p">,</span>
@@ -511,7 +529,7 @@
 <span class="p">}</span>
 
 
-<span class="k">def</span> <span class="nf">get_job_state</span><span class="p">(</span><span class="n">state_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">exit_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppState</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_job_state</span><span class="p">(</span><span class="n">state_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">exit_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppState</span><span class="p">:</span>
     <span class="n">state</span> <span class="o">=</span> <span class="n">AppState</span><span class="o">.</span><span class="n">UNKNOWN</span>
     <span class="k">if</span> <span class="n">state_str</span> <span class="ow">in</span> <span class="n">JOB_STATE</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
         <span class="n">state</span> <span class="o">=</span> <span class="n">JOB_STATE</span><span class="p">[</span><span class="n">state_str</span><span class="p">]</span>
@@ -520,7 +538,7 @@
     <span class="k">return</span> <span class="n">state</span>
 
 
-<span class="k">class</span> <span class="nc">LsfOpts</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LsfOpts</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="n">lsf_queue</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
     <span class="n">jobdir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
     <span class="n">container_workdir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
@@ -528,7 +546,7 @@
     <span class="n">shm_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
 
 
-<span class="k">def</span> <span class="nf">get_docker_command</span><span class="p">(</span><span class="n">job_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">LsfOpts</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_docker_command</span><span class="p">(</span><span class="n">job_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">LsfOpts</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="n">cmds</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;docker&quot;</span><span class="p">,</span> <span class="s2">&quot;run&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;--name=</span><span class="si">{</span><span class="n">job_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">mount</span> <span class="ow">in</span> <span class="n">role</span><span class="o">.</span><span class="n">mounts</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mount</span><span class="p">,</span> <span class="n">BindMount</span><span class="p">):</span>
@@ -575,11 +593,11 @@
     <span class="k">return</span> <span class="n">shlex</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmds</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">get_command</span><span class="p">(</span><span class="n">job_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">LsfOpts</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_command</span><span class="p">(</span><span class="n">job_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">LsfOpts</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">get_docker_command</span><span class="p">(</span><span class="n">job_name</span><span class="p">,</span> <span class="n">role</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>  <span class="c1"># TODO: add get_singularity_command</span>
 
 
-<span class="k">def</span> <span class="nf">get_bsub</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_bsub</span><span class="p">(</span>
     <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">job_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">,</span>
@@ -633,7 +651,7 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">bsub_line</span><span class="si">}</span><span class="s2"> &lt;&lt; EOF</span><span class="se">\n</span><span class="si">{</span><span class="n">get_command</span><span class="p">(</span><span class="n">job_name</span><span class="p">,</span><span class="w"> </span><span class="n">role</span><span class="p">,</span><span class="w"> </span><span class="n">cfg</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">EOF&quot;</span>
 
 
-<span class="k">def</span> <span class="nf">cleanup_str</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">cleanup_str</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Invokes ``lower`` on thes string and removes all</span>
 <span class="sd">    characters that do not satisfy ``[a-z0-9]`` pattern.</span>
@@ -646,7 +664,7 @@
     <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">lower</span><span class="p">()))</span>
 
 
-<span class="k">def</span> <span class="nf">find_rank0_host_from_bhosts_stdout</span><span class="p">(</span><span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_rank0_host_from_bhosts_stdout</span><span class="p">(</span><span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="n">resource</span> <span class="o">=</span> <span class="n">role</span><span class="o">.</span><span class="n">resource</span>
     <span class="n">cpu</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">gpu</span> <span class="o">=</span> <span class="mi">0</span>
@@ -666,7 +684,7 @@
     <span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">find_rank0_host</span><span class="p">(</span><span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_rank0_host</span><span class="p">(</span><span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
         <span class="p">[</span><span class="s2">&quot;bhosts&quot;</span><span class="p">,</span> <span class="s2">&quot;-noheader&quot;</span><span class="p">,</span> <span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="s2">&quot;hname max ng&quot;</span><span class="p">],</span>
         <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
@@ -676,7 +694,7 @@
     <span class="k">return</span> <span class="n">find_rank0_host_from_bhosts_stdout</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">),</span> <span class="n">role</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">get_submit_script</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_submit_script</span><span class="p">(</span>
     <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cmd</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">LsfOpts</span><span class="p">,</span> <span class="n">rank0_host</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="n">bsubs</span> <span class="o">=</span> <span class="p">[]</span>
@@ -707,7 +725,7 @@
     <span class="k">return</span> <span class="n">script</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">bsubs</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
 
 
-<span class="k">def</span> <span class="nf">bjobs_msg_to_describe</span><span class="p">(</span><span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DescribeAppResponse</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">bjobs_msg_to_describe</span><span class="p">(</span><span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DescribeAppResponse</span><span class="p">]:</span>
     <span class="k">if</span> <span class="n">msg</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="n">roles</span> <span class="o">=</span> <span class="p">{}</span>
@@ -752,7 +770,7 @@
     <span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">bjobs_msg_to_log_file</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">bjobs_msg_to_log_file</span><span class="p">(</span>
     <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">role_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
@@ -786,7 +804,7 @@
     <span class="k">return</span> <span class="n">log_file</span>
 
 
-<span class="k">def</span> <span class="nf">bjobs_msg_to_list</span><span class="p">(</span><span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ListAppResponse</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">bjobs_msg_to_list</span><span class="p">(</span><span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ListAppResponse</span><span class="p">]:</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">lines</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="n">apps</span> <span class="o">=</span> <span class="p">{}</span>
@@ -818,17 +836,17 @@
 
 
 <div class="viewcode-block" id="LsfBsub"><a class="viewcode-back" href="../../../schedulers/lsf.html#torchx.schedulers.lsf_scheduler.LsfBsub">[docs]</a><span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">LsfBsub</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LsfBsub</span><span class="p">:</span>
     <span class="n">jobdir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
     <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span>
     <span class="n">cfg</span><span class="p">:</span> <span class="n">LsfOpts</span>
     <span class="n">cmd</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">materialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rank0_host</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;RANK0_HOST&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">materialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rank0_host</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;RANK0_HOST&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">get_submit_script</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">app_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="p">,</span> <span class="n">rank0_host</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span><span class="si">{</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmd</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;$BSUB_SCRIPT&#39;</span><span class="p">])</span><span class="si">}</span>
 <span class="s2">#------------</span>
 <span class="s2"># BSUB_SCRIPT</span>
@@ -836,7 +854,7 @@
 <span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">materialize</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;&quot;&quot;</span></div>
 
 
-<div class="viewcode-block" id="LsfScheduler"><a class="viewcode-back" href="../../../schedulers/lsf.html#torchx.schedulers.lsf_scheduler.LsfScheduler">[docs]</a><span class="k">class</span> <span class="nc">LsfScheduler</span><span class="p">(</span><span class="n">Scheduler</span><span class="p">[</span><span class="n">LsfOpts</span><span class="p">]):</span>
+<div class="viewcode-block" id="LsfScheduler"><a class="viewcode-back" href="../../../schedulers/lsf.html#torchx.schedulers.lsf_scheduler.LsfScheduler">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">LsfScheduler</span><span class="p">(</span><span class="n">Scheduler</span><span class="p">[</span><span class="n">LsfOpts</span><span class="p">,</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">AppDryRunInfo</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    **Example: hello_world**</span>
 
@@ -880,11 +898,11 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># NOTE: make sure any new init options are supported in create_scheduler(...)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;lsf&quot;</span><span class="p">,</span> <span class="n">session_name</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_run_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">runopts</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_run_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">runopts</span><span class="p">:</span>
         <span class="n">opts</span> <span class="o">=</span> <span class="n">runopts</span><span class="p">()</span>
         <span class="n">opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
             <span class="s2">&quot;lsf_queue&quot;</span><span class="p">,</span>
@@ -919,7 +937,7 @@
 
         <span class="k">return</span> <span class="n">opts</span>
 
-<div class="viewcode-block" id="LsfScheduler.schedule"><a class="viewcode-back" href="../../../schedulers/lsf.html#torchx.schedulers.lsf_scheduler.LsfScheduler.schedule">[docs]</a>    <span class="k">def</span> <span class="nf">schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dryrun_info</span><span class="p">:</span> <span class="n">AppDryRunInfo</span><span class="p">[</span><span class="n">LsfBsub</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="LsfScheduler.schedule"><a class="viewcode-back" href="../../../schedulers/lsf.html#torchx.schedulers.lsf_scheduler.LsfScheduler.schedule">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dryrun_info</span><span class="p">:</span> <span class="n">AppDryRunInfo</span><span class="p">[</span><span class="n">LsfBsub</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">req</span> <span class="o">=</span> <span class="n">dryrun_info</span><span class="o">.</span><span class="n">request</span>
         <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tempdir</span><span class="p">:</span>
             <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">jobdir</span> <span class="ow">or</span> <span class="n">tempdir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">req</span><span class="o">.</span><span class="n">app_id</span><span class="si">}</span><span class="s2">.sh&quot;</span><span class="p">)</span>
@@ -929,11 +947,11 @@
             <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">cmd</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">req</span><span class="o">.</span><span class="n">app_id</span></div>
 
-    <span class="k">def</span> <span class="nf">_validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">LsfOpts</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># Skip validation step for lsf</span>
         <span class="k">pass</span>
 
-    <span class="k">def</span> <span class="nf">_cancel_existing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_cancel_existing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
             <span class="p">[</span><span class="s2">&quot;bjobs&quot;</span><span class="p">,</span> <span class="s2">&quot;-noheader&quot;</span><span class="p">,</span> <span class="s2">&quot;-a&quot;</span><span class="p">,</span> <span class="s2">&quot;-P&quot;</span><span class="p">,</span> <span class="n">app_id</span><span class="p">,</span> <span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">],</span>
             <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
@@ -949,7 +967,7 @@
                 <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_submit_dryrun</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">LsfOpts</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppDryRunInfo</span><span class="p">[</span><span class="n">LsfBsub</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_submit_dryrun</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">LsfOpts</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppDryRunInfo</span><span class="p">[</span><span class="n">LsfBsub</span><span class="p">]:</span>
         <span class="n">jobdir</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;jobdir&quot;</span><span class="p">)</span>
         <span class="k">assert</span> <span class="n">jobdir</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">jobdir</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;jobdir must be str&quot;</span>
 
@@ -959,7 +977,7 @@
             <span class="nb">repr</span><span class="p">,</span>
         <span class="p">)</span>
 
-<div class="viewcode-block" id="LsfScheduler.describe"><a class="viewcode-back" href="../../../schedulers/lsf.html#torchx.schedulers.lsf_scheduler.LsfScheduler.describe">[docs]</a>    <span class="k">def</span> <span class="nf">describe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DescribeAppResponse</span><span class="p">]:</span>
+<div class="viewcode-block" id="LsfScheduler.describe"><a class="viewcode-back" href="../../../schedulers/lsf.html#torchx.schedulers.lsf_scheduler.LsfScheduler.describe">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">describe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DescribeAppResponse</span><span class="p">]:</span>
         <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
             <span class="p">[</span>
                 <span class="s2">&quot;bjobs&quot;</span><span class="p">,</span>
@@ -976,7 +994,7 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">bjobs_msg_to_describe</span><span class="p">(</span><span class="n">app_id</span><span class="o">=</span><span class="n">app_id</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="n">p</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="LsfScheduler.log_iter"><a class="viewcode-back" href="../../../schedulers/lsf.html#torchx.schedulers.lsf_scheduler.LsfScheduler.log_iter">[docs]</a>    <span class="k">def</span> <span class="nf">log_iter</span><span class="p">(</span>
+<div class="viewcode-block" id="LsfScheduler.log_iter"><a class="viewcode-back" href="../../../schedulers/lsf.html#torchx.schedulers.lsf_scheduler.LsfScheduler.log_iter">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">log_iter</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">role_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -1007,7 +1025,7 @@
             <span class="n">iterator</span> <span class="o">=</span> <span class="n">filter_regex</span><span class="p">(</span><span class="n">regex</span><span class="p">,</span> <span class="n">iterator</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">iterator</span></div>
 
-<div class="viewcode-block" id="LsfScheduler.list"><a class="viewcode-back" href="../../../schedulers/lsf.html#torchx.schedulers.lsf_scheduler.LsfScheduler.list">[docs]</a>    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ListAppResponse</span><span class="p">]:</span>
+<div class="viewcode-block" id="LsfScheduler.list"><a class="viewcode-back" href="../../../schedulers/lsf.html#torchx.schedulers.lsf_scheduler.LsfScheduler.list">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ListAppResponse</span><span class="p">]:</span>
         <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
             <span class="p">[</span><span class="s2">&quot;bjobs&quot;</span><span class="p">,</span> <span class="s2">&quot;-noheader&quot;</span><span class="p">,</span> <span class="s2">&quot;-a&quot;</span><span class="p">,</span> <span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="s2">&quot;proj stat exit_code&quot;</span><span class="p">],</span>
             <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
@@ -1017,7 +1035,7 @@
         <span class="k">return</span> <span class="n">bjobs_msg_to_list</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span></div></div>
 
 
-<div class="viewcode-block" id="create_scheduler"><a class="viewcode-back" href="../../../schedulers/lsf.html#torchx.schedulers.lsf_scheduler.create_scheduler">[docs]</a><span class="k">def</span> <span class="nf">create_scheduler</span><span class="p">(</span><span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LsfScheduler</span><span class="p">:</span>
+<div class="viewcode-block" id="create_scheduler"><a class="viewcode-back" href="../../../schedulers/lsf.html#torchx.schedulers.lsf_scheduler.create_scheduler">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">create_scheduler</span><span class="p">(</span><span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LsfScheduler</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">LsfScheduler</span><span class="p">(</span>
         <span class="n">session_name</span><span class="o">=</span><span class="n">session_name</span><span class="p">,</span>
     <span class="p">)</span></div>
@@ -1248,7 +1266,7 @@
                <a href="https://pytorch.org/resources">Developer Resources</a>
              </li>
              <li>
-               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2023</a>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2024</a>
              </li>
            </ul>
 
@@ -1263,6 +1281,9 @@
              
              <li>
                <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch Documentation</a>
              </li>
            </ul>
 
@@ -1302,6 +1323,9 @@
             <li>
               <a href="https://pytorch.org/events">Events</a>
             </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">Newsletter</a>
+             </li>
           </ul>
           
           <li class="resources-mobile-menu-title">
@@ -1314,6 +1338,18 @@
             </li>
             <li>
               <a href="https://pytorch.org/governing-board">Governing Board</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">Cloud Credit Program</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">Technical Advisory Council</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">Staff</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">Contact Us</a>
             </li>
           </ul>
         </ul>

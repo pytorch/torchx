@@ -137,8 +137,8 @@
                   <span class=dropdown-title>Developer Resources</span>
                   <p>Find resources and get questions answered</p>
                 </a>
-                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2023">
-                  <span class="dropdown-title">Contributor Awards - 2023</span>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">Contributor Awards - 2024</span>
                   <p>Award winners announced at this year's PyTorch Conference</p>
                 </a>
               </div>
@@ -158,6 +158,9 @@
                 <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
                   <span class="dropdown-title">ExecuTorch</span>
                   <p>End-to-end solution for enabling on-device inference capabilities across mobile and edge devices</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch Docs</span>
                 </a>
               </div>
             </div>  
@@ -206,6 +209,10 @@
                   <span class="dropdown-title">Events</span>
                   <p>Find events, webinars, and podcasts</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">Newsletter</span>
+                  <p>Stay up-to-date with the latest updates</p>
+                </a>
             </div>
           </li>
 
@@ -221,7 +228,18 @@
                 </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
                   <span class="dropdown-title">Governing Board</span>
-                  <p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">Cloud Credit Program</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">Technical Advisory Council</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">Staff</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">Contact Us</span>
                 </a>
               </div>
             </div>
@@ -634,10 +652,10 @@ the following steps:</p>
 <li><p>Create a module and define your resource retrieval function:</p></li>
 </ol>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># my_module.resources</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
-<span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="n">Resource</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.specs</span><span class="w"> </span><span class="kn">import</span> <span class="n">Resource</span>
 
-<span class="k">def</span> <span class="nf">gpu_x_1</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Resource</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">gpu_x_1</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Resource</span><span class="p">]:</span>
     <span class="k">return</span> <span class="n">Resource</span><span class="p">(</span><span class="n">cpu</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="mi">64</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">,</span> <span class="n">gpu</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -649,7 +667,7 @@ the following steps:</p>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">gpu_x_1</span></code> can be used as string argument to this function:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="n">named_resources</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">torchx.specs</span><span class="w"> </span><span class="kn">import</span> <span class="n">named_resources</span>
 <span class="n">resource</span> <span class="o">=</span> <span class="n">named_resources</span><span class="p">[</span><span class="s2">&quot;gpu_x_1&quot;</span><span class="p">]</span>
 </pre></div>
 </div>
@@ -670,7 +688,7 @@ to set up named resources.</p>
 </div>
 <p>Usage:</p>
 <blockquote>
-<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="n">named_resources</span>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">torchx.specs</span><span class="w"> </span><span class="kn">import</span> <span class="n">named_resources</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">named_resources</span><span class="p">[</span><span class="s2">&quot;aws_t3.medium&quot;</span><span class="p">])</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">named_resources</span><span class="p">[</span><span class="s2">&quot;aws_m5.2xlarge&quot;</span><span class="p">])</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">named_resources</span><span class="p">[</span><span class="s2">&quot;aws_p3.2xlarge&quot;</span><span class="p">])</span>
@@ -1011,7 +1029,7 @@ scheduler.</p>
 <span id="component-linter"></span><h2>Component Linter<a class="headerlink" href="#module-torchx.specs.file_linter" title="Permalink to this heading">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="torchx.specs.file_linter.validate">
-<span class="sig-prename descclassname"><span class="pre">torchx.specs.file_linter.</span></span><span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">component_function</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#torchx.specs.file_linter.LinterMessage" title="torchx.specs.file_linter.LinterMessage"><span class="pre">LinterMessage</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/torchx/specs/file_linter.html#validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.file_linter.validate" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">torchx.specs.file_linter.</span></span><span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">component_function</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">validators</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.13)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#torchx.specs.file_linter.TorchxFunctionValidator" title="torchx.specs.file_linter.TorchxFunctionValidator"><span class="pre">TorchxFunctionValidator</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#torchx.specs.file_linter.LinterMessage" title="torchx.specs.file_linter.LinterMessage"><span class="pre">LinterMessage</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/torchx/specs/file_linter.html#validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.file_linter.validate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Validates the function to make sure it complies the component standard.</p>
 <p><code class="docutils literal notranslate"><span class="pre">validate</span></code> finds the <code class="docutils literal notranslate"><span class="pre">component_function</span></code> and vaidates it for according to the following rules:</p>
 <ol class="arabic simple">
@@ -1064,7 +1082,7 @@ on how to improve the help message and arguments descriptions will be names of t
 
 <dl class="py class">
 <dt class="sig sig-object py" id="torchx.specs.file_linter.TorchFunctionVisitor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torchx.specs.file_linter.</span></span><span class="sig-name descname"><span class="pre">TorchFunctionVisitor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component_function_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchx/specs/file_linter.html#TorchFunctionVisitor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.file_linter.TorchFunctionVisitor" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torchx.specs.file_linter.</span></span><span class="sig-name descname"><span class="pre">TorchFunctionVisitor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component_function_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">validators</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.13)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#torchx.specs.file_linter.TorchxFunctionValidator" title="torchx.specs.file_linter.TorchxFunctionValidator"><span class="pre">TorchxFunctionValidator</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchx/specs/file_linter.html#TorchFunctionVisitor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.file_linter.TorchFunctionVisitor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Visitor that finds the component_function and runs registered validators on it.
 Current registered validators:</p>
 <ul class="simple">
@@ -1093,7 +1111,7 @@ Current registered validators:</p>
 </ul>
 <dl class="py method">
 <dt class="sig sig-object py" id="torchx.specs.file_linter.TorchFunctionVisitor.visit_FunctionDef">
-<span class="sig-name descname"><span class="pre">visit_FunctionDef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FunctionDef</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="_modules/torchx/specs/file_linter.html#TorchFunctionVisitor.visit_FunctionDef"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.file_linter.TorchFunctionVisitor.visit_FunctionDef" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">visit_FunctionDef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/ast.html#ast.FunctionDef" title="(in Python v3.13)"><span class="pre">FunctionDef</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="_modules/torchx/specs/file_linter.html#TorchFunctionVisitor.visit_FunctionDef"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.file_linter.TorchFunctionVisitor.visit_FunctionDef" title="Permalink to this definition">¶</a></dt>
 <dd><p>Validates the function def with the child validators.</p>
 </dd></dl>
 
@@ -1114,7 +1132,7 @@ These functions do not have both required and default arguments.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torchx.specs.file_linter.</span></span><span class="sig-name descname"><span class="pre">TorchxFunctionArgsValidator</span></span><a class="reference internal" href="_modules/torchx/specs/file_linter.html#TorchxFunctionArgsValidator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.file_linter.TorchxFunctionArgsValidator" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="torchx.specs.file_linter.TorchxFunctionArgsValidator.validate">
-<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_specs_func_def</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FunctionDef</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#torchx.specs.file_linter.LinterMessage" title="torchx.specs.file_linter.LinterMessage"><span class="pre">LinterMessage</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/torchx/specs/file_linter.html#TorchxFunctionArgsValidator.validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.file_linter.TorchxFunctionArgsValidator.validate" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_specs_func_def</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/ast.html#ast.FunctionDef" title="(in Python v3.13)"><span class="pre">FunctionDef</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#torchx.specs.file_linter.LinterMessage" title="torchx.specs.file_linter.LinterMessage"><span class="pre">LinterMessage</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/torchx/specs/file_linter.html#TorchxFunctionArgsValidator.validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.file_linter.TorchxFunctionArgsValidator.validate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method to call to validate the provided function def.</p>
 </dd></dl>
 
@@ -1125,7 +1143,7 @@ These functions do not have both required and default arguments.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torchx.specs.file_linter.</span></span><span class="sig-name descname"><span class="pre">TorchxFunctionValidator</span></span><a class="reference internal" href="_modules/torchx/specs/file_linter.html#TorchxFunctionValidator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.file_linter.TorchxFunctionValidator" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="torchx.specs.file_linter.TorchxFunctionValidator.validate">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_specs_func_def</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FunctionDef</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#torchx.specs.file_linter.LinterMessage" title="torchx.specs.file_linter.LinterMessage"><span class="pre">LinterMessage</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/torchx/specs/file_linter.html#TorchxFunctionValidator.validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.file_linter.TorchxFunctionValidator.validate" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_specs_func_def</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/ast.html#ast.FunctionDef" title="(in Python v3.13)"><span class="pre">FunctionDef</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#torchx.specs.file_linter.LinterMessage" title="torchx.specs.file_linter.LinterMessage"><span class="pre">LinterMessage</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/torchx/specs/file_linter.html#TorchxFunctionValidator.validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.file_linter.TorchxFunctionValidator.validate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method to call to validate the provided function def.</p>
 </dd></dl>
 
@@ -1133,10 +1151,10 @@ These functions do not have both required and default arguments.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="torchx.specs.file_linter.TorchxReturnValidator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torchx.specs.file_linter.</span></span><span class="sig-name descname"><span class="pre">TorchxReturnValidator</span></span><a class="reference internal" href="_modules/torchx/specs/file_linter.html#TorchxReturnValidator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.file_linter.TorchxReturnValidator" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torchx.specs.file_linter.</span></span><span class="sig-name descname"><span class="pre">TorchxReturnValidator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">supported_return_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchx/specs/file_linter.html#TorchxReturnValidator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.file_linter.TorchxReturnValidator" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="torchx.specs.file_linter.TorchxReturnValidator.validate">
-<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_specs_func_def</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FunctionDef</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#torchx.specs.file_linter.LinterMessage" title="torchx.specs.file_linter.LinterMessage"><span class="pre">LinterMessage</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/torchx/specs/file_linter.html#TorchxReturnValidator.validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.file_linter.TorchxReturnValidator.validate" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_specs_func_def</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/ast.html#ast.FunctionDef" title="(in Python v3.13)"><span class="pre">FunctionDef</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#torchx.specs.file_linter.LinterMessage" title="torchx.specs.file_linter.LinterMessage"><span class="pre">LinterMessage</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/torchx/specs/file_linter.html#TorchxReturnValidator.validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.file_linter.TorchxReturnValidator.validate" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Validates return annotation of the torchx function. Current allowed annotations:</dt><dd><ul class="simple">
 <li><p>AppDef</p></li>
@@ -1402,7 +1420,7 @@ These functions do not have both required and default arguments.</p>
                <a href="https://pytorch.org/resources">Developer Resources</a>
              </li>
              <li>
-               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2023</a>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2024</a>
              </li>
            </ul>
 
@@ -1417,6 +1435,9 @@ These functions do not have both required and default arguments.</p>
              
              <li>
                <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch Documentation</a>
              </li>
            </ul>
 
@@ -1456,6 +1477,9 @@ These functions do not have both required and default arguments.</p>
             <li>
               <a href="https://pytorch.org/events">Events</a>
             </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">Newsletter</a>
+             </li>
           </ul>
           
           <li class="resources-mobile-menu-title">
@@ -1468,6 +1492,18 @@ These functions do not have both required and default arguments.</p>
             </li>
             <li>
               <a href="https://pytorch.org/governing-board">Governing Board</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">Cloud Credit Program</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">Technical Advisory Council</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">Staff</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">Contact Us</a>
             </li>
           </ul>
         </ul>

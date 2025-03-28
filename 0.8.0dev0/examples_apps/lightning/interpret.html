@@ -41,8 +41,8 @@
   <link rel="stylesheet" href="../../_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Trainer Example" href="train.html" />
-    <link rel="prev" title="Tiny ImageNet Model" href="model.html" />
+    <link rel="next" title="Tiny ImageNet Model" href="model.html" />
+    <link rel="prev" title="Simple Logging Profiler" href="profiler.html" />
   <!-- Google Tag Manager -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -137,8 +137,8 @@
                   <span class=dropdown-title>Developer Resources</span>
                   <p>Find resources and get questions answered</p>
                 </a>
-                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2023">
-                  <span class="dropdown-title">Contributor Awards - 2023</span>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">Contributor Awards - 2024</span>
                   <p>Award winners announced at this year's PyTorch Conference</p>
                 </a>
               </div>
@@ -158,6 +158,9 @@
                 <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
                   <span class="dropdown-title">ExecuTorch</span>
                   <p>End-to-end solution for enabling on-device inference capabilities across mobile and edge devices</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch Docs</span>
                 </a>
               </div>
             </div>  
@@ -206,6 +209,10 @@
                   <span class="dropdown-title">Events</span>
                   <p>Find events, webinars, and podcasts</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">Newsletter</span>
+                  <p>Stay up-to-date with the latest updates</p>
+                </a>
             </div>
           </li>
 
@@ -221,7 +228,18 @@
                 </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
                   <span class="dropdown-title">Governing Board</span>
-                  <p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">Cloud Credit Program</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">Technical Advisory Council</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">Staff</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">Contact Us</span>
                 </a>
               </div>
             </div>
@@ -497,21 +515,21 @@ The benefit of using TorchX to launch simple single-process python programs
 is to launch on remote schedulers by swapping out <code class="docutils literal notranslate"><span class="pre">-s</span> <span class="pre">local_cwd</span></code> to
 a remote scheduler like kubernetes by specifying <code class="docutils literal notranslate"><span class="pre">-s</span> <span class="pre">kubernetes</span></code>.</p>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">argparse</span>
-<span class="kn">import</span> <span class="nn">itertools</span>
-<span class="kn">import</span> <span class="nn">os.path</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">tempfile</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <a href="https://docs.python.org/3/library/typing.html#typing.List" title="typing.List" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">List</span></a>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os.path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/typing.html#typing.List" title="typing.List" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">List</span></a>
 
-<span class="kn">import</span> <span class="nn">fsspec</span>
-<span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">from</span> <span class="nn">torchx.examples.apps.lightning.data</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">fsspec</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.examples.apps.lightning.data</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">create_random_data</span><span class="p">,</span>
     <span class="n">download_data</span><span class="p">,</span>
     <span class="n">TinyImageNetDataModule</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">torchx.examples.apps.lightning.model</span> <span class="kn">import</span> <span class="n">TinyImageNetModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.examples.apps.lightning.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">TinyImageNetModel</span>
 
 
 <span class="c1"># ensure data and module are on the path</span>
@@ -520,11 +538,11 @@ a remote scheduler like kubernetes by specifying <code class="docutils literal n
 
 <span class="c1"># FIXME: captum must be imported after torch otherwise it causes python to crash</span>
 <span class="k">if</span> <span class="kc">True</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-    <span class="kn">from</span> <span class="nn">captum.attr</span> <span class="kn">import</span> <span class="n">IntegratedGradients</span><span class="p">,</span> <span class="n">visualization</span> <span class="k">as</span> <span class="n">viz</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">captum.attr</span><span class="w"> </span><span class="kn">import</span> <span class="n">IntegratedGradients</span><span class="p">,</span> <span class="n">visualization</span> <span class="k">as</span> <span class="n">viz</span>
 
 
-<span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.List" title="typing.List" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">List</span></a><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <a href="https://docs.python.org/3/library/argparse.html#argparse.Namespace" title="argparse.Namespace" class="sphx-glr-backref-module-argparse sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span></a><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.List" title="typing.List" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">List</span></a><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <a href="https://docs.python.org/3/library/argparse.html#argparse.Namespace" title="argparse.Namespace" class="sphx-glr-backref-module-argparse sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span></a><span class="p">:</span>
     <span class="n">parser</span> <span class="o">=</span> <a href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" title="argparse.ArgumentParser" class="sphx-glr-backref-module-argparse sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span></a><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;example TorchX captum app&quot;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--load_path&quot;</span><span class="p">,</span>
@@ -547,7 +565,7 @@ a remote scheduler like kubernetes by specifying <code class="docutils literal n
     <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">convert_to_rgb</span><span class="p">(</span><span class="n">arr</span><span class="p">:</span> <a href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span></a><span class="p">)</span> <span class="o">-&gt;</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span></a><span class="p">:</span>  <span class="c1"># pyre-ignore[24]</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">convert_to_rgb</span><span class="p">(</span><span class="n">arr</span><span class="p">:</span> <a href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span></a><span class="p">)</span> <span class="o">-&gt;</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span></a><span class="p">:</span>  <span class="c1"># pyre-ignore[24]</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This converts the image from a torch tensor with size (1, 1, 64, 64) to</span>
 <span class="sd">    numpy array with size (64, 64, 3).</span>
@@ -557,7 +575,7 @@ a remote scheduler like kubernetes by specifying <code class="docutils literal n
     <span class="k">return</span> <span class="n">out</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
 
 
-<span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">argv</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.List" title="typing.List" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">List</span></a><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">argv</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.List" title="typing.List" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">List</span></a><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">with</span> <a href="https://docs.python.org/3/library/tempfile.html#tempfile.TemporaryDirectory" title="tempfile.TemporaryDirectory" class="sphx-glr-backref-module-tempfile sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span></a><span class="p">()</span> <span class="k">as</span> <span class="n">tmpdir</span><span class="p">:</span>
         <span class="n">args</span> <span class="o">=</span> <span class="n">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
 
@@ -643,10 +661,10 @@ a remote scheduler like kubernetes by specifying <code class="docutils literal n
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="train.html" class="btn btn-neutral float-right" title="Trainer Example" accesskey="n" rel="next">Next <img src="../../_static/images/chevron-right-orange.svg" class="next-page"></a>
+        <a href="model.html" class="btn btn-neutral float-right" title="Tiny ImageNet Model" accesskey="n" rel="next">Next <img src="../../_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
-        <a href="model.html" class="btn btn-neutral" title="Tiny ImageNet Model" accesskey="p" rel="prev"><img src="../../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+        <a href="profiler.html" class="btn btn-neutral" title="Simple Logging Profiler" accesskey="p" rel="prev"><img src="../../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
       
     </div>
   
@@ -876,7 +894,7 @@ a remote scheduler like kubernetes by specifying <code class="docutils literal n
                <a href="https://pytorch.org/resources">Developer Resources</a>
              </li>
              <li>
-               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2023</a>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2024</a>
              </li>
            </ul>
 
@@ -891,6 +909,9 @@ a remote scheduler like kubernetes by specifying <code class="docutils literal n
              
              <li>
                <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch Documentation</a>
              </li>
            </ul>
 
@@ -930,6 +951,9 @@ a remote scheduler like kubernetes by specifying <code class="docutils literal n
             <li>
               <a href="https://pytorch.org/events">Events</a>
             </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">Newsletter</a>
+             </li>
           </ul>
           
           <li class="resources-mobile-menu-title">
@@ -942,6 +966,18 @@ a remote scheduler like kubernetes by specifying <code class="docutils literal n
             </li>
             <li>
               <a href="https://pytorch.org/governing-board">Governing Board</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">Cloud Credit Program</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">Technical Advisory Council</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">Staff</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">Contact Us</a>
             </li>
           </ul>
         </ul>

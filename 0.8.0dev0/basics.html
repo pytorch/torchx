@@ -137,8 +137,8 @@
                   <span class=dropdown-title>Developer Resources</span>
                   <p>Find resources and get questions answered</p>
                 </a>
-                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2023">
-                  <span class="dropdown-title">Contributor Awards - 2023</span>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">Contributor Awards - 2024</span>
                   <p>Award winners announced at this year's PyTorch Conference</p>
                 </a>
               </div>
@@ -158,6 +158,9 @@
                 <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
                   <span class="dropdown-title">ExecuTorch</span>
                   <p>End-to-end solution for enabling on-device inference capabilities across mobile and edge devices</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch Docs</span>
                 </a>
               </div>
             </div>  
@@ -206,6 +209,10 @@
                   <span class="dropdown-title">Events</span>
                   <p>Find events, webinars, and podcasts</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">Newsletter</span>
+                  <p>Stay up-to-date with the latest updates</p>
+                </a>
             </div>
           </li>
 
@@ -221,7 +228,18 @@
                 </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
                   <span class="dropdown-title">Governing Board</span>
-                  <p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">Cloud Credit Program</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">Technical Advisory Council</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">Staff</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">Contact Us</span>
                 </a>
               </div>
             </div>
@@ -474,7 +492,7 @@ is the common interface understood by <code class="docutils literal notranslate"
 and <code class="docutils literal notranslate"><span class="pre">torchx.pipelines</span></code> allowing you to run your app as a standalone job
 or as a stage in an ML pipeline.</p>
 <p>Below is a simple example of an <code class="docutils literal notranslate"><span class="pre">specs.AppDef</span></code> that echos “hello world”</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torchx.specs</span> <span class="k">as</span> <span class="nn">specs</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torchx.specs</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">specs</span>
 
 <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">(</span>
    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;echo&quot;</span><span class="p">,</span>
@@ -519,9 +537,9 @@ such as the <code class="docutils literal notranslate"><span class="pre">echo</s
 have hardcoded application binaries. Others such as <code class="docutils literal notranslate"><span class="pre">ddp</span></code> (distributed data parallel)
 specs only specify the topology of the application. Below is one possible templetization
 of a ddp style trainer app spec that specifies a homogeneous node topology:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torchx.specs</span> <span class="k">as</span> <span class="nn">specs</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torchx.specs</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">specs</span>
 
-<span class="k">def</span> <span class="nf">ddp</span><span class="p">(</span><span class="n">jobname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">nnodes</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">entrypoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">script_args</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">ddp</span><span class="p">(</span><span class="n">jobname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">nnodes</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">entrypoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">script_args</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
    <span class="n">single_gpu</span> <span class="o">=</span> <span class="n">specs</span><span class="o">.</span><span class="n">Resources</span><span class="p">(</span><span class="n">cpu</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="mi">1024</span><span class="p">)</span>
    <span class="k">return</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">(</span>
            <span class="n">name</span><span class="o">=</span><span class="n">jobname</span><span class="p">,</span>
@@ -608,9 +626,9 @@ recommended that your application be written in a scheduler/infrastructure
 agnostic fashion.</p>
 <p>This typically means adding an API layer at the touch-points with scheduler/infra.
 For example the following application is <strong>NOT</strong> infra agnostic</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">boto3</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">boto3</span>
 
-<span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">input_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">input_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
    <span class="n">s3</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s2">&quot;s3&quot;</span><span class="p">)</span>
    <span class="n">path</span> <span class="o">=</span> <span class="n">s3_input_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
    <span class="n">bucket</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -627,9 +645,9 @@ a <code class="docutils literal notranslate"><span class="pre">FileSystem</span>
 layers (lightning uses <a class="reference external" href="https://filesystem-spec.readthedocs.io/en/latest/index.html">fsspec</a>
 under the hood). The binary above can be rewritten to be storage agnostic with
 lightning.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytorch_lightning.utilities.io</span> <span class="k">as</span> <span class="nn">io</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pytorch_lightning.utilities.io</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">io</span>
 
-<span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">input_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">input_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
    <span class="n">fs</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">get_filesystem</span><span class="p">(</span><span class="n">input_url</span><span class="p">)</span>
    <span class="k">with</span> <span class="n">fs</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">input_url</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
        <span class="nb">input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
@@ -906,7 +924,7 @@ run components.</p>
                <a href="https://pytorch.org/resources">Developer Resources</a>
              </li>
              <li>
-               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2023</a>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2024</a>
              </li>
            </ul>
 
@@ -921,6 +939,9 @@ run components.</p>
              
              <li>
                <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch Documentation</a>
              </li>
            </ul>
 
@@ -960,6 +981,9 @@ run components.</p>
             <li>
               <a href="https://pytorch.org/events">Events</a>
             </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">Newsletter</a>
+             </li>
           </ul>
           
           <li class="resources-mobile-menu-title">
@@ -972,6 +996,18 @@ run components.</p>
             </li>
             <li>
               <a href="https://pytorch.org/governing-board">Governing Board</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">Cloud Credit Program</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">Technical Advisory Council</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">Staff</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">Contact Us</a>
             </li>
           </ul>
         </ul>

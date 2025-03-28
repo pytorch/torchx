@@ -134,8 +134,8 @@
                   <span class=dropdown-title>Developer Resources</span>
                   <p>Find resources and get questions answered</p>
                 </a>
-                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2023">
-                  <span class="dropdown-title">Contributor Awards - 2023</span>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">Contributor Awards - 2024</span>
                   <p>Award winners announced at this year's PyTorch Conference</p>
                 </a>
               </div>
@@ -155,6 +155,9 @@
                 <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
                   <span class="dropdown-title">ExecuTorch</span>
                   <p>End-to-end solution for enabling on-device inference capabilities across mobile and edge devices</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch Docs</span>
                 </a>
               </div>
             </div>  
@@ -203,6 +206,10 @@
                   <span class="dropdown-title">Events</span>
                   <p>Find events, webinars, and podcasts</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">Newsletter</span>
+                  <p>Stay up-to-date with the latest updates</p>
+                </a>
             </div>
           </li>
 
@@ -218,7 +225,18 @@
                 </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
                   <span class="dropdown-title">Governing Board</span>
-                  <p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">Cloud Credit Program</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">Technical Advisory Council</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">Staff</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">Contact Us</span>
                 </a>
               </div>
             </div>
@@ -445,24 +463,24 @@
 
 <span class="c1"># pyre-strict</span>
 
-<span class="kn">import</span> <span class="nn">io</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">posixpath</span>
-<span class="kn">import</span> <span class="nn">stat</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">tarfile</span>
-<span class="kn">import</span> <span class="nn">tempfile</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">IO</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TextIO</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">posixpath</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">stat</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tarfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">IO</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TextIO</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
 
-<span class="kn">import</span> <span class="nn">fsspec</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">fsspec</span>
 
-<span class="kn">import</span> <span class="nn">torchx</span>
-<span class="kn">from</span> <span class="nn">docker.errors</span> <span class="kn">import</span> <span class="n">BuildError</span>
-<span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">,</span> <span class="n">Role</span><span class="p">,</span> <span class="n">runopts</span>
-<span class="kn">from</span> <span class="nn">torchx.workspace.api</span> <span class="kn">import</span> <span class="n">walk_workspace</span><span class="p">,</span> <span class="n">WorkspaceMixin</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torchx</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">docker.errors</span><span class="w"> </span><span class="kn">import</span> <span class="n">BuildError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.specs</span><span class="w"> </span><span class="kn">import</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">,</span> <span class="n">Role</span><span class="p">,</span> <span class="n">runopts</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.workspace.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">walk_workspace</span><span class="p">,</span> <span class="n">WorkspaceMixin</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">docker</span> <span class="kn">import</span> <span class="n">DockerClient</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">docker</span><span class="w"> </span><span class="kn">import</span> <span class="n">DockerClient</span>
 
 <span class="n">log</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -477,7 +495,7 @@
 <span class="s2">&quot;&quot;&quot;</span>
 
 
-<div class="viewcode-block" id="DockerWorkspaceMixin"><a class="viewcode-back" href="../../../workspace.html#torchx.workspace.docker_workspace.DockerWorkspaceMixin">[docs]</a><span class="k">class</span> <span class="nc">DockerWorkspaceMixin</span><span class="p">(</span><span class="n">WorkspaceMixin</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]):</span>
+<div class="viewcode-block" id="DockerWorkspaceMixin"><a class="viewcode-back" href="../../../workspace.html#torchx.workspace.docker_workspace.DockerWorkspaceMixin">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">DockerWorkspaceMixin</span><span class="p">(</span><span class="n">WorkspaceMixin</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    DockerWorkspaceMixin will build patched docker images from the workspace. These</span>
 <span class="sd">    patched images are docker images and can be either used locally via the</span>
@@ -507,7 +525,7 @@
 
     <span class="n">LABEL_VERSION</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;torchx.pytorch.org/version&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
         <span class="n">docker_client</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;DockerClient&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -517,16 +535,16 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">__docker_client</span> <span class="o">=</span> <span class="n">docker_client</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">_docker_client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DockerClient&quot;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_docker_client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DockerClient&quot;</span><span class="p">:</span>
         <span class="n">client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__docker_client</span>
         <span class="k">if</span> <span class="n">client</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="kn">import</span> <span class="nn">docker</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">docker</span>
 
             <span class="n">client</span> <span class="o">=</span> <span class="n">docker</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__docker_client</span> <span class="o">=</span> <span class="n">client</span>
         <span class="k">return</span> <span class="n">client</span>
 
-<div class="viewcode-block" id="DockerWorkspaceMixin.workspace_opts"><a class="viewcode-back" href="../../../workspace.html#torchx.workspace.docker_workspace.DockerWorkspaceMixin.workspace_opts">[docs]</a>    <span class="k">def</span> <span class="nf">workspace_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">runopts</span><span class="p">:</span>
+<div class="viewcode-block" id="DockerWorkspaceMixin.workspace_opts"><a class="viewcode-back" href="../../../workspace.html#torchx.workspace.docker_workspace.DockerWorkspaceMixin.workspace_opts">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">workspace_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">runopts</span><span class="p">:</span>
         <span class="n">opts</span> <span class="o">=</span> <span class="n">runopts</span><span class="p">()</span>
         <span class="n">opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
             <span class="s2">&quot;image_repo&quot;</span><span class="p">,</span>
@@ -541,7 +559,7 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">opts</span></div>
 
-<div class="viewcode-block" id="DockerWorkspaceMixin.build_workspace_and_update_role"><a class="viewcode-back" href="../../../workspace.html#torchx.workspace.docker_workspace.DockerWorkspaceMixin.build_workspace_and_update_role">[docs]</a>    <span class="k">def</span> <span class="nf">build_workspace_and_update_role</span><span class="p">(</span>
+<div class="viewcode-block" id="DockerWorkspaceMixin.build_workspace_and_update_role"><a class="viewcode-back" href="../../../workspace.html#torchx.workspace.docker_workspace.DockerWorkspaceMixin.build_workspace_and_update_role">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">build_workspace_and_update_role</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">,</span> <span class="n">workspace</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -600,7 +618,7 @@
         <span class="k">finally</span><span class="p">:</span>
             <span class="n">context</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="DockerWorkspaceMixin.dryrun_push_images"><a class="viewcode-back" href="../../../workspace.html#torchx.workspace.docker_workspace.DockerWorkspaceMixin.dryrun_push_images">[docs]</a>    <span class="k">def</span> <span class="nf">dryrun_push_images</span><span class="p">(</span>
+<div class="viewcode-block" id="DockerWorkspaceMixin.dryrun_push_images"><a class="viewcode-back" href="../../../workspace.html#torchx.workspace.docker_workspace.DockerWorkspaceMixin.dryrun_push_images">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">dryrun_push_images</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -635,7 +653,7 @@
                 <span class="n">role</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">remote_image</span>
         <span class="k">return</span> <span class="n">images_to_push</span></div>
 
-<div class="viewcode-block" id="DockerWorkspaceMixin.push_images"><a class="viewcode-back" href="../../../workspace.html#torchx.workspace.docker_workspace.DockerWorkspaceMixin.push_images">[docs]</a>    <span class="k">def</span> <span class="nf">push_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">images_to_push</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="DockerWorkspaceMixin.push_images"><a class="viewcode-back" href="../../../workspace.html#torchx.workspace.docker_workspace.DockerWorkspaceMixin.push_images">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">push_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">images_to_push</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        _push_images pushes the specified images to the remote container</span>
 <span class="sd">        repository with the specified tag. The docker daemon must be</span>
@@ -658,7 +676,7 @@
             <span class="p">)</span></div></div>
 
 
-<span class="k">def</span> <span class="nf">print_push_events</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">print_push_events</span><span class="p">(</span>
     <span class="n">events</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]],</span>
     <span class="n">stream</span><span class="p">:</span> <span class="n">TextIO</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -671,10 +689,10 @@
     <span class="n">ENDC</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[0m&quot;</span>
     <span class="n">HEADER</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">BLUE</span><span class="si">}</span><span class="s2">docker push </span><span class="si">{</span><span class="n">ENDC</span><span class="si">}</span><span class="s2">&quot;</span>
 
-    <span class="k">def</span> <span class="nf">lines_up</span><span class="p">(</span><span class="n">lines</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">lines_up</span><span class="p">(</span><span class="n">lines</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[</span><span class="si">{</span><span class="n">lines</span><span class="si">}</span><span class="s2">F&quot;</span>
 
-    <span class="k">def</span> <span class="nf">lines_down</span><span class="p">(</span><span class="n">lines</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">lines_down</span><span class="p">(</span><span class="n">lines</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[</span><span class="si">{</span><span class="n">lines</span><span class="si">}</span><span class="s2">E&quot;</span>
 
     <span class="n">ids</span> <span class="o">=</span> <span class="p">[]</span>
@@ -700,7 +718,7 @@
             <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">HEADER</span><span class="si">}{</span><span class="n">status</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_build_context</span><span class="p">(</span><span class="n">img</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">workspace</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IO</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_context</span><span class="p">(</span><span class="n">img</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">workspace</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IO</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]:</span>
     <span class="c1"># f is closed by parent, NamedTemporaryFile auto closes on GC</span>
     <span class="n">f</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span>  <span class="c1"># noqa P201</span>
         <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;torchx-context&quot;</span><span class="p">,</span>
@@ -717,7 +735,7 @@
     <span class="k">return</span> <span class="n">f</span>
 
 
-<span class="k">def</span> <span class="nf">_copy_to_tarfile</span><span class="p">(</span><span class="n">workspace</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">tf</span><span class="p">:</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">TarFile</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_copy_to_tarfile</span><span class="p">(</span><span class="n">workspace</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">tf</span><span class="p">:</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">TarFile</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">fs</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">fsspec</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">url_to_fs</span><span class="p">(</span><span class="n">workspace</span><span class="p">)</span>
     <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Workspace `</span><span class="si">{</span><span class="n">workspace</span><span class="si">}</span><span class="s2">` resolved to filesystem path `</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">`&quot;</span><span class="p">)</span>
     <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;path must be str&quot;</span>
@@ -968,7 +986,7 @@
                <a href="https://pytorch.org/resources">Developer Resources</a>
              </li>
              <li>
-               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2023</a>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2024</a>
              </li>
            </ul>
 
@@ -983,6 +1001,9 @@
              
              <li>
                <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch Documentation</a>
              </li>
            </ul>
 
@@ -1022,6 +1043,9 @@
             <li>
               <a href="https://pytorch.org/events">Events</a>
             </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">Newsletter</a>
+             </li>
           </ul>
           
           <li class="resources-mobile-menu-title">
@@ -1034,6 +1058,18 @@
             </li>
             <li>
               <a href="https://pytorch.org/governing-board">Governing Board</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">Cloud Credit Program</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">Technical Advisory Council</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">Staff</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">Contact Us</a>
             </li>
           </ul>
         </ul>

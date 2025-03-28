@@ -134,8 +134,8 @@
                   <span class=dropdown-title>Developer Resources</span>
                   <p>Find resources and get questions answered</p>
                 </a>
-                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2023">
-                  <span class="dropdown-title">Contributor Awards - 2023</span>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">Contributor Awards - 2024</span>
                   <p>Award winners announced at this year's PyTorch Conference</p>
                 </a>
               </div>
@@ -155,6 +155,9 @@
                 <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
                   <span class="dropdown-title">ExecuTorch</span>
                   <p>End-to-end solution for enabling on-device inference capabilities across mobile and edge devices</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch Docs</span>
                 </a>
               </div>
             </div>  
@@ -203,6 +206,10 @@
                   <span class="dropdown-title">Events</span>
                   <p>Find events, webinars, and podcasts</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">Newsletter</span>
+                  <p>Stay up-to-date with the latest updates</p>
+                </a>
             </div>
           </li>
 
@@ -218,7 +225,18 @@
                 </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
                   <span class="dropdown-title">Governing Board</span>
-                  <p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">Cloud Credit Program</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">Technical Advisory Council</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">Staff</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">Contact Us</span>
                 </a>
               </div>
             </div>
@@ -452,15 +470,15 @@
 <span class="sd">meaningful stages in a workflow.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">shlex</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shlex</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
-<span class="kn">import</span> <span class="nn">torchx</span>
-<span class="kn">import</span> <span class="nn">torchx.specs</span> <span class="k">as</span> <span class="nn">specs</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torchx</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torchx.specs</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">specs</span>
 
 
-<div class="viewcode-block" id="echo"><a class="viewcode-back" href="../../../components/utils.html#torchx.components.utils.echo">[docs]</a><span class="k">def</span> <span class="nf">echo</span><span class="p">(</span>
+<div class="viewcode-block" id="echo"><a class="viewcode-back" href="../../../components/utils.html#torchx.components.utils.echo">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">echo</span><span class="p">(</span>
     <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;hello world&quot;</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">torchx</span><span class="o">.</span><span class="n">IMAGE</span><span class="p">,</span> <span class="n">num_replicas</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -487,7 +505,7 @@
     <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="touch"><a class="viewcode-back" href="../../../components/utils.html#torchx.components.utils.touch">[docs]</a><span class="k">def</span> <span class="nf">touch</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">torchx</span><span class="o">.</span><span class="n">IMAGE</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">:</span>
+<div class="viewcode-block" id="touch"><a class="viewcode-back" href="../../../components/utils.html#torchx.components.utils.touch">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">touch</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">torchx</span><span class="o">.</span><span class="n">IMAGE</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Touches a file (calls touch)</span>
 
@@ -511,7 +529,7 @@
     <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="sh"><a class="viewcode-back" href="../../../components/utils.html#torchx.components.utils.sh">[docs]</a><span class="k">def</span> <span class="nf">sh</span><span class="p">(</span>
+<div class="viewcode-block" id="sh"><a class="viewcode-back" href="../../../components/utils.html#torchx.components.utils.sh">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">sh</span><span class="p">(</span>
     <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">image</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">torchx</span><span class="o">.</span><span class="n">IMAGE</span><span class="p">,</span>
     <span class="n">num_replicas</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
@@ -522,6 +540,7 @@
     <span class="n">env</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">max_retries</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">mounts</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">entrypoint</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Runs the provided command via sh. Currently sh does not support</span>
@@ -539,12 +558,20 @@
 <span class="sd">        max_retries: the number of scheduler retries allowed</span>
 <span class="sd">        mounts: mounts to mount into the worker environment/container (ex. type=&lt;bind/volume&gt;,src=/host,dst=/job[,readonly]).</span>
 <span class="sd">                See scheduler documentation for more info.</span>
+<span class="sd">        entrypoint: the entrypoint to use for the command (defaults to sh)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">escaped_args</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">shlex</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">)</span>
+    <span class="n">escaped_args</span> <span class="o">=</span> <span class="p">[</span><span class="n">shlex</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">env</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">env</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">env</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;LOGLEVEL&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;LOGLEVEL&quot;</span><span class="p">,</span> <span class="s2">&quot;WARNING&quot;</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">entrypoint</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">resolved_entrypoint</span> <span class="o">=</span> <span class="n">entrypoint</span>
+        <span class="n">resolved_args</span> <span class="o">=</span> <span class="n">escaped_args</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">resolved_entrypoint</span> <span class="o">=</span> <span class="s2">&quot;sh&quot;</span>
+        <span class="n">resolved_args</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;-c&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">escaped_args</span><span class="p">)]</span>
 
     <span class="k">return</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">(</span>
         <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sh&quot;</span><span class="p">,</span>
@@ -552,8 +579,8 @@
             <span class="n">specs</span><span class="o">.</span><span class="n">Role</span><span class="p">(</span>
                 <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sh&quot;</span><span class="p">,</span>
                 <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
-                <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;sh&quot;</span><span class="p">,</span>
-                <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;-c&quot;</span><span class="p">,</span> <span class="n">escaped_args</span><span class="p">],</span>
+                <span class="n">entrypoint</span><span class="o">=</span><span class="n">resolved_entrypoint</span><span class="p">,</span>
+                <span class="n">args</span><span class="o">=</span><span class="n">resolved_args</span><span class="p">,</span>
                 <span class="n">num_replicas</span><span class="o">=</span><span class="n">num_replicas</span><span class="p">,</span>
                 <span class="n">resource</span><span class="o">=</span><span class="n">specs</span><span class="o">.</span><span class="n">resource</span><span class="p">(</span><span class="n">cpu</span><span class="o">=</span><span class="n">cpu</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="n">gpu</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="n">memMB</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">h</span><span class="p">),</span>
                 <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
@@ -564,7 +591,7 @@
     <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="python"><a class="viewcode-back" href="../../../components/utils.html#torchx.components.utils.python">[docs]</a><span class="k">def</span> <span class="nf">python</span><span class="p">(</span>
+<div class="viewcode-block" id="python"><a class="viewcode-back" href="../../../components/utils.html#torchx.components.utils.python">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">python</span><span class="p">(</span>
     <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">m</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">c</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -630,7 +657,7 @@
     <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="binary"><a class="viewcode-back" href="../../../components/utils.html#torchx.components.utils.binary">[docs]</a><span class="k">def</span> <span class="nf">binary</span><span class="p">(</span>
+<div class="viewcode-block" id="binary"><a class="viewcode-back" href="../../../components/utils.html#torchx.components.utils.binary">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">binary</span><span class="p">(</span>
     <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">entrypoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;torchx_utils_binary&quot;</span><span class="p">,</span>
@@ -668,7 +695,7 @@
     <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="copy"><a class="viewcode-back" href="../../../components/utils.html#torchx.components.utils.copy">[docs]</a><span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="n">src</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dst</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">torchx</span><span class="o">.</span><span class="n">IMAGE</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">:</span>
+<div class="viewcode-block" id="copy"><a class="viewcode-back" href="../../../components/utils.html#torchx.components.utils.copy">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">copy</span><span class="p">(</span><span class="n">src</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dst</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">torchx</span><span class="o">.</span><span class="n">IMAGE</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    copy copies the file from src to dst. src and dst can be any valid fsspec</span>
 <span class="sd">    url.</span>
@@ -702,7 +729,7 @@
     <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="booth"><a class="viewcode-back" href="../../../components/utils.html#torchx.components.utils.booth">[docs]</a><span class="k">def</span> <span class="nf">booth</span><span class="p">(</span>
+<div class="viewcode-block" id="booth"><a class="viewcode-back" href="../../../components/utils.html#torchx.components.utils.booth">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">booth</span><span class="p">(</span>
     <span class="n">x1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">x2</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">trial_idx</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
@@ -970,7 +997,7 @@
                <a href="https://pytorch.org/resources">Developer Resources</a>
              </li>
              <li>
-               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2023</a>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2024</a>
              </li>
            </ul>
 
@@ -985,6 +1012,9 @@
              
              <li>
                <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch Documentation</a>
              </li>
            </ul>
 
@@ -1024,6 +1054,9 @@
             <li>
               <a href="https://pytorch.org/events">Events</a>
             </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">Newsletter</a>
+             </li>
           </ul>
           
           <li class="resources-mobile-menu-title">
@@ -1036,6 +1069,18 @@
             </li>
             <li>
               <a href="https://pytorch.org/governing-board">Governing Board</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">Cloud Credit Program</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">Technical Advisory Council</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">Staff</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">Contact Us</a>
             </li>
           </ul>
         </ul>

@@ -137,8 +137,8 @@
                   <span class=dropdown-title>Developer Resources</span>
                   <p>Find resources and get questions answered</p>
                 </a>
-                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2023">
-                  <span class="dropdown-title">Contributor Awards - 2023</span>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">Contributor Awards - 2024</span>
                   <p>Award winners announced at this year's PyTorch Conference</p>
                 </a>
               </div>
@@ -158,6 +158,9 @@
                 <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
                   <span class="dropdown-title">ExecuTorch</span>
                   <p>End-to-end solution for enabling on-device inference capabilities across mobile and edge devices</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch Docs</span>
                 </a>
               </div>
             </div>  
@@ -206,6 +209,10 @@
                   <span class="dropdown-title">Events</span>
                   <p>Find events, webinars, and podcasts</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">Newsletter</span>
+                  <p>Stay up-to-date with the latest updates</p>
+                </a>
             </div>
           </li>
 
@@ -221,7 +228,18 @@
                 </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
                   <span class="dropdown-title">Governing Board</span>
-                  <p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">Cloud Credit Program</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">Technical Advisory Council</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">Staff</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">Contact Us</span>
                 </a>
               </div>
             </div>
@@ -460,14 +478,14 @@ components.</p>
 corresponding ContainerOp instance.</p>
 <p>See component_from_app for description on the arguments. Any unspecified
 arguments are passed through to the KFP container factory method.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">kfp</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torchx</span> <span class="kn">import</span> <span class="n">specs</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torchx.pipelines.kfp.adapter</span> <span class="kn">import</span> <span class="n">container_from_app</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">kfp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">torchx</span><span class="w"> </span><span class="kn">import</span> <span class="n">specs</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">torchx.pipelines.kfp.adapter</span><span class="w"> </span><span class="kn">import</span> <span class="n">container_from_app</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">app_def</span> <span class="o">=</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;trainer&quot;</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">roles</span><span class="o">=</span><span class="p">[</span><span class="n">specs</span><span class="o">.</span><span class="n">Role</span><span class="p">(</span><span class="s2">&quot;trainer&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="s2">&quot;foo:latest&quot;</span><span class="p">)],</span>
 <span class="gp">... </span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">pipeline</span><span class="p">():</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">pipeline</span><span class="p">():</span>
 <span class="gp">... </span>    <span class="n">trainer</span> <span class="o">=</span> <span class="n">container_from_app</span><span class="p">(</span><span class="n">app_def</span><span class="p">)</span>
 <span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">trainer</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">kfp</span><span class="o">.</span><span class="n">compiler</span><span class="o">.</span><span class="n">Compiler</span><span class="p">()</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
@@ -493,14 +511,14 @@ the Volcano job scheduler on Kubernetes to run distributed apps. See
 </ul>
 </dd>
 </dl>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">kfp</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torchx</span> <span class="kn">import</span> <span class="n">specs</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torchx.pipelines.kfp.adapter</span> <span class="kn">import</span> <span class="n">resource_from_app</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">kfp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">torchx</span><span class="w"> </span><span class="kn">import</span> <span class="n">specs</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">torchx.pipelines.kfp.adapter</span><span class="w"> </span><span class="kn">import</span> <span class="n">resource_from_app</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">app_def</span> <span class="o">=</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;trainer&quot;</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">roles</span><span class="o">=</span><span class="p">[</span><span class="n">specs</span><span class="o">.</span><span class="n">Role</span><span class="p">(</span><span class="s2">&quot;trainer&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="s2">&quot;foo:latest&quot;</span><span class="p">,</span> <span class="n">num_replicas</span><span class="o">=</span><span class="mi">3</span><span class="p">)],</span>
 <span class="gp">... </span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">pipeline</span><span class="p">():</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">pipeline</span><span class="p">():</span>
 <span class="gp">... </span>    <span class="n">trainer</span> <span class="o">=</span> <span class="n">resource_from_app</span><span class="p">(</span><span class="n">app_def</span><span class="p">,</span> <span class="n">queue</span><span class="o">=</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
 <span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">trainer</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">kfp</span><span class="o">.</span><span class="n">compiler</span><span class="o">.</span><span class="n">Compiler</span><span class="p">()</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
@@ -530,8 +548,8 @@ for more info on the format.</p></li>
 </ul>
 </dd>
 </dl>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torchx</span> <span class="kn">import</span> <span class="n">specs</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torchx.pipelines.kfp.adapter</span> <span class="kn">import</span> <span class="n">component_from_app</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">torchx</span><span class="w"> </span><span class="kn">import</span> <span class="n">specs</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">torchx.pipelines.kfp.adapter</span><span class="w"> </span><span class="kn">import</span> <span class="n">component_from_app</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">app_def</span> <span class="o">=</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;trainer&quot;</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">roles</span><span class="o">=</span><span class="p">[</span><span class="n">specs</span><span class="o">.</span><span class="n">Role</span><span class="p">(</span><span class="s2">&quot;trainer&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="s2">&quot;foo:latest&quot;</span><span class="p">)],</span>
@@ -548,8 +566,8 @@ for more info on the format.</p></li>
 <dd><p>component_spec_from_app takes in a TorchX component and generates the yaml
 spec for it. Notably this doesn’t apply resources or port_maps since those
 must be applied at runtime which is why it returns the role spec as well.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torchx</span> <span class="kn">import</span> <span class="n">specs</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torchx.pipelines.kfp.adapter</span> <span class="kn">import</span> <span class="n">component_spec_from_app</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">torchx</span><span class="w"> </span><span class="kn">import</span> <span class="n">specs</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">torchx.pipelines.kfp.adapter</span><span class="w"> </span><span class="kn">import</span> <span class="n">component_spec_from_app</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">app_def</span> <span class="o">=</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;trainer&quot;</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">roles</span><span class="o">=</span><span class="p">[</span><span class="n">specs</span><span class="o">.</span><span class="n">Role</span><span class="p">(</span><span class="s2">&quot;trainer&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="s2">&quot;foo:latest&quot;</span><span class="p">)],</span>
@@ -811,7 +829,7 @@ kfp.dsl.ContainerOp.</p>
                <a href="https://pytorch.org/resources">Developer Resources</a>
              </li>
              <li>
-               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2023</a>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2024</a>
              </li>
            </ul>
 
@@ -826,6 +844,9 @@ kfp.dsl.ContainerOp.</p>
              
              <li>
                <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch Documentation</a>
              </li>
            </ul>
 
@@ -865,6 +886,9 @@ kfp.dsl.ContainerOp.</p>
             <li>
               <a href="https://pytorch.org/events">Events</a>
             </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">Newsletter</a>
+             </li>
           </ul>
           
           <li class="resources-mobile-menu-title">
@@ -877,6 +901,18 @@ kfp.dsl.ContainerOp.</p>
             </li>
             <li>
               <a href="https://pytorch.org/governing-board">Governing Board</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">Cloud Credit Program</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">Technical Advisory Council</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">Staff</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">Contact Us</a>
             </li>
           </ul>
         </ul>

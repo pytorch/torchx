@@ -1,17 +1,20 @@
 Ray
 =================
 
-.. automodule:: torchx.schedulers.ray_scheduler
+.. fbcode::
+   :exclude:
 
-.. currentmodule:: torchx.schedulers.ray_scheduler
+   .. automodule:: torchx.schedulers.ray_scheduler
 
-.. autoclass:: RayScheduler
-   :members:
-   :show-inheritance:
+   .. currentmodule:: torchx.schedulers.ray_scheduler
 
-.. autofunction:: create_scheduler
-.. autofunction:: has_ray
-.. autofunction:: serialize
+   .. autoclass:: RayScheduler
+      :members:
+      :show-inheritance:
 
-.. autoclass:: RayJob
-   :members:
+   .. autofunction:: create_scheduler
+   .. autofunction:: has_ray
+   .. autofunction:: serialize
+
+   .. autoclass:: RayJob
+      :members:

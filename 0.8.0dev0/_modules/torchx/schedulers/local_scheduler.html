@@ -134,8 +134,8 @@
                   <span class=dropdown-title>Developer Resources</span>
                   <p>Find resources and get questions answered</p>
                 </a>
-                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2023">
-                  <span class="dropdown-title">Contributor Awards - 2023</span>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">Contributor Awards - 2024</span>
                   <p>Award winners announced at this year's PyTorch Conference</p>
                 </a>
               </div>
@@ -155,6 +155,9 @@
                 <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
                   <span class="dropdown-title">ExecuTorch</span>
                   <p>End-to-end solution for enabling on-device inference capabilities across mobile and edge devices</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch Docs</span>
                 </a>
               </div>
             </div>  
@@ -203,6 +206,10 @@
                   <span class="dropdown-title">Events</span>
                   <p>Find events, webinars, and podcasts</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">Newsletter</span>
+                  <p>Stay up-to-date with the latest updates</p>
+                </a>
             </div>
           </li>
 
@@ -218,7 +225,18 @@
                 </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
                   <span class="dropdown-title">Governing Board</span>
-                  <p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">Cloud Credit Program</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">Technical Advisory Council</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">Staff</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">Contact Us</span>
                 </a>
               </div>
             </div>
@@ -453,24 +471,24 @@
 <span class="sd">components locally via subprocesses.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">abc</span>
-<span class="kn">import</span> <span class="nn">io</span>
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">pprint</span>
-<span class="kn">import</span> <span class="nn">shutil</span>
-<span class="kn">import</span> <span class="nn">signal</span>
-<span class="kn">import</span> <span class="nn">subprocess</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">tempfile</span>
-<span class="kn">import</span> <span class="nn">threading</span>
-<span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">asdict</span><span class="p">,</span> <span class="n">dataclass</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
-<span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">FrameType</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">abc</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pprint</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">signal</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">asdict</span><span class="p">,</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">types</span><span class="w"> </span><span class="kn">import</span> <span class="n">FrameType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">Any</span><span class="p">,</span>
     <span class="n">BinaryIO</span><span class="p">,</span>
     <span class="n">Callable</span><span class="p">,</span>
@@ -483,7 +501,7 @@
     <span class="n">Tuple</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">torchx.schedulers.api</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.schedulers.api</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">AppDryRunInfo</span><span class="p">,</span>
     <span class="n">DescribeAppResponse</span><span class="p">,</span>
     <span class="n">filter_regex</span><span class="p">,</span>
@@ -492,12 +510,12 @@
     <span class="n">split_lines_iterator</span><span class="p">,</span>
     <span class="n">Stream</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">torchx.schedulers.ids</span> <span class="kn">import</span> <span class="n">make_unique</span>
-<span class="kn">from</span> <span class="nn">torchx.schedulers.streams</span> <span class="kn">import</span> <span class="n">Tee</span>
-<span class="kn">from</span> <span class="nn">torchx.specs.api</span> <span class="kn">import</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">AppState</span><span class="p">,</span> <span class="n">is_terminal</span><span class="p">,</span> <span class="n">macros</span><span class="p">,</span> <span class="n">NONE</span><span class="p">,</span> <span class="n">Role</span><span class="p">,</span> <span class="n">runopts</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.schedulers.ids</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_unique</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.schedulers.streams</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tee</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.specs.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">AppState</span><span class="p">,</span> <span class="n">is_terminal</span><span class="p">,</span> <span class="n">macros</span><span class="p">,</span> <span class="n">NONE</span><span class="p">,</span> <span class="n">Role</span><span class="p">,</span> <span class="n">runopts</span>
 
-<span class="kn">from</span> <span class="nn">torchx.util.types</span> <span class="kn">import</span> <span class="n">none_throws</span>
-<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">TypedDict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.util.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">none_throws</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TypedDict</span>
 
 <span class="n">log</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -510,18 +528,18 @@
 <span class="n">ENV_CUDA_VISIBLE_DEVICES</span> <span class="o">=</span> <span class="s2">&quot;CUDA_VISIBLE_DEVICES&quot;</span>
 
 
-<div class="viewcode-block" id="SignalException"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.SignalException">[docs]</a><span class="k">class</span> <span class="nc">SignalException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="SignalException"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.SignalException">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">SignalException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception is raised during the runtime when the torchx local scheduler process</span>
 <span class="sd">    got termination signal.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">sigval</span><span class="p">:</span> <span class="n">signal</span><span class="o">.</span><span class="n">Signals</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">sigval</span><span class="p">:</span> <span class="n">signal</span><span class="o">.</span><span class="n">Signals</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sigval</span> <span class="o">=</span> <span class="n">sigval</span></div>
 
 
-<span class="k">def</span> <span class="nf">_terminate_process_handler</span><span class="p">(</span><span class="n">signum</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">frame</span><span class="p">:</span> <span class="n">FrameType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_terminate_process_handler</span><span class="p">(</span><span class="n">signum</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">frame</span><span class="p">:</span> <span class="n">FrameType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Termination handler that raises exceptions on the main process.</span>
 
 <span class="sd">    When the process receives death signal(SIGTERM, SIGINT), this termination handler will</span>
@@ -535,7 +553,7 @@
 
 
 <div class="viewcode-block" id="ReplicaParam"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.ReplicaParam">[docs]</a><span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">ReplicaParam</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ReplicaParam</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Holds ``LocalScheduler._popen()`` parameters for each replica of the role.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -551,14 +569,14 @@
     <span class="n">cwd</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 
-<div class="viewcode-block" id="ImageProvider"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.ImageProvider">[docs]</a><span class="k">class</span> <span class="nc">ImageProvider</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageProvider"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.ImageProvider">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">ImageProvider</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Manages downloading and setting up an image on localhost. This is only needed for</span>
 <span class="sd">    ``LocalhostScheduler`` since typically real schedulers will do this</span>
 <span class="sd">    on-behalf of the user.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="ImageProvider.fetch_role"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.ImageProvider.fetch_role">[docs]</a>    <span class="k">def</span> <span class="nf">fetch_role</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="ImageProvider.fetch_role"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.ImageProvider.fetch_role">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">fetch_role</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Identical to ``fetch(image)`` in that it fetches the role&#39;s</span>
 <span class="sd">        image and returns the path to the image root, except that</span>
@@ -571,14 +589,14 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ImageProvider.fetch"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.ImageProvider.fetch">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">fetch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fetch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Pulls the given image and returns a path to the pulled image on</span>
 <span class="sd">        the local host or empty string if no op</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="ImageProvider.get_replica_param"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.ImageProvider.get_replica_param">[docs]</a>    <span class="k">def</span> <span class="nf">get_replica_param</span><span class="p">(</span>
+<div class="viewcode-block" id="ImageProvider.get_replica_param"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.ImageProvider.get_replica_param">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_replica_param</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">img_root</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">,</span>
@@ -604,27 +622,27 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">get_cwd</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="p">),</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="ImageProvider.get_cwd"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.ImageProvider.get_cwd">[docs]</a>    <span class="k">def</span> <span class="nf">get_cwd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<div class="viewcode-block" id="ImageProvider.get_cwd"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.ImageProvider.get_cwd">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_cwd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the absolute path of the mounted img directory. Used as a working</span>
 <span class="sd">        directory for starting child processes.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="ImageProvider.get_entrypoint"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.ImageProvider.get_entrypoint">[docs]</a>    <span class="k">def</span> <span class="nf">get_entrypoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img_root</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="ImageProvider.get_entrypoint"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.ImageProvider.get_entrypoint">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_entrypoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img_root</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the location of the entrypoint.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">img_root</span><span class="p">,</span> <span class="n">role</span><span class="o">.</span><span class="n">entrypoint</span><span class="p">)</span></div></div>
 
 
-<span class="k">class</span> <span class="nc">LocalOpts</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LocalOpts</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="n">log_dir</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">prepend_cwd</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span>
     <span class="n">auto_set_cuda_visible_devices</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="LocalDirectoryImageProvider"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalDirectoryImageProvider">[docs]</a><span class="k">class</span> <span class="nc">LocalDirectoryImageProvider</span><span class="p">(</span><span class="n">ImageProvider</span><span class="p">):</span>
+<div class="viewcode-block" id="LocalDirectoryImageProvider"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalDirectoryImageProvider">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">LocalDirectoryImageProvider</span><span class="p">(</span><span class="n">ImageProvider</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Interprets the image name as the path to a directory on</span>
 <span class="sd">    local host. Does not &quot;fetch&quot; (e.g. download) anything. Used in conjunction</span>
@@ -640,10 +658,10 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">LocalOpts</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">LocalOpts</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">pass</span>
 
-<div class="viewcode-block" id="LocalDirectoryImageProvider.fetch"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalDirectoryImageProvider.fetch">[docs]</a>    <span class="k">def</span> <span class="nf">fetch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="LocalDirectoryImageProvider.fetch"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalDirectoryImageProvider.fetch">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">fetch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Raises:</span>
 <span class="sd">            ValueError: if the image name is not an absolute dir and if it</span>
@@ -657,14 +675,14 @@
 
         <span class="k">return</span> <span class="n">image</span></div>
 
-<div class="viewcode-block" id="LocalDirectoryImageProvider.get_cwd"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalDirectoryImageProvider.get_cwd">[docs]</a>    <span class="k">def</span> <span class="nf">get_cwd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<div class="viewcode-block" id="LocalDirectoryImageProvider.get_cwd"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalDirectoryImageProvider.get_cwd">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_cwd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the absolute working directory. Used as a working</span>
 <span class="sd">        directory for the child process.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">image</span></div>
 
-<div class="viewcode-block" id="LocalDirectoryImageProvider.get_entrypoint"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalDirectoryImageProvider.get_entrypoint">[docs]</a>    <span class="k">def</span> <span class="nf">get_entrypoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img_root</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="LocalDirectoryImageProvider.get_entrypoint"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalDirectoryImageProvider.get_entrypoint">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_entrypoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img_root</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the role entrypoint. When local scheduler is executed with</span>
 <span class="sd">        image_type=dir, the childprocess working directory will be set to the</span>
@@ -675,7 +693,7 @@
         <span class="k">return</span> <span class="n">role</span><span class="o">.</span><span class="n">entrypoint</span></div></div>
 
 
-<div class="viewcode-block" id="CWDImageProvider"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.CWDImageProvider">[docs]</a><span class="k">class</span> <span class="nc">CWDImageProvider</span><span class="p">(</span><span class="n">ImageProvider</span><span class="p">):</span>
+<div class="viewcode-block" id="CWDImageProvider"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.CWDImageProvider">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">CWDImageProvider</span><span class="p">(</span><span class="n">ImageProvider</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Similar to LocalDirectoryImageProvider however it ignores the image name and</span>
 <span class="sd">    uses the current working directory as the image path.</span>
@@ -687,16 +705,16 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">LocalOpts</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">LocalOpts</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">pass</span>
 
-<div class="viewcode-block" id="CWDImageProvider.fetch"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.CWDImageProvider.fetch">[docs]</a>    <span class="k">def</span> <span class="nf">fetch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="CWDImageProvider.fetch"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.CWDImageProvider.fetch">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">fetch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="CWDImageProvider.get_cwd"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.CWDImageProvider.get_cwd">[docs]</a>    <span class="k">def</span> <span class="nf">get_cwd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<div class="viewcode-block" id="CWDImageProvider.get_cwd"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.CWDImageProvider.get_cwd">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_cwd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="CWDImageProvider.get_entrypoint"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.CWDImageProvider.get_entrypoint">[docs]</a>    <span class="k">def</span> <span class="nf">get_entrypoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img_root</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="CWDImageProvider.get_entrypoint"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.CWDImageProvider.get_entrypoint">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_entrypoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img_root</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">role</span><span class="o">.</span><span class="n">entrypoint</span></div></div>
 
 
@@ -706,7 +724,7 @@
 <span class="n">RoleName</span> <span class="o">=</span> <span class="nb">str</span>
 
 
-<span class="k">class</span> <span class="nc">PopenProtocol</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PopenProtocol</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Protocol wrapper around python&#39;s ``subprocess.Popen``. Keeps track of</span>
 <span class="sd">    the a list of interface methods that the process scheduled by the `LocalScheduler`</span>
@@ -714,20 +732,20 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">pid</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pid</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span> <span class="o">...</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">returncode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">returncode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span> <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">wait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">wait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span> <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">poll</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">poll</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span> <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">kill</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">kill</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
 
 
 <span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">_LocalReplica</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_LocalReplica</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Contains information about a locally running role replica.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -744,7 +762,7 @@
 
     <span class="n">error_file</span><span class="p">:</span> <span class="nb">str</span>
 
-    <span class="k">def</span> <span class="nf">terminate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">terminate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        terminates the underlying process for this replica</span>
 <span class="sd">        closes stdout and stderr file handles</span>
@@ -764,24 +782,24 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">combined</span><span class="p">:</span>
             <span class="n">none_throws</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">combined</span><span class="p">)</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">is_alive</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_alive</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">proc</span><span class="o">.</span><span class="n">poll</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">failed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">failed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_alive</span><span class="p">():</span>  <span class="c1"># if still running, then has not failed</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">proc</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span>
 
 
-<span class="k">class</span> <span class="nc">_LocalAppDef</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_LocalAppDef</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Container object used by ``LocalhostScheduler`` to group the pids that</span>
 <span class="sd">    form an application. Each replica of a role in the application is a</span>
 <span class="sd">    process and has a pid.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">log_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">log_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="nb">id</span>
         <span class="c1"># cfg.get(&quot;log_dir&quot;)/&lt;session_name&gt;/&lt;app_id&gt; or /tmp/torchx/&lt;session_name&gt;/&lt;app_id&gt;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">log_dir</span> <span class="o">=</span> <span class="n">log_dir</span>
@@ -791,15 +809,15 @@
         <span class="c1"># time (in seconds since epoch) when the last set_state method() was called</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">last_updated</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
 
-    <span class="k">def</span> <span class="nf">add_replica</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">role_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">replica</span><span class="p">:</span> <span class="n">_LocalReplica</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_replica</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">role_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">replica</span><span class="p">:</span> <span class="n">_LocalReplica</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">procs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">role_replicas</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">role_name</span><span class="p">,</span> <span class="p">[])</span>
         <span class="n">procs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">replica</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">set_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">AppState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">AppState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">last_updated</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state</span>
 
-    <span class="k">def</span> <span class="nf">kill</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">kill</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        terminates all procs associated with this app,</span>
 <span class="sd">        and closes any resources (e.g. log file handles)</span>
@@ -840,7 +858,7 @@
                 <span class="n">r</span><span class="o">.</span><span class="n">proc</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
                 <span class="n">r</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">_get_error_file</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_error_file</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="n">error_file</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">min_timestamp</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span>
         <span class="k">for</span> <span class="n">replicas</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">role_replicas</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
@@ -853,7 +871,7 @@
                     <span class="n">error_file</span> <span class="o">=</span> <span class="n">replica</span><span class="o">.</span><span class="n">error_file</span>
         <span class="k">return</span> <span class="n">error_file</span>
 
-    <span class="k">def</span> <span class="nf">get_structured_error_msg</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_structured_error_msg</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">error_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_error_file</span><span class="p">()</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">error_file</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">NONE</span>
@@ -861,7 +879,7 @@
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">error_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        terminates all procs associated with this app,</span>
 <span class="sd">        and closes any resources (e.g. log file handles)</span>
@@ -872,7 +890,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
 
-        <span class="k">def</span> <span class="nf">_fmt_io_filename</span><span class="p">(</span><span class="n">std_io</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BinaryIO</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">_fmt_io_filename</span><span class="p">(</span><span class="n">std_io</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BinaryIO</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">std_io</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">std_io</span><span class="o">.</span><span class="n">name</span>
             <span class="k">else</span><span class="p">:</span>
@@ -909,7 +927,7 @@
 
         <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Successfully closed app_id: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">.</span><span class="se">\n</span><span class="si">{</span><span class="n">info_str</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">role_to_pid</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">role_name</span><span class="p">,</span> <span class="n">replicas</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">role_replicas</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">pids</span> <span class="o">=</span> <span class="n">role_to_pid</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">role_name</span><span class="p">,</span> <span class="p">[])</span>
@@ -919,7 +937,7 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">{{</span><span class="s2">app_id:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">, state:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="si">}</span><span class="s2">, pid_map:</span><span class="si">{</span><span class="n">role_to_pid</span><span class="si">}</span><span class="se">}}</span><span class="s2">&quot;</span>
 
 
-<span class="k">def</span> <span class="nf">_join_PATH</span><span class="p">(</span><span class="o">*</span><span class="n">paths</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_join_PATH</span><span class="p">(</span><span class="o">*</span><span class="n">paths</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Joins strings that go in the PATH env var.</span>
 <span class="sd">    Deals with empty strings and None-types, making sure no leading</span>
@@ -943,7 +961,7 @@
 
 
 <div class="viewcode-block" id="PopenRequest"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.PopenRequest">[docs]</a><span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">PopenRequest</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PopenRequest</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Holds parameters to create a subprocess for each replica of each role</span>
 <span class="sd">    of an application.</span>
@@ -959,7 +977,7 @@
     <span class="n">role_log_dirs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">RoleName</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span></div>
 
 
-<span class="k">def</span> <span class="nf">_register_termination_signals</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_register_termination_signals</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Register SIGTERM and SIGINT handlers only for the main thread.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -970,7 +988,7 @@
         <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="n">_terminate_process_handler</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="LocalScheduler"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalScheduler">[docs]</a><span class="k">class</span> <span class="nc">LocalScheduler</span><span class="p">(</span><span class="n">Scheduler</span><span class="p">[</span><span class="n">LocalOpts</span><span class="p">]):</span>
+<div class="viewcode-block" id="LocalScheduler"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalScheduler">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">LocalScheduler</span><span class="p">(</span><span class="n">Scheduler</span><span class="p">[</span><span class="n">LocalOpts</span><span class="p">,</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">AppDryRunInfo</span><span class="p">[</span><span class="n">PopenRequest</span><span class="p">]]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Schedules on localhost. Containers are modeled as processes and</span>
 <span class="sd">    certain properties of the container that are either not relevant</span>
@@ -1022,7 +1040,7 @@
 <span class="sd">            elasticity: false</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">image_provider_class</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">LocalOpts</span><span class="p">],</span> <span class="n">ImageProvider</span><span class="p">],</span>
@@ -1047,7 +1065,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_base_log_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_created_tmp_log_dir</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 
-    <span class="k">def</span> <span class="nf">_run_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">runopts</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_run_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">runopts</span><span class="p">:</span>
         <span class="n">opts</span> <span class="o">=</span> <span class="n">runopts</span><span class="p">()</span>
         <span class="n">opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
             <span class="s2">&quot;log_dir&quot;</span><span class="p">,</span>
@@ -1071,11 +1089,11 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">opts</span>
 
-    <span class="k">def</span> <span class="nf">_validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">LocalOpts</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># Skip validation step for local application</span>
         <span class="k">pass</span>
 
-    <span class="k">def</span> <span class="nf">_evict_lru</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_evict_lru</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Evicts one least recently used element from the apps cache. LRU is defined as</span>
 <span class="sd">        the oldest app in a terminal state (e.g. oldest finished app).</span>
@@ -1101,7 +1119,7 @@
             <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;no apps evicted, all </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_apps</span><span class="p">)</span><span class="si">}</span><span class="s2"> apps are running&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">False</span>
 
-    <span class="k">def</span> <span class="nf">_get_file_io</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">io</span><span class="o">.</span><span class="n">FileIO</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_file_io</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">io</span><span class="o">.</span><span class="n">FileIO</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Given a file name, opens the file for write and returns the IO.</span>
 <span class="sd">        If no file name is given, then returns ``None``</span>
@@ -1120,7 +1138,7 @@
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">file</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">io</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;wb&quot;</span><span class="p">,</span> <span class="n">buffering</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_popen</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_popen</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">role_name</span><span class="p">:</span> <span class="n">RoleName</span><span class="p">,</span>
         <span class="n">replica_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -1137,12 +1155,11 @@
         <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Running </span><span class="si">{</span><span class="n">role_name</span><span class="si">}</span><span class="s2"> (replica </span><span class="si">{</span><span class="n">replica_id</span><span class="si">}</span><span class="s2">):</span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="n">args_pfmt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">env</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_replica_env</span><span class="p">(</span><span class="n">replica_params</span><span class="p">)</span>
 
-        <span class="n">proc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span>
+        <span class="n">proc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_local_job</span><span class="p">(</span>
             <span class="n">args</span><span class="o">=</span><span class="n">replica_params</span><span class="o">.</span><span class="n">args</span><span class="p">,</span>
             <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
             <span class="n">stdout</span><span class="o">=</span><span class="n">stdout_</span><span class="p">,</span>
             <span class="n">stderr</span><span class="o">=</span><span class="n">stderr_</span><span class="p">,</span>
-            <span class="n">start_new_session</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">cwd</span><span class="o">=</span><span class="n">replica_params</span><span class="o">.</span><span class="n">cwd</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">_LocalReplica</span><span class="p">(</span>
@@ -1155,7 +1172,24 @@
             <span class="n">error_file</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;TORCHELASTIC_ERROR_FILE&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;N/A&gt;&quot;</span><span class="p">),</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_get_replica_output_handles</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run_local_job</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">env</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+        <span class="n">stdout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">io</span><span class="o">.</span><span class="n">FileIO</span><span class="p">],</span>
+        <span class="n">stderr</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">io</span><span class="o">.</span><span class="n">FileIO</span><span class="p">],</span>
+        <span class="n">cwd</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;subprocess.Popen[bytes]&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span>
+            <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span>
+            <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
+            <span class="n">stdout</span><span class="o">=</span><span class="n">stdout</span><span class="p">,</span>
+            <span class="n">stderr</span><span class="o">=</span><span class="n">stderr</span><span class="p">,</span>
+            <span class="n">start_new_session</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">cwd</span><span class="o">=</span><span class="n">cwd</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_replica_output_handles</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">replica_params</span><span class="p">:</span> <span class="n">ReplicaParam</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">io</span><span class="o">.</span><span class="n">FileIO</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="n">io</span><span class="o">.</span><span class="n">FileIO</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tee</span><span class="p">]]:</span>
@@ -1176,7 +1210,7 @@
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">stdout_</span><span class="p">,</span> <span class="n">stderr_</span><span class="p">,</span> <span class="n">combined_</span>
 
-    <span class="k">def</span> <span class="nf">_get_replica_env</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_replica_env</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">replica_params</span><span class="p">:</span> <span class="n">ReplicaParam</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
@@ -1196,7 +1230,7 @@
 
         <span class="k">return</span> <span class="n">env</span>
 
-    <span class="k">def</span> <span class="nf">_get_app_log_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">LocalOpts</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_app_log_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">LocalOpts</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the log dir. We redirect stdout/err</span>
 <span class="sd">        to a log file ONLY if the log_dir is user-provided in the cfg</span>
@@ -1218,7 +1252,7 @@
         <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Log directory is: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_log_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_log_dir</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">session_name</span><span class="p">,</span> <span class="n">app_id</span><span class="p">)</span>
 
-<div class="viewcode-block" id="LocalScheduler.schedule"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalScheduler.schedule">[docs]</a>    <span class="k">def</span> <span class="nf">schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dryrun_info</span><span class="p">:</span> <span class="n">AppDryRunInfo</span><span class="p">[</span><span class="n">PopenRequest</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="LocalScheduler.schedule"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalScheduler.schedule">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dryrun_info</span><span class="p">:</span> <span class="n">AppDryRunInfo</span><span class="p">[</span><span class="n">PopenRequest</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_apps</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache_size</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evict_lru</span><span class="p">():</span>
                 <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span>
@@ -1252,7 +1286,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_apps</span><span class="p">[</span><span class="n">app_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">local_app</span>
         <span class="k">return</span> <span class="n">app_id</span></div>
 
-    <span class="k">def</span> <span class="nf">_submit_dryrun</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_submit_dryrun</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">LocalOpts</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppDryRunInfo</span><span class="p">[</span><span class="n">PopenRequest</span><span class="p">]:</span>
         <span class="n">request</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_to_popen_request</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
@@ -1260,7 +1294,7 @@
             <span class="n">request</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">pprint</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="n">asdict</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">80</span><span class="p">)</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_cuda_device_count</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_cuda_device_count</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="c1"># this method deliberately does not use ``torch.cuda.device_count()``</span>
         <span class="c1"># to avoid taking a dependency on pytorch</span>
         <span class="c1"># this makes it possible to avoid a BUCK dependency (internally at Meta)</span>
@@ -1278,7 +1312,7 @@
             <span class="n">log</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Got exception while listing GPUs: </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">stderr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="mi">0</span>
 
-<div class="viewcode-block" id="LocalScheduler.auto_set_CUDA_VISIBLE_DEVICES"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalScheduler.auto_set_CUDA_VISIBLE_DEVICES">[docs]</a>    <span class="k">def</span> <span class="nf">auto_set_CUDA_VISIBLE_DEVICES</span><span class="p">(</span>
+<div class="viewcode-block" id="LocalScheduler.auto_set_CUDA_VISIBLE_DEVICES"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalScheduler.auto_set_CUDA_VISIBLE_DEVICES">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">auto_set_CUDA_VISIBLE_DEVICES</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">role_params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">ReplicaParam</span><span class="p">]],</span>
         <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span>
@@ -1370,7 +1404,7 @@
                 <span class="p">)</span>
                 <span class="n">start_idx</span> <span class="o">=</span> <span class="n">end_idx</span></div>
 
-    <span class="k">def</span> <span class="nf">_to_popen_request</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_to_popen_request</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span>
         <span class="n">cfg</span><span class="p">:</span> <span class="n">LocalOpts</span><span class="p">,</span>
@@ -1447,7 +1481,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">auto_set_CUDA_VISIBLE_DEVICES</span><span class="p">(</span><span class="n">role_params</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">PopenRequest</span><span class="p">(</span><span class="n">app_id</span><span class="p">,</span> <span class="n">app_log_dir</span><span class="p">,</span> <span class="n">role_params</span><span class="p">,</span> <span class="n">role_log_dirs</span><span class="p">)</span>
 
-<div class="viewcode-block" id="LocalScheduler.describe"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalScheduler.describe">[docs]</a>    <span class="k">def</span> <span class="nf">describe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DescribeAppResponse</span><span class="p">]:</span>
+<div class="viewcode-block" id="LocalScheduler.describe"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalScheduler.describe">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">describe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DescribeAppResponse</span><span class="p">]:</span>
         <span class="k">if</span> <span class="n">app_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apps</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
 
@@ -1484,7 +1518,7 @@
         <span class="n">resp</span><span class="o">.</span><span class="n">ui_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;file://</span><span class="si">{</span><span class="n">local_app</span><span class="o">.</span><span class="n">log_dir</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="k">return</span> <span class="n">resp</span></div>
 
-<div class="viewcode-block" id="LocalScheduler.log_iter"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalScheduler.log_iter">[docs]</a>    <span class="k">def</span> <span class="nf">log_iter</span><span class="p">(</span>
+<div class="viewcode-block" id="LocalScheduler.log_iter"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalScheduler.log_iter">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">log_iter</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">role_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -1522,18 +1556,18 @@
             <span class="n">iterator</span> <span class="o">=</span> <span class="n">filter_regex</span><span class="p">(</span><span class="n">regex</span><span class="p">,</span> <span class="n">iterator</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">iterator</span></div>
 
-<div class="viewcode-block" id="LocalScheduler.list"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalScheduler.list">[docs]</a>    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ListAppResponse</span><span class="p">]:</span>
+<div class="viewcode-block" id="LocalScheduler.list"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalScheduler.list">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ListAppResponse</span><span class="p">]:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
             <span class="s2">&quot;App handles cannot be listed for local scheduler as they are not persisted by torchx&quot;</span>
         <span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">_cancel_existing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_cancel_existing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># can assume app_id exists</span>
         <span class="n">local_app</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apps</span><span class="p">[</span><span class="n">app_id</span><span class="p">]</span>
         <span class="n">local_app</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="n">local_app</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">AppState</span><span class="o">.</span><span class="n">CANCELLED</span>
 
-<div class="viewcode-block" id="LocalScheduler.close"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalScheduler.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="LocalScheduler.close"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalScheduler.close">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># terminate all apps</span>
         <span class="k">for</span> <span class="n">app_id</span><span class="p">,</span> <span class="n">app</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apps</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Terminating app: </span><span class="si">{</span><span class="n">app_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -1542,7 +1576,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_log_dir</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_created_tmp_log_dir</span><span class="p">:</span>
             <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_log_dir</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -1553,8 +1587,8 @@
             <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="LogIterator"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LogIterator">[docs]</a><span class="k">class</span> <span class="nc">LogIterator</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<div class="viewcode-block" id="LogIterator"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LogIterator">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">LogIterator</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">log_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -1569,7 +1603,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_scheduler</span><span class="p">:</span> <span class="n">Scheduler</span> <span class="o">=</span> <span class="n">scheduler</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_app_finished</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">should_tail</span>
 
-    <span class="k">def</span> <span class="nf">_check_finished</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_finished</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># either the app (already finished) was evicted from the LRU cache</span>
         <span class="c1"># -- or -- the app reached a terminal state (and still in the cache)</span>
         <span class="n">desc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scheduler</span><span class="o">.</span><span class="n">describe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_app_id</span><span class="p">)</span>
@@ -1578,7 +1612,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_app_finished</span> <span class="o">=</span> <span class="kc">False</span>
 
-    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;LogIterator&quot;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;LogIterator&quot;</span><span class="p">:</span>
         <span class="c1"># wait for the log file to appear or app to finish (whichever happens first)</span>
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_check_finished</span><span class="p">()</span>  <span class="c1"># check to see if app has finished running</span>
@@ -1601,7 +1635,7 @@
             <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="fm">__next__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__next__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">log_fp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_fp</span>
         <span class="k">assert</span> <span class="n">log_fp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="n">BUFSIZE</span> <span class="o">=</span> <span class="mi">64000</span>
@@ -1621,7 +1655,7 @@
                 <span class="k">return</span> <span class="n">line</span></div>
 
 
-<div class="viewcode-block" id="create_scheduler"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.create_scheduler">[docs]</a><span class="k">def</span> <span class="nf">create_scheduler</span><span class="p">(</span>
+<div class="viewcode-block" id="create_scheduler"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.create_scheduler">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">create_scheduler</span><span class="p">(</span>
     <span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">cache_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
     <span class="n">extra_paths</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1861,7 +1895,7 @@
                <a href="https://pytorch.org/resources">Developer Resources</a>
              </li>
              <li>
-               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2023</a>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2024</a>
              </li>
            </ul>
 
@@ -1876,6 +1910,9 @@
              
              <li>
                <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch Documentation</a>
              </li>
            </ul>
 
@@ -1915,6 +1952,9 @@
             <li>
               <a href="https://pytorch.org/events">Events</a>
             </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">Newsletter</a>
+             </li>
           </ul>
           
           <li class="resources-mobile-menu-title">
@@ -1927,6 +1967,18 @@
             </li>
             <li>
               <a href="https://pytorch.org/governing-board">Governing Board</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">Cloud Credit Program</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">Technical Advisory Council</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">Staff</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">Contact Us</a>
             </li>
           </ul>
         </ul>

@@ -166,27 +166,6 @@ in their respective main modules: `train.py` and `interpret.py`.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="This is a toy model for doing regression on the tiny imagenet dataset. It&#x27;s used by the apps in...">
-
-.. only:: html
-
- .. figure:: /examples_apps/lightning/images/thumb/sphx_glr_model_thumb.png
-     :alt: Tiny ImageNet Model
-
-     :ref:`sphx_glr_examples_apps_lightning_model.py`
-
-.. raw:: html
-
-    </div>
-
-
-.. toctree::
-   :hidden:
-
-   /examples_apps/lightning/model
-
-.. raw:: html
-
     <div class="sphx-glr-thumbcontainer" tooltip="This is an example TorchX app that uses captum to analyze inputs to for model interpretability ...">
 
 .. only:: html
@@ -205,6 +184,27 @@ in their respective main modules: `train.py` and `interpret.py`.
    :hidden:
 
    /examples_apps/lightning/interpret
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This is a toy model for doing regression on the tiny imagenet dataset. It&#x27;s used by the apps in...">
+
+.. only:: html
+
+ .. figure:: /examples_apps/lightning/images/thumb/sphx_glr_model_thumb.png
+     :alt: Tiny ImageNet Model
+
+     :ref:`sphx_glr_examples_apps_lightning_model.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples_apps/lightning/model
 
 .. raw:: html
 

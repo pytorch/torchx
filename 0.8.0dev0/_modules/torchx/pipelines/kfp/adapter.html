@@ -134,8 +134,8 @@
                   <span class=dropdown-title>Developer Resources</span>
                   <p>Find resources and get questions answered</p>
                 </a>
-                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2023">
-                  <span class="dropdown-title">Contributor Awards - 2023</span>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">Contributor Awards - 2024</span>
                   <p>Award winners announced at this year's PyTorch Conference</p>
                 </a>
               </div>
@@ -155,6 +155,9 @@
                 <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
                   <span class="dropdown-title">ExecuTorch</span>
                   <p>End-to-end solution for enabling on-device inference capabilities across mobile and edge devices</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch Docs</span>
                 </a>
               </div>
             </div>  
@@ -203,6 +206,10 @@
                   <span class="dropdown-title">Events</span>
                   <p>Find events, webinars, and podcasts</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">Newsletter</span>
+                  <p>Stay up-to-date with the latest updates</p>
+                </a>
             </div>
           </li>
 
@@ -218,7 +225,18 @@
                 </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
                   <span class="dropdown-title">Governing Board</span>
-                  <p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">Cloud Credit Program</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">Technical Advisory Council</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">Staff</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">Contact Us</span>
                 </a>
               </div>
             </div>
@@ -446,31 +464,31 @@
 
 <span class="c1"># pyre-strict</span>
 
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">os.path</span>
-<span class="kn">import</span> <span class="nn">shlex</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os.path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shlex</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
-<span class="kn">import</span> <span class="nn">yaml</span>
-<span class="kn">from</span> <span class="nn">kfp</span> <span class="kn">import</span> <span class="n">components</span><span class="p">,</span> <span class="n">dsl</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kfp</span><span class="w"> </span><span class="kn">import</span> <span class="n">components</span><span class="p">,</span> <span class="n">dsl</span>
 
 <span class="c1"># @manual=fbsource//third-party/pypi/kfp:kfp</span>
-<span class="kn">from</span> <span class="nn">kfp.components.structures</span> <span class="kn">import</span> <span class="n">ComponentSpec</span><span class="p">,</span> <span class="n">OutputSpec</span>
-<span class="kn">from</span> <span class="nn">kubernetes.client.models</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kfp.components.structures</span><span class="w"> </span><span class="kn">import</span> <span class="n">ComponentSpec</span><span class="p">,</span> <span class="n">OutputSpec</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kubernetes.client.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">V1ContainerPort</span><span class="p">,</span>
     <span class="n">V1EmptyDirVolumeSource</span><span class="p">,</span>
     <span class="n">V1Volume</span><span class="p">,</span>
     <span class="n">V1VolumeMount</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">torchx.schedulers.kubernetes_scheduler</span> <span class="kn">import</span> <span class="n">app_to_resource</span><span class="p">,</span> <span class="n">pod_labels</span>
-<span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="n">api</span>
-<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">Protocol</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.schedulers.kubernetes_scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">app_to_resource</span><span class="p">,</span> <span class="n">pod_labels</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.specs</span><span class="w"> </span><span class="kn">import</span> <span class="n">api</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Protocol</span>
 
-<span class="kn">from</span> <span class="nn">.version</span> <span class="kn">import</span> <span class="n">__version__</span> <span class="k">as</span> <span class="n">__version__</span>  <span class="c1"># noqa F401</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.version</span><span class="w"> </span><span class="kn">import</span> <span class="n">__version__</span> <span class="k">as</span> <span class="n">__version__</span>  <span class="c1"># noqa F401</span>
 
 
-<div class="viewcode-block" id="component_spec_from_app"><a class="viewcode-back" href="../../../../pipelines/kfp.html#torchx.pipelines.kfp.adapter.component_spec_from_app">[docs]</a><span class="k">def</span> <span class="nf">component_spec_from_app</span><span class="p">(</span><span class="n">app</span><span class="p">:</span> <span class="n">api</span><span class="o">.</span><span class="n">AppDef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">api</span><span class="o">.</span><span class="n">Role</span><span class="p">]:</span>
+<div class="viewcode-block" id="component_spec_from_app"><a class="viewcode-back" href="../../../../pipelines/kfp.html#torchx.pipelines.kfp.adapter.component_spec_from_app">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">component_spec_from_app</span><span class="p">(</span><span class="n">app</span><span class="p">:</span> <span class="n">api</span><span class="o">.</span><span class="n">AppDef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">api</span><span class="o">.</span><span class="n">Role</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    component_spec_from_app takes in a TorchX component and generates the yaml</span>
 <span class="sd">    spec for it. Notably this doesn&#39;t apply resources or port_maps since those</span>
@@ -489,7 +507,9 @@
 
     <span class="n">role</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">assert</span> <span class="p">(</span>
-        <span class="n">role</span><span class="o">.</span><span class="n">num_replicas</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="n">role</span><span class="o">.</span><span class="n">num_replicas</span>
+        <span class="o">==</span> <span class="mi">1</span>
+        <span class="c1"># pyre-fixme[16]: `AppDef` has no attribute `num_replicas`.</span>
     <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;KFP adapter only supports one replica, got </span><span class="si">{</span><span class="n">app</span><span class="o">.</span><span class="n">num_replicas</span><span class="si">}</span><span class="s2">&quot;</span>
 
     <span class="n">command</span> <span class="o">=</span> <span class="p">[</span><span class="n">role</span><span class="o">.</span><span class="n">entrypoint</span><span class="p">,</span> <span class="o">*</span><span class="n">role</span><span class="o">.</span><span class="n">args</span><span class="p">]</span>
@@ -509,16 +529,16 @@
     <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">spec</span><span class="p">),</span> <span class="n">role</span></div>
 
 
-<div class="viewcode-block" id="ContainerFactory"><a class="viewcode-back" href="../../../../pipelines/kfp.html#torchx.pipelines.kfp.adapter.ContainerFactory">[docs]</a><span class="k">class</span> <span class="nc">ContainerFactory</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<div class="viewcode-block" id="ContainerFactory"><a class="viewcode-back" href="../../../../pipelines/kfp.html#torchx.pipelines.kfp.adapter.ContainerFactory">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">ContainerFactory</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    ContainerFactory is a protocol that represents a function that when called produces a</span>
 <span class="sd">    kfp.dsl.ContainerOp.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dsl</span><span class="o">.</span><span class="n">ContainerOp</span><span class="p">:</span> <span class="o">...</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dsl</span><span class="o">.</span><span class="n">ContainerOp</span><span class="p">:</span> <span class="o">...</span></div>
 
 
-<span class="k">class</span> <span class="nc">KFPContainerFactory</span><span class="p">(</span><span class="n">ContainerFactory</span><span class="p">,</span> <span class="n">Protocol</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KFPContainerFactory</span><span class="p">(</span><span class="n">ContainerFactory</span><span class="p">,</span> <span class="n">Protocol</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    KFPContainerFactory is a ContainerFactory that also has some KFP metadata</span>
 <span class="sd">    attached to it.</span>
@@ -530,7 +550,7 @@
 <span class="n">METADATA_FILE</span> <span class="o">=</span> <span class="s2">&quot;/tmp/outputs/mlpipeline-ui-metadata/data.json&quot;</span>
 
 
-<div class="viewcode-block" id="component_from_app"><a class="viewcode-back" href="../../../../pipelines/kfp.html#torchx.pipelines.kfp.adapter.component_from_app">[docs]</a><span class="k">def</span> <span class="nf">component_from_app</span><span class="p">(</span>
+<div class="viewcode-block" id="component_from_app"><a class="viewcode-back" href="../../../../pipelines/kfp.html#torchx.pipelines.kfp.adapter.component_from_app">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">component_from_app</span><span class="p">(</span>
     <span class="n">app</span><span class="p">:</span> <span class="n">api</span><span class="o">.</span><span class="n">AppDef</span><span class="p">,</span> <span class="n">ui_metadata</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ContainerFactory</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -575,7 +595,7 @@
             <span class="p">)</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">factory_wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dsl</span><span class="o">.</span><span class="n">ContainerOp</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">factory_wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dsl</span><span class="o">.</span><span class="n">ContainerOp</span><span class="p">:</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">component_factory</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">container</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">container</span>
 
@@ -622,7 +642,7 @@
     <span class="k">return</span> <span class="n">factory_wrapper</span></div>
 
 
-<span class="k">def</span> <span class="nf">_ui_metadata_sidecar</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_ui_metadata_sidecar</span><span class="p">(</span>
     <span class="n">ui_metadata</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">],</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;alpine&quot;</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dsl</span><span class="o">.</span><span class="n">Sidecar</span><span class="p">:</span>
     <span class="n">shell_encoded</span> <span class="o">=</span> <span class="n">shlex</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">ui_metadata</span><span class="p">))</span>
@@ -639,7 +659,7 @@
     <span class="p">)</span>
 
 
-<div class="viewcode-block" id="container_from_app"><a class="viewcode-back" href="../../../../pipelines/kfp.html#torchx.pipelines.kfp.adapter.container_from_app">[docs]</a><span class="k">def</span> <span class="nf">container_from_app</span><span class="p">(</span>
+<div class="viewcode-block" id="container_from_app"><a class="viewcode-back" href="../../../../pipelines/kfp.html#torchx.pipelines.kfp.adapter.container_from_app">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">container_from_app</span><span class="p">(</span>
     <span class="n">app</span><span class="p">:</span> <span class="n">api</span><span class="o">.</span><span class="n">AppDef</span><span class="p">,</span>
     <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
     <span class="n">ui_metadata</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -672,7 +692,7 @@
     <span class="k">return</span> <span class="n">factory</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="resource_from_app"><a class="viewcode-back" href="../../../../pipelines/kfp.html#torchx.pipelines.kfp.adapter.resource_from_app">[docs]</a><span class="k">def</span> <span class="nf">resource_from_app</span><span class="p">(</span>
+<div class="viewcode-block" id="resource_from_app"><a class="viewcode-back" href="../../../../pipelines/kfp.html#torchx.pipelines.kfp.adapter.resource_from_app">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">resource_from_app</span><span class="p">(</span>
     <span class="n">app</span><span class="p">:</span> <span class="n">api</span><span class="o">.</span><span class="n">AppDef</span><span class="p">,</span>
     <span class="n">queue</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">service_account</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -936,7 +956,7 @@
                <a href="https://pytorch.org/resources">Developer Resources</a>
              </li>
              <li>
-               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2023</a>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2024</a>
              </li>
            </ul>
 
@@ -951,6 +971,9 @@
              
              <li>
                <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch Documentation</a>
              </li>
            </ul>
 
@@ -990,6 +1013,9 @@
             <li>
               <a href="https://pytorch.org/events">Events</a>
             </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">Newsletter</a>
+             </li>
           </ul>
           
           <li class="resources-mobile-menu-title">
@@ -1002,6 +1028,18 @@
             </li>
             <li>
               <a href="https://pytorch.org/governing-board">Governing Board</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">Cloud Credit Program</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">Technical Advisory Council</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">Staff</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">Contact Us</a>
             </li>
           </ul>
         </ul>

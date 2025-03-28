@@ -137,8 +137,8 @@
                   <span class=dropdown-title>Developer Resources</span>
                   <p>Find resources and get questions answered</p>
                 </a>
-                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2023">
-                  <span class="dropdown-title">Contributor Awards - 2023</span>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">Contributor Awards - 2024</span>
                   <p>Award winners announced at this year's PyTorch Conference</p>
                 </a>
               </div>
@@ -158,6 +158,9 @@
                 <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
                   <span class="dropdown-title">ExecuTorch</span>
                   <p>End-to-end solution for enabling on-device inference capabilities across mobile and edge devices</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch Docs</span>
                 </a>
               </div>
             </div>  
@@ -206,6 +209,10 @@
                   <span class="dropdown-title">Events</span>
                   <p>Find events, webinars, and podcasts</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">Newsletter</span>
+                  <p>Stay up-to-date with the latest updates</p>
+                </a>
             </div>
           </li>
 
@@ -221,7 +228,18 @@
                 </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
                   <span class="dropdown-title">Governing Board</span>
-                  <p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">Cloud Credit Program</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">Technical Advisory Council</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">Staff</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">Contact Us</span>
                 </a>
               </div>
             </div>
@@ -471,29 +489,29 @@
 <span id="sphx-glr-examples-apps-lightning-data-py"></span><h1>Trainer Datasets Example<a class="headerlink" href="#trainer-datasets-example" title="Permalink to this heading">¶</a></h1>
 <p>This is the datasets used for the training example. It’s using PyTorch Lightning
 libraries.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os.path</span>
-<span class="kn">import</span> <span class="nn">tarfile</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <a href="https://docs.python.org/3/library/typing.html#typing.Callable" title="typing.Callable" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Callable</span></a><span class="p">,</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os.path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tarfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/typing.html#typing.Callable" title="typing.Callable" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Callable</span></a><span class="p">,</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a>
 
-<span class="kn">import</span> <span class="nn">fsspec</span>
-<span class="kn">import</span> <span class="nn">numpy</span>
-<span class="kn">import</span> <span class="nn">pytorch_lightning</span> <span class="k">as</span> <span class="nn">pl</span>
-<span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
-<span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <a href="https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader" title="torch.utils.data.DataLoader" class="sphx-glr-backref-module-torch-utils-data sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DataLoader</span></a>
-<span class="kn">from</span> <span class="nn">torchvision</span> <span class="kn">import</span> <span class="n">datasets</span><span class="p">,</span> <span class="n">transforms</span>
-<span class="kn">from</span> <span class="nn">torchvision.datasets.folder</span> <span class="kn">import</span> <span class="n">is_image_file</span>
-<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">fsspec</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytorch_lightning</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torch.utils.data</span><span class="w"> </span><span class="kn">import</span> <a href="https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader" title="torch.utils.data.DataLoader" class="sphx-glr-backref-module-torch-utils-data sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DataLoader</span></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchvision</span><span class="w"> </span><span class="kn">import</span> <span class="n">datasets</span><span class="p">,</span> <span class="n">transforms</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchvision.datasets.folder</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_image_file</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
 </pre></div>
 </div>
 <p>This uses torchvision to define a dataset that we will then later use in our
 Pytorch Lightning data module.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ImageFolderSamplesDataset</span><span class="p">(</span><span class="n">datasets</span><span class="o">.</span><span class="n">ImageFolder</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">ImageFolderSamplesDataset</span><span class="p">(</span><span class="n">datasets</span><span class="o">.</span><span class="n">ImageFolder</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    ImageFolderSamplesDataset is a wrapper around ImageFolder that allows you to</span>
 <span class="sd">    limit the number of samples.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">root</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">transform</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a><span class="p">[</span><a href="https://docs.python.org/3/library/typing.html#typing.Callable" title="typing.Callable" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Callable</span></a><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="nb">object</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -507,7 +525,7 @@ Pytorch Lightning data module.</p>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">num_samples</span> <span class="o">=</span> <span class="n">num_samples</span>
 
-    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_samples</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_samples</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__len__</span><span class="p">()</span>
@@ -515,20 +533,20 @@ Pytorch Lightning data module.</p>
 </div>
 <p>For easy of use, we define a lightning data module so we can reuse it across
 our trainer and other components that need to load data.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># pyre-fixme[13]: Attribute `test_ds` is never initialized.</span>
-<span class="c1"># pyre-fixme[13]: Attribute `train_ds` is never initialized.</span>
-<span class="c1"># pyre-fixme[13]: Attribute `val_ds` is never initialized.</span>
-<span class="k">class</span> <span class="nc">TinyImageNetDataModule</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">LightningDataModule</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">TinyImageNetDataModule</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">LightningDataModule</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    TinyImageNetDataModule is a pytorch LightningDataModule for the tiny</span>
 <span class="sd">    imagenet dataset.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="c1"># pyre-fixme[13]: Attribute `test_ds` is never initialized.</span>
     <span class="n">train_ds</span><span class="p">:</span> <span class="n">ImageFolderSamplesDataset</span>
+    <span class="c1"># pyre-fixme[13]: Attribute `train_ds` is never initialized.</span>
     <span class="n">val_ds</span><span class="p">:</span> <span class="n">ImageFolderSamplesDataset</span>
+    <span class="c1"># pyre-fixme[13]: Attribute `val_ds` is never initialized.</span>
     <span class="n">test_ds</span><span class="p">:</span> <span class="n">ImageFolderSamplesDataset</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">data_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -536,7 +554,7 @@ our trainer and other components that need to load data.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">num_samples</span> <span class="o">=</span> <span class="n">num_samples</span>
 
-    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stage</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stage</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># Setup data loader and transforms</span>
         <span class="n">img_transform</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">(</span>
             <span class="p">[</span>
@@ -559,22 +577,22 @@ our trainer and other components that need to load data.</p>
             <span class="n">num_samples</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_samples</span><span class="p">,</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">train_dataloader</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <a href="https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader" title="torch.utils.data.DataLoader" class="sphx-glr-backref-module-torch-utils-data sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DataLoader</span></a><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">train_dataloader</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <a href="https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader" title="torch.utils.data.DataLoader" class="sphx-glr-backref-module-torch-utils-data sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DataLoader</span></a><span class="p">:</span>
         <span class="k">return</span> <a href="https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader" title="torch.utils.data.DataLoader" class="sphx-glr-backref-module-torch-utils-data sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DataLoader</span></a><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">train_ds</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">val_dataloader</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <a href="https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader" title="torch.utils.data.DataLoader" class="sphx-glr-backref-module-torch-utils-data sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DataLoader</span></a><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">val_dataloader</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <a href="https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader" title="torch.utils.data.DataLoader" class="sphx-glr-backref-module-torch-utils-data sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DataLoader</span></a><span class="p">:</span>
         <span class="k">return</span> <a href="https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader" title="torch.utils.data.DataLoader" class="sphx-glr-backref-module-torch-utils-data sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DataLoader</span></a><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">val_ds</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">test_dataloader</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <a href="https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader" title="torch.utils.data.DataLoader" class="sphx-glr-backref-module-torch-utils-data sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DataLoader</span></a><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_dataloader</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <a href="https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader" title="torch.utils.data.DataLoader" class="sphx-glr-backref-module-torch-utils-data sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DataLoader</span></a><span class="p">:</span>
         <span class="k">return</span> <a href="https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader" title="torch.utils.data.DataLoader" class="sphx-glr-backref-module-torch-utils-data sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DataLoader</span></a><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">test_ds</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">teardown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stage</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">teardown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stage</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">pass</span>
 </pre></div>
 </div>
 <p>To pass data between the different components we use fsspec which allows us to
 read/write to cloud or local file storage.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">download_data</span><span class="p">(</span><span class="n">remote_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">tmpdir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">download_data</span><span class="p">(</span><span class="n">remote_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">tmpdir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    download_data downloads the training data from the specified remote path via</span>
 <span class="sd">    fsspec and places it in the tmpdir unextracted.</span>
@@ -597,7 +615,7 @@ read/write to cloud or local file storage.</p>
     <span class="k">return</span> <span class="n">data_path</span>
 
 
-<span class="k">def</span> <span class="nf">create_random_data</span><span class="p">(</span><span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">num_images</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">250</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_random_data</span><span class="p">(</span><span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">num_images</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">250</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Fills the given path with randomly generated 64x64 images.</span>
 <span class="sd">    This can be used for quick testing of the workflow of the model.</span>
@@ -638,7 +656,7 @@ read/write to cloud or local file storage.</p>
     <span class="n">process_images</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">process_images</span><span class="p">(</span><span class="n">img_root</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">process_images</span><span class="p">(</span><span class="n">img_root</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;transforming images...&quot;</span><span class="p">)</span>
     <span class="n">transform</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">(</span>
         <span class="p">[</span>
@@ -914,7 +932,7 @@ read/write to cloud or local file storage.</p>
                <a href="https://pytorch.org/resources">Developer Resources</a>
              </li>
              <li>
-               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2023</a>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2024</a>
              </li>
            </ul>
 
@@ -929,6 +947,9 @@ read/write to cloud or local file storage.</p>
              
              <li>
                <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch Documentation</a>
              </li>
            </ul>
 
@@ -968,6 +989,9 @@ read/write to cloud or local file storage.</p>
             <li>
               <a href="https://pytorch.org/events">Events</a>
             </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">Newsletter</a>
+             </li>
           </ul>
           
           <li class="resources-mobile-menu-title">
@@ -980,6 +1004,18 @@ read/write to cloud or local file storage.</p>
             </li>
             <li>
               <a href="https://pytorch.org/governing-board">Governing Board</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">Cloud Credit Program</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">Technical Advisory Council</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">Staff</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">Contact Us</a>
             </li>
           </ul>
         </ul>

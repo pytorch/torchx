@@ -134,8 +134,8 @@
                   <span class=dropdown-title>Developer Resources</span>
                   <p>Find resources and get questions answered</p>
                 </a>
-                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2023">
-                  <span class="dropdown-title">Contributor Awards - 2023</span>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">Contributor Awards - 2024</span>
                   <p>Award winners announced at this year's PyTorch Conference</p>
                 </a>
               </div>
@@ -155,6 +155,9 @@
                 <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
                   <span class="dropdown-title">ExecuTorch</span>
                   <p>End-to-end solution for enabling on-device inference capabilities across mobile and edge devices</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch Docs</span>
                 </a>
               </div>
             </div>  
@@ -203,6 +206,10 @@
                   <span class="dropdown-title">Events</span>
                   <p>Find events, webinars, and podcasts</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">Newsletter</span>
+                  <p>Stay up-to-date with the latest updates</p>
+                </a>
             </div>
           </li>
 
@@ -218,7 +225,18 @@
                 </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
                   <span class="dropdown-title">Governing Board</span>
-                  <p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">Cloud Credit Program</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">Technical Advisory Council</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">Staff</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">Contact Us</span>
                 </a>
               </div>
             </div>
@@ -477,13 +495,13 @@
 <span class="sd">https://docs.aws.amazon.com/AmazonECR/latest/userguide/getting-started-cli.html#cli-create-repository</span>
 <span class="sd">for how to create a image repository.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">getpass</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">threading</span>
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">asdict</span><span class="p">,</span> <span class="n">dataclass</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
-<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">auto</span><span class="p">,</span> <span class="n">Enum</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">getpass</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">asdict</span><span class="p">,</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">auto</span><span class="p">,</span> <span class="n">Enum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">Any</span><span class="p">,</span>
     <span class="n">Callable</span><span class="p">,</span>
     <span class="n">cast</span><span class="p">,</span>
@@ -497,9 +515,9 @@
     <span class="n">TypeVar</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="kn">import</span> <span class="nn">torchx</span>
-<span class="kn">import</span> <span class="nn">yaml</span>
-<span class="kn">from</span> <span class="nn">torchx.schedulers.api</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torchx</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.schedulers.api</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">AppDryRunInfo</span><span class="p">,</span>
     <span class="n">DescribeAppResponse</span><span class="p">,</span>
     <span class="n">filter_regex</span><span class="p">,</span>
@@ -508,9 +526,9 @@
     <span class="n">Stream</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">torchx.schedulers.devices</span> <span class="kn">import</span> <span class="n">get_device_mounts</span>
-<span class="kn">from</span> <span class="nn">torchx.schedulers.ids</span> <span class="kn">import</span> <span class="n">make_unique</span>
-<span class="kn">from</span> <span class="nn">torchx.specs.api</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.schedulers.devices</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_device_mounts</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.schedulers.ids</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_unique</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.specs.api</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">AppDef</span><span class="p">,</span>
     <span class="n">AppState</span><span class="p">,</span>
     <span class="n">BindMount</span><span class="p">,</span>
@@ -524,10 +542,10 @@
     <span class="n">runopts</span><span class="p">,</span>
     <span class="n">VolumeMount</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">torchx.specs.named_resources_aws</span> <span class="kn">import</span> <span class="n">instance_type_from_resource</span>
-<span class="kn">from</span> <span class="nn">torchx.util.types</span> <span class="kn">import</span> <span class="n">none_throws</span>
-<span class="kn">from</span> <span class="nn">torchx.workspace.docker_workspace</span> <span class="kn">import</span> <span class="n">DockerWorkspaceMixin</span>
-<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">TypedDict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.specs.named_resources_aws</span><span class="w"> </span><span class="kn">import</span> <span class="n">instance_type_from_resource</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.util.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">none_throws</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.workspace.docker_workspace</span><span class="w"> </span><span class="kn">import</span> <span class="n">DockerWorkspaceMixin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TypedDict</span>
 
 <span class="n">ENV_TORCHX_ROLE_IDX</span> <span class="o">=</span> <span class="s2">&quot;TORCHX_ROLE_IDX&quot;</span>
 
@@ -541,7 +559,7 @@
 
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">docker</span> <span class="kn">import</span> <span class="n">DockerClient</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">docker</span><span class="w"> </span><span class="kn">import</span> <span class="n">DockerClient</span>
 
 <span class="n">JOB_STATE</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">AppState</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;SUBMITTED&quot;</span><span class="p">:</span> <span class="n">AppState</span><span class="o">.</span><span class="n">PENDING</span><span class="p">,</span>
@@ -554,22 +572,22 @@
 <span class="p">}</span>
 
 
-<span class="k">def</span> <span class="nf">to_millis_since_epoch</span><span class="p">(</span><span class="n">ts</span><span class="p">:</span> <span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">to_millis_since_epoch</span><span class="p">(</span><span class="n">ts</span><span class="p">:</span> <span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
     <span class="c1"># datetime&#39;s timestamp returns seconds since epoch</span>
     <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">ts</span><span class="o">.</span><span class="n">timestamp</span><span class="p">()</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">))</span>
 
 
-<span class="k">def</span> <span class="nf">to_datetime</span><span class="p">(</span><span class="n">ms_since_epoch</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">to_datetime</span><span class="p">(</span><span class="n">ms_since_epoch</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">ms_since_epoch</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">)</span>
 
 
-<span class="k">class</span> <span class="nc">ResourceType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ResourceType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
     <span class="n">VCPU</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
     <span class="n">GPU</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
     <span class="n">MEMORY</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_str</span><span class="p">(</span><span class="n">resource_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ResourceType&quot;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_str</span><span class="p">(</span><span class="n">resource_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ResourceType&quot;</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">rt</span> <span class="ow">in</span> <span class="n">ResourceType</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">rt</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">resource_type</span><span class="o">.</span><span class="n">upper</span><span class="p">():</span>
                 <span class="k">return</span> <span class="n">rt</span>
@@ -578,7 +596,7 @@
         <span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">resource_requirements_from_resource</span><span class="p">(</span><span class="n">resource</span><span class="p">:</span> <span class="n">Resource</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">resource_requirements_from_resource</span><span class="p">(</span><span class="n">resource</span><span class="p">:</span> <span class="n">Resource</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
     <span class="n">cpu</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">cpu</span> <span class="k">if</span> <span class="n">resource</span><span class="o">.</span><span class="n">cpu</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">1</span>
     <span class="n">gpu</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">gpu</span>
     <span class="n">memMB</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">memMB</span>
@@ -595,7 +613,7 @@
     <span class="k">return</span> <span class="n">resource_requirements</span>
 
 
-<span class="k">def</span> <span class="nf">resource_from_resource_requirements</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">resource_from_resource_requirements</span><span class="p">(</span>
     <span class="n">resource_requirements</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Resource</span><span class="p">:</span>
     <span class="n">resrc_req</span> <span class="o">=</span> <span class="p">{</span>
@@ -612,7 +630,7 @@
     <span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_role_to_node_properties</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_role_to_node_properties</span><span class="p">(</span>
     <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">,</span>
     <span class="n">start_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">privileged</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -707,7 +725,7 @@
     <span class="p">}</span>
 
 
-<span class="k">def</span> <span class="nf">_job_ui_url</span><span class="p">(</span><span class="n">job_arn</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_job_ui_url</span><span class="p">(</span><span class="n">job_arn</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
     <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span>
         <span class="s2">&quot;arn:aws:batch:([a-z-0-9]+):[0-9]+:job/([a-z-0-9]+)&quot;</span><span class="p">,</span>
         <span class="n">job_arn</span><span class="p">,</span>
@@ -719,7 +737,7 @@
     <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;https://</span><span class="si">{</span><span class="n">region</span><span class="si">}</span><span class="s2">.console.aws.amazon.com/batch/home?region=</span><span class="si">{</span><span class="n">region</span><span class="si">}</span><span class="s2">#jobs/mnp-job/</span><span class="si">{</span><span class="n">job_id</span><span class="si">}</span><span class="s2">&quot;</span>
 
 
-<span class="k">def</span> <span class="nf">_parse_num_replicas</span><span class="p">(</span><span class="n">target_nodes</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">num_nodes</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_num_replicas</span><span class="p">(</span><span class="n">target_nodes</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">num_nodes</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parses the number of replicas for a role given the target_nodes string</span>
 <span class="sd">    and total num_nodes. See docstring for ``_parse_start_and_end_idx()``</span>
@@ -730,7 +748,7 @@
     <span class="k">return</span> <span class="n">end_idx</span> <span class="o">-</span> <span class="n">start_idx</span> <span class="o">+</span> <span class="mi">1</span>
 
 
-<span class="k">def</span> <span class="nf">_parse_start_and_end_idx</span><span class="p">(</span><span class="n">target_nodes</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">num_nodes</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_start_and_end_idx</span><span class="p">(</span><span class="n">target_nodes</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">num_nodes</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Takes the ``target_nodes`` str (as required by AWS Batch NodeRangeProperties)</span>
 <span class="sd">    and parses out the start and end indices (aka global rank) of the replicas in the node group.</span>
@@ -754,28 +772,28 @@
 
 
 <div class="viewcode-block" id="BatchJob"><a class="viewcode-back" href="../../../schedulers/aws_batch.html#torchx.schedulers.aws_batch_scheduler.BatchJob">[docs]</a><span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">BatchJob</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BatchJob</span><span class="p">:</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">queue</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">share_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
     <span class="n">job_def</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span>
     <span class="n">images_to_push</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span>
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 
 <span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;T&quot;</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_thread_local_cache</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">T</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_thread_local_cache</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">T</span><span class="p">]:</span>
     <span class="n">local</span><span class="p">:</span> <span class="n">threading</span><span class="o">.</span><span class="n">local</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">local</span><span class="p">()</span>
     <span class="n">key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;value&quot;</span>
 
-    <span class="k">def</span> <span class="nf">wrapper</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">local</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">local</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
 
@@ -787,13 +805,13 @@
 
 
 <span class="nd">@_thread_local_cache</span>
-<span class="k">def</span> <span class="nf">_local_session</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="s2">&quot;boto3.session.Session&quot;</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">boto3.session</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_local_session</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="s2">&quot;boto3.session.Session&quot;</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">boto3.session</span>
 
     <span class="k">return</span> <span class="n">boto3</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
 
 
-<span class="k">class</span> <span class="nc">AWSBatchOpts</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AWSBatchOpts</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="n">queue</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">user</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">image_repo</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
@@ -804,7 +822,9 @@
     <span class="n">execution_role_arn</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="AWSBatchScheduler"><a class="viewcode-back" href="../../../schedulers/aws_batch.html#torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler">[docs]</a><span class="k">class</span> <span class="nc">AWSBatchScheduler</span><span class="p">(</span><span class="n">DockerWorkspaceMixin</span><span class="p">,</span> <span class="n">Scheduler</span><span class="p">[</span><span class="n">AWSBatchOpts</span><span class="p">]):</span>
+<div class="viewcode-block" id="AWSBatchScheduler"><a class="viewcode-back" href="../../../schedulers/aws_batch.html#torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">AWSBatchScheduler</span><span class="p">(</span>
+    <span class="n">DockerWorkspaceMixin</span><span class="p">,</span> <span class="n">Scheduler</span><span class="p">[</span><span class="n">AWSBatchOpts</span><span class="p">,</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">AppDryRunInfo</span><span class="p">[</span><span class="n">BatchJob</span><span class="p">]]</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    AWSBatchScheduler is a TorchX scheduling interface to AWS Batch.</span>
 
@@ -857,7 +877,7 @@
 <span class="sd">            elasticity: false</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="c1"># pyre-fixme[2]: Parameter annotation cannot be `Any`.</span>
@@ -876,19 +896,19 @@
 
     <span class="nd">@property</span>
     <span class="c1"># pyre-fixme[3]: Return annotation cannot be `Any`.</span>
-    <span class="k">def</span> <span class="nf">_client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__client</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__client</span>
         <span class="k">return</span> <span class="n">_local_session</span><span class="p">()</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s2">&quot;batch&quot;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="c1"># pyre-fixme[3]: Return annotation cannot be `Any`.</span>
-    <span class="k">def</span> <span class="nf">_log_client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_log_client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__log_client</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__log_client</span>
         <span class="k">return</span> <span class="n">_local_session</span><span class="p">()</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s2">&quot;logs&quot;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="AWSBatchScheduler.schedule"><a class="viewcode-back" href="../../../schedulers/aws_batch.html#torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler.schedule">[docs]</a>    <span class="k">def</span> <span class="nf">schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dryrun_info</span><span class="p">:</span> <span class="n">AppDryRunInfo</span><span class="p">[</span><span class="n">BatchJob</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="AWSBatchScheduler.schedule"><a class="viewcode-back" href="../../../schedulers/aws_batch.html#torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler.schedule">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dryrun_info</span><span class="p">:</span> <span class="n">AppDryRunInfo</span><span class="p">[</span><span class="n">BatchJob</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">cfg</span> <span class="o">=</span> <span class="n">dryrun_info</span><span class="o">.</span><span class="n">_cfg</span>
         <span class="k">assert</span> <span class="n">cfg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dryrun_info</span><span class="si">}</span><span class="s2"> missing cfg&quot;</span>
 
@@ -911,7 +931,7 @@
 
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">req</span><span class="o">.</span><span class="n">queue</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">req</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span></div>
 
-    <span class="k">def</span> <span class="nf">_submit_dryrun</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">AWSBatchOpts</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppDryRunInfo</span><span class="p">[</span><span class="n">BatchJob</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_submit_dryrun</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">AWSBatchOpts</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppDryRunInfo</span><span class="p">[</span><span class="n">BatchJob</span><span class="p">]:</span>
         <span class="n">queue</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;queue&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;config value &#39;queue&#39; must be a string, got </span><span class="si">{</span><span class="n">queue</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -991,14 +1011,14 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">AppDryRunInfo</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="nb">repr</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_cancel_existing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_cancel_existing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">job_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_job_id</span><span class="p">(</span><span class="n">app_id</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">terminate_job</span><span class="p">(</span>
             <span class="n">jobId</span><span class="o">=</span><span class="n">job_id</span><span class="p">,</span>
             <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;killed via torchx CLI&quot;</span><span class="p">,</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_run_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">runopts</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_run_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">runopts</span><span class="p">:</span>
         <span class="n">opts</span> <span class="o">=</span> <span class="n">runopts</span><span class="p">()</span>
         <span class="n">opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;queue&quot;</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;queue to schedule job in&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
@@ -1040,7 +1060,7 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">opts</span>
 
-    <span class="k">def</span> <span class="nf">_get_job_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_job_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="n">queue</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">app_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">resp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get_paginator</span><span class="p">(</span><span class="s2">&quot;list_jobs&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">paginate</span><span class="p">(</span>
@@ -1052,7 +1072,7 @@
                 <span class="k">return</span> <span class="n">job_summary_list</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;jobArn&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">_get_job</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_job</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">rank</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
         <span class="n">job_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_job_id</span><span class="p">(</span><span class="n">app_id</span><span class="p">)</span>
@@ -1065,7 +1085,7 @@
             <span class="k">return</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="n">jobs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-<div class="viewcode-block" id="AWSBatchScheduler.describe"><a class="viewcode-back" href="../../../schedulers/aws_batch.html#torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler.describe">[docs]</a>    <span class="k">def</span> <span class="nf">describe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DescribeAppResponse</span><span class="p">]:</span>
+<div class="viewcode-block" id="AWSBatchScheduler.describe"><a class="viewcode-back" href="../../../schedulers/aws_batch.html#torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler.describe">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">describe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DescribeAppResponse</span><span class="p">]:</span>
         <span class="n">job</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_job</span><span class="p">(</span><span class="n">app_id</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">job</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
@@ -1103,7 +1123,7 @@
             <span class="n">ui_url</span><span class="o">=</span><span class="n">_job_ui_url</span><span class="p">(</span><span class="n">job</span><span class="p">[</span><span class="s2">&quot;jobArn&quot;</span><span class="p">]),</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="AWSBatchScheduler.log_iter"><a class="viewcode-back" href="../../../schedulers/aws_batch.html#torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler.log_iter">[docs]</a>    <span class="k">def</span> <span class="nf">log_iter</span><span class="p">(</span>
+<div class="viewcode-block" id="AWSBatchScheduler.log_iter"><a class="viewcode-back" href="../../../schedulers/aws_batch.html#torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler.log_iter">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">log_iter</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">role_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -1173,7 +1193,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">iterator</span></div>
 
-<div class="viewcode-block" id="AWSBatchScheduler.list"><a class="viewcode-back" href="../../../schedulers/aws_batch.html#torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler.list">[docs]</a>    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ListAppResponse</span><span class="p">]:</span>
+<div class="viewcode-block" id="AWSBatchScheduler.list"><a class="viewcode-back" href="../../../schedulers/aws_batch.html#torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler.list">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ListAppResponse</span><span class="p">]:</span>
         <span class="c1"># TODO: get queue name input instead of iterating over all queues?</span>
         <span class="n">all_apps</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">resp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get_paginator</span><span class="p">(</span><span class="s2">&quot;describe_job_queues&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">paginate</span><span class="p">():</span>
@@ -1182,7 +1202,7 @@
                 <span class="n">all_apps</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_list_by_queue</span><span class="p">(</span><span class="n">qn</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">all_apps</span></div>
 
-    <span class="k">def</span> <span class="nf">_list_by_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queue_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ListAppResponse</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_list_by_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queue_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ListAppResponse</span><span class="p">]:</span>
         <span class="c1"># By default, only running jobs are listed by batch/boto client&#39;s list_jobs API</span>
         <span class="c1"># When &#39;filters&#39; parameter is specified, jobs with all statuses are listed</span>
         <span class="c1"># So use AFTER_CREATED_AT filter to list jobs in all statuses</span>
@@ -1213,7 +1233,7 @@
 
         <span class="k">return</span> <span class="n">jobs</span>
 
-    <span class="k">def</span> <span class="nf">_get_torchx_submitted_jobs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_torchx_submitted_jobs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">job_ids</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
 
@@ -1223,7 +1243,7 @@
             <span class="k">if</span> <span class="n">TAG_TORCHX_VER</span> <span class="ow">in</span> <span class="n">jobdesc</span><span class="p">[</span><span class="s2">&quot;tags&quot;</span><span class="p">]</span>
         <span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">_stream_events</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_stream_events</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">stream_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -1250,6 +1270,8 @@
                     <span class="n">startFromHead</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                     <span class="o">**</span><span class="n">args</span><span class="p">,</span>
                 <span class="p">)</span>
+            <span class="c1"># pyre-fixme[66]: Exception handler type annotation `unknown` must</span>
+            <span class="c1">#  extend BaseException.</span>
             <span class="k">except</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_client</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ResourceNotFoundException</span><span class="p">:</span>
                 <span class="k">return</span> <span class="p">[]</span>  <span class="c1"># noqa: B901</span>
             <span class="k">if</span> <span class="n">response</span><span class="p">[</span><span class="s2">&quot;nextForwardToken&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">next_token</span><span class="p">:</span>
@@ -1268,7 +1290,7 @@
                 <span class="k">yield</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span></div>
 
 
-<div class="viewcode-block" id="create_scheduler"><a class="viewcode-back" href="../../../schedulers/aws_batch.html#torchx.schedulers.aws_batch_scheduler.create_scheduler">[docs]</a><span class="k">def</span> <span class="nf">create_scheduler</span><span class="p">(</span>
+<div class="viewcode-block" id="create_scheduler"><a class="viewcode-back" href="../../../schedulers/aws_batch.html#torchx.schedulers.aws_batch_scheduler.create_scheduler">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">create_scheduler</span><span class="p">(</span>
     <span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="c1"># pyre-fixme[2]: Parameter annotation cannot be `Any`.</span>
     <span class="n">client</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1510,7 +1532,7 @@
                <a href="https://pytorch.org/resources">Developer Resources</a>
              </li>
              <li>
-               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2023</a>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2024</a>
              </li>
            </ul>
 
@@ -1525,6 +1547,9 @@
              
              <li>
                <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch Documentation</a>
              </li>
            </ul>
 
@@ -1564,6 +1589,9 @@
             <li>
               <a href="https://pytorch.org/events">Events</a>
             </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">Newsletter</a>
+             </li>
           </ul>
           
           <li class="resources-mobile-menu-title">
@@ -1576,6 +1604,18 @@
             </li>
             <li>
               <a href="https://pytorch.org/governing-board">Governing Board</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">Cloud Credit Program</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">Technical Advisory Council</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">Staff</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">Contact Us</a>
             </li>
           </ul>
         </ul>

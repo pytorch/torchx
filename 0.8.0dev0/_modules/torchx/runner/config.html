@@ -134,8 +134,8 @@
                   <span class=dropdown-title>Developer Resources</span>
                   <p>Find resources and get questions answered</p>
                 </a>
-                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2023">
-                  <span class="dropdown-title">Contributor Awards - 2023</span>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">Contributor Awards - 2024</span>
                   <p>Award winners announced at this year's PyTorch Conference</p>
                 </a>
               </div>
@@ -155,6 +155,9 @@
                 <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
                   <span class="dropdown-title">ExecuTorch</span>
                   <p>End-to-end solution for enabling on-device inference capabilities across mobile and edge devices</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch Docs</span>
                 </a>
               </div>
             </div>  
@@ -203,6 +206,10 @@
                   <span class="dropdown-title">Events</span>
                   <p>Find events, webinars, and podcasts</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">Newsletter</span>
+                  <p>Stay up-to-date with the latest updates</p>
+                </a>
             </div>
           </li>
 
@@ -218,7 +225,18 @@
                 </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
                   <span class="dropdown-title">Governing Board</span>
-                  <p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">Cloud Credit Program</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">Technical Advisory Council</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">Staff</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">Contact Us</span>
                 </a>
               </div>
             </div>
@@ -596,15 +614,15 @@
 <span class="sd">you want to keep personal config overrides on top of a project defined default.</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">configparser</span> <span class="k">as</span> <span class="nn">configparser</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TextIO</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">configparser</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">configparser</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TextIO</span>
 
-<span class="kn">from</span> <span class="nn">torchx.schedulers</span> <span class="kn">import</span> <span class="n">get_scheduler_factories</span><span class="p">,</span> <span class="n">Scheduler</span>
-<span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="n">CfgVal</span><span class="p">,</span> <span class="n">get_type_name</span>
-<span class="kn">from</span> <span class="nn">torchx.specs.api</span> <span class="kn">import</span> <span class="n">runopt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.schedulers</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_scheduler_factories</span><span class="p">,</span> <span class="n">Scheduler</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.specs</span><span class="w"> </span><span class="kn">import</span> <span class="n">CfgVal</span><span class="p">,</span> <span class="n">get_type_name</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.specs.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">runopt</span>
 
 
 <span class="n">CONFIG_FILE</span> <span class="o">=</span> <span class="s2">&quot;.torchxconfig&quot;</span>
@@ -617,7 +635,7 @@
 <span class="n">log</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_configparser</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">configparser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_configparser</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">configparser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Sets up the configparser and returns it. The same config parser</span>
 <span class="sd">    should be used between dumps() and loads() methods for ser/de compatibility</span>
@@ -635,8 +653,16 @@
     <span class="k">return</span> <span class="n">config</span>
 
 
-<span class="k">def</span> <span class="nf">_get_scheduler</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Scheduler</span><span class="p">:</span>
-    <span class="n">schedulers</span> <span class="o">=</span> <span class="n">get_scheduler_factories</span><span class="p">()</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_scheduler</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Scheduler</span><span class="p">:</span>
+    <span class="n">schedulers</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">get_scheduler_factories</span><span class="p">(),</span>
+        <span class="o">**</span><span class="p">(</span>
+            <span class="n">get_scheduler_factories</span><span class="p">(</span>
+                <span class="n">group</span><span class="o">=</span><span class="s2">&quot;torchx.schedulers.orchestrator&quot;</span><span class="p">,</span> <span class="n">skip_defaults</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+            <span class="ow">or</span> <span class="p">{}</span>
+        <span class="p">),</span>
+    <span class="p">}</span>
     <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">schedulers</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;`</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">` is not a registered scheduler. Valid scheduler names: </span><span class="si">{</span><span class="n">schedulers</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -645,12 +671,12 @@
     <span class="k">return</span> <span class="n">sched</span>
 
 
-<span class="k">def</span> <span class="nf">_fixme_placeholder</span><span class="p">(</span><span class="n">runopt</span><span class="p">:</span> <span class="n">runopt</span><span class="p">,</span> <span class="n">max_len</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">60</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_fixme_placeholder</span><span class="p">(</span><span class="n">runopt</span><span class="p">:</span> <span class="n">runopt</span><span class="p">,</span> <span class="n">max_len</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">60</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="n">ph</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;#FIXME:(</span><span class="si">{</span><span class="n">get_type_name</span><span class="p">(</span><span class="n">runopt</span><span class="o">.</span><span class="n">opt_type</span><span class="p">)</span><span class="si">}</span><span class="s2">) </span><span class="si">{</span><span class="n">runopt</span><span class="o">.</span><span class="n">help</span><span class="si">}</span><span class="s2">&quot;</span>
     <span class="k">return</span> <span class="n">ph</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ph</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">max_len</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ph</span><span class="p">[:</span><span class="n">max_len</span><span class="p">]</span><span class="si">}</span><span class="s2">...&quot;</span>
 
 
-<div class="viewcode-block" id="dump"><a class="viewcode-back" href="../../../runner.config.html#torchx.runner.config.dump">[docs]</a><span class="k">def</span> <span class="nf">dump</span><span class="p">(</span>
+<div class="viewcode-block" id="dump"><a class="viewcode-back" href="../../../runner.config.html#torchx.runner.config.dump">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">dump</span><span class="p">(</span>
     <span class="n">f</span><span class="p">:</span> <span class="n">TextIO</span><span class="p">,</span> <span class="n">schedulers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">required_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -680,7 +706,16 @@
     <span class="k">if</span> <span class="n">schedulers</span><span class="p">:</span>
         <span class="n">scheds</span> <span class="o">=</span> <span class="n">schedulers</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">scheds</span> <span class="o">=</span> <span class="n">get_scheduler_factories</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="n">scheduler_factories</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="o">**</span><span class="n">get_scheduler_factories</span><span class="p">(),</span>
+            <span class="o">**</span><span class="p">(</span>
+                <span class="n">get_scheduler_factories</span><span class="p">(</span>
+                    <span class="n">group</span><span class="o">=</span><span class="s2">&quot;torchx.schedulers.orchestrator&quot;</span><span class="p">,</span> <span class="n">skip_defaults</span><span class="o">=</span><span class="kc">True</span>
+                <span class="p">)</span>
+                <span class="ow">or</span> <span class="p">{}</span>
+            <span class="p">),</span>
+        <span class="p">}</span>
+        <span class="n">scheds</span> <span class="o">=</span> <span class="n">scheduler_factories</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
 
     <span class="n">config</span> <span class="o">=</span> <span class="n">_configparser</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">sched_name</span> <span class="ow">in</span> <span class="n">scheds</span><span class="p">:</span>
@@ -721,7 +756,7 @@
     <span class="n">config</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">space_around_delimiters</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="apply"><a class="viewcode-back" href="../../../runner.config.html#torchx.runner.config.apply">[docs]</a><span class="k">def</span> <span class="nf">apply</span><span class="p">(</span>
+<div class="viewcode-block" id="apply"><a class="viewcode-back" href="../../../runner.config.html#torchx.runner.config.apply">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">apply</span><span class="p">(</span>
     <span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">cfg</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">],</span>
     <span class="n">dirs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -762,7 +797,7 @@
             <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;loaded configs from </span><span class="si">{</span><span class="n">configfile</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="load_sections"><a class="viewcode-back" href="../../../runner.config.html#torchx.runner.config.load_sections">[docs]</a><span class="k">def</span> <span class="nf">load_sections</span><span class="p">(</span>
+<div class="viewcode-block" id="load_sections"><a class="viewcode-back" href="../../../runner.config.html#torchx.runner.config.load_sections">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">load_sections</span><span class="p">(</span>
     <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">dirs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
@@ -817,7 +852,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">strip_prefix</span><span class="p">(</span><span class="n">section_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">strip_prefix</span><span class="p">(</span><span class="n">section_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="c1"># returns the section_name with the prefix removed</span>
         <span class="c1"># or None if the section name does not match the prefix</span>
         <span class="n">idx</span> <span class="o">=</span> <span class="n">section_name</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">CONFIG_PREFIX_DELIM</span><span class="p">)</span>
@@ -847,7 +882,7 @@
     <span class="k">return</span> <span class="n">sections</span></div>
 
 
-<div class="viewcode-block" id="get_configs"><a class="viewcode-back" href="../../../runner.config.html#torchx.runner.config.get_configs">[docs]</a><span class="k">def</span> <span class="nf">get_configs</span><span class="p">(</span>
+<div class="viewcode-block" id="get_configs"><a class="viewcode-back" href="../../../runner.config.html#torchx.runner.config.get_configs">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_configs</span><span class="p">(</span>
     <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">dirs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -872,7 +907,7 @@
     <span class="k">return</span> <span class="n">sections</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="p">{})</span></div>
 
 
-<div class="viewcode-block" id="get_config"><a class="viewcode-back" href="../../../runner.config.html#torchx.runner.config.get_config">[docs]</a><span class="k">def</span> <span class="nf">get_config</span><span class="p">(</span>
+<div class="viewcode-block" id="get_config"><a class="viewcode-back" href="../../../runner.config.html#torchx.runner.config.get_config">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_config</span><span class="p">(</span>
     <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -899,7 +934,7 @@
     <span class="k">return</span> <span class="n">get_configs</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">dirs</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="find_configs"><a class="viewcode-back" href="../../../runner.config.html#torchx.runner.config.find_configs">[docs]</a><span class="k">def</span> <span class="nf">find_configs</span><span class="p">(</span><span class="n">dirs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<div class="viewcode-block" id="find_configs"><a class="viewcode-back" href="../../../runner.config.html#torchx.runner.config.find_configs">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">find_configs</span><span class="p">(</span><span class="n">dirs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Finds and returns the filepath to ``.torchxconfig`` files based</span>
 <span class="sd">    on the following logic:</span>
@@ -933,7 +968,7 @@
     <span class="k">return</span> <span class="n">config_files</span></div>
 
 
-<div class="viewcode-block" id="load"><a class="viewcode-back" href="../../../runner.config.html#torchx.runner.config.load">[docs]</a><span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">f</span><span class="p">:</span> <span class="n">TextIO</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="load"><a class="viewcode-back" href="../../../runner.config.html#torchx.runner.config.load">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span><span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">f</span><span class="p">:</span> <span class="n">TextIO</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    loads the section ``[{scheduler}]`` from the given</span>
 <span class="sd">    configfile ``f`` (in .INI format) into the provided ``runcfg``, only adding</span>
@@ -1208,7 +1243,7 @@
                <a href="https://pytorch.org/resources">Developer Resources</a>
              </li>
              <li>
-               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2023</a>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2024</a>
              </li>
            </ul>
 
@@ -1223,6 +1258,9 @@
              
              <li>
                <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch Documentation</a>
              </li>
            </ul>
 
@@ -1262,6 +1300,9 @@
             <li>
               <a href="https://pytorch.org/events">Events</a>
             </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">Newsletter</a>
+             </li>
           </ul>
           
           <li class="resources-mobile-menu-title">
@@ -1274,6 +1315,18 @@
             </li>
             <li>
               <a href="https://pytorch.org/governing-board">Governing Board</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">Cloud Credit Program</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">Technical Advisory Council</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">Staff</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">Contact Us</a>
             </li>
           </ul>
         </ul>

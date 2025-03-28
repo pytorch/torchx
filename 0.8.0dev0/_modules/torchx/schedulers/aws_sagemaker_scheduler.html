@@ -134,8 +134,8 @@
                   <span class=dropdown-title>Developer Resources</span>
                   <p>Find resources and get questions answered</p>
                 </a>
-                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2023">
-                  <span class="dropdown-title">Contributor Awards - 2023</span>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">Contributor Awards - 2024</span>
                   <p>Award winners announced at this year's PyTorch Conference</p>
                 </a>
               </div>
@@ -155,6 +155,9 @@
                 <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
                   <span class="dropdown-title">ExecuTorch</span>
                   <p>End-to-end solution for enabling on-device inference capabilities across mobile and edge devices</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch Docs</span>
                 </a>
               </div>
             </div>  
@@ -203,6 +206,10 @@
                   <span class="dropdown-title">Events</span>
                   <p>Find events, webinars, and podcasts</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">Newsletter</span>
+                  <p>Stay up-to-date with the latest updates</p>
+                </a>
             </div>
           </li>
 
@@ -218,7 +225,18 @@
                 </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
                   <span class="dropdown-title">Governing Board</span>
-                  <p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">Cloud Credit Program</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">Technical Advisory Council</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">Staff</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">Contact Us</span>
                 </a>
               </div>
             </div>
@@ -440,15 +458,21 @@
       
   <h1>Source code for torchx.schedulers.aws_sagemaker_scheduler</h1><div class="highlight"><pre>
 <span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># Copyright (c) Meta Platforms, Inc. and affiliates.</span>
+<span class="c1"># All rights reserved.</span>
+<span class="c1">#</span>
+<span class="c1"># This source code is licensed under the BSD-style license found in the</span>
+<span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
-<span class="kn">import</span> <span class="nn">getpass</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">threading</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span> <span class="k">as</span> <span class="n">OrdDict</span>
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">asdict</span><span class="p">,</span> <span class="n">dataclass</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="p">(</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">getpass</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">OrderedDict</span> <span class="k">as</span> <span class="n">OrdDict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">asdict</span><span class="p">,</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">Any</span><span class="p">,</span>
     <span class="n">Callable</span><span class="p">,</span>
     <span class="n">cast</span><span class="p">,</span>
@@ -463,26 +487,26 @@
     <span class="n">TypeVar</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="kn">import</span> <span class="nn">boto3</span>
-<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">boto3</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
 
-<span class="kn">from</span> <span class="nn">sagemaker.pytorch</span> <span class="kn">import</span> <span class="n">PyTorch</span>
-<span class="kn">from</span> <span class="nn">torchx.components.structured_arg</span> <span class="kn">import</span> <span class="n">StructuredNameArgument</span>
-<span class="kn">from</span> <span class="nn">torchx.schedulers.api</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sagemaker.pytorch</span><span class="w"> </span><span class="kn">import</span> <span class="n">PyTorch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.components.structured_arg</span><span class="w"> </span><span class="kn">import</span> <span class="n">StructuredNameArgument</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.schedulers.api</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">AppDryRunInfo</span><span class="p">,</span>
     <span class="n">DescribeAppResponse</span><span class="p">,</span>
     <span class="n">ListAppResponse</span><span class="p">,</span>
     <span class="n">Scheduler</span><span class="p">,</span>
     <span class="n">Stream</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">torchx.schedulers.ids</span> <span class="kn">import</span> <span class="n">make_unique</span>
-<span class="kn">from</span> <span class="nn">torchx.specs.api</span> <span class="kn">import</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">AppState</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">,</span> <span class="n">runopts</span>
-<span class="kn">from</span> <span class="nn">torchx.workspace.docker_workspace</span> <span class="kn">import</span> <span class="n">DockerWorkspaceMixin</span>
-<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">TypedDict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.schedulers.ids</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_unique</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.specs.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">AppState</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">,</span> <span class="n">runopts</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.workspace.docker_workspace</span><span class="w"> </span><span class="kn">import</span> <span class="n">DockerWorkspaceMixin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TypedDict</span>
 
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">docker</span> <span class="kn">import</span> <span class="n">DockerClient</span>  <span class="c1"># pragma: no cover</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">docker</span><span class="w"> </span><span class="kn">import</span> <span class="n">DockerClient</span>  <span class="c1"># pragma: no cover</span>
 
 <span class="n">JOB_STATE</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">AppState</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;InProgress&quot;</span><span class="p">:</span> <span class="n">AppState</span><span class="o">.</span><span class="n">RUNNING</span><span class="p">,</span>
@@ -493,7 +517,7 @@
 <span class="p">}</span>
 
 
-<span class="k">class</span> <span class="nc">AWSSageMakerOpts</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AWSSageMakerOpts</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Opts where we can get from .torchxconfig or user command args</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -539,7 +563,7 @@
 
 
 <div class="viewcode-block" id="AWSSageMakerJob"><a class="viewcode-back" href="../../../schedulers/aws_sagemaker.html#torchx.schedulers.aws_sagemaker_scheduler.AWSSageMakerJob">[docs]</a><span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">AWSSageMakerJob</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AWSSageMakerJob</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Jobs defined the key values that is requried to schedule a job. This will be the value</span>
 <span class="sd">    of `request` in the AppDryRunInfo object.</span>
@@ -553,22 +577,22 @@
     <span class="n">job_def</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
     <span class="n">images_to_push</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span>
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 
 <span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;T&quot;</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_thread_local_cache</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">T</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_thread_local_cache</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">T</span><span class="p">]:</span>
     <span class="c1"># decorator function for keeping object in cache</span>
     <span class="n">local</span><span class="p">:</span> <span class="n">threading</span><span class="o">.</span><span class="n">local</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">local</span><span class="p">()</span>
     <span class="n">key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;value&quot;</span>
 
-    <span class="k">def</span> <span class="nf">wrapper</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">local</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">local</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
         <span class="n">v</span> <span class="o">=</span> <span class="n">f</span><span class="p">()</span>
@@ -579,11 +603,11 @@
 
 
 <span class="nd">@_thread_local_cache</span>
-<span class="k">def</span> <span class="nf">_local_session</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">boto3</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">Session</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_local_session</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">boto3</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">Session</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">boto3</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
 
 
-<span class="k">def</span> <span class="nf">_merge_ordered</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_merge_ordered</span><span class="p">(</span>
     <span class="n">src</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]],</span> <span class="n">extra</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OrderedDict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
     <span class="n">merged</span> <span class="o">=</span> <span class="n">OrdDict</span><span class="p">(</span><span class="n">src</span> <span class="ow">or</span> <span class="p">{})</span>
@@ -591,7 +615,10 @@
     <span class="k">return</span> <span class="n">merged</span>
 
 
-<div class="viewcode-block" id="AWSSageMakerScheduler"><a class="viewcode-back" href="../../../schedulers/aws_sagemaker.html#torchx.schedulers.aws_sagemaker_scheduler.AWSSageMakerScheduler">[docs]</a><span class="k">class</span> <span class="nc">AWSSageMakerScheduler</span><span class="p">(</span><span class="n">DockerWorkspaceMixin</span><span class="p">,</span> <span class="n">Scheduler</span><span class="p">[</span><span class="n">AWSSageMakerOpts</span><span class="p">]):</span>  <span class="c1"># type: ignore[misc]</span>
+<div class="viewcode-block" id="AWSSageMakerScheduler"><a class="viewcode-back" href="../../../schedulers/aws_sagemaker.html#torchx.schedulers.aws_sagemaker_scheduler.AWSSageMakerScheduler">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">AWSSageMakerScheduler</span><span class="p">(</span>
+    <span class="n">DockerWorkspaceMixin</span><span class="p">,</span>
+    <span class="n">Scheduler</span><span class="p">[</span><span class="n">AWSSageMakerOpts</span><span class="p">,</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">AppDryRunInfo</span><span class="p">[</span><span class="n">AWSSageMakerJob</span><span class="p">]],</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    AWSSageMakerScheduler is a TorchX scheduling interface to AWS SageMaker.</span>
 
@@ -626,7 +653,7 @@
 <span class="sd">            elasticity: false</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">client</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># pyre-ignore[2]</span>
@@ -638,12 +665,12 @@
 
     <span class="nd">@property</span>
     <span class="c1"># pyre-fixme[3]: Return annotation cannot be `Any`.</span>
-    <span class="k">def</span> <span class="nf">_client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__client</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__client</span>
         <span class="k">return</span> <span class="n">_local_session</span><span class="p">()</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s2">&quot;sagemaker&quot;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="AWSSageMakerScheduler.schedule"><a class="viewcode-back" href="../../../schedulers/aws_sagemaker.html#torchx.schedulers.aws_sagemaker_scheduler.AWSSageMakerScheduler.schedule">[docs]</a>    <span class="k">def</span> <span class="nf">schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dryrun_info</span><span class="p">:</span> <span class="n">AppDryRunInfo</span><span class="p">[</span><span class="n">AWSSageMakerJob</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="AWSSageMakerScheduler.schedule"><a class="viewcode-back" href="../../../schedulers/aws_sagemaker.html#torchx.schedulers.aws_sagemaker_scheduler.AWSSageMakerScheduler.schedule">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dryrun_info</span><span class="p">:</span> <span class="n">AppDryRunInfo</span><span class="p">[</span><span class="n">AWSSageMakerJob</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">cfg</span> <span class="o">=</span> <span class="n">dryrun_info</span><span class="o">.</span><span class="n">_cfg</span>
         <span class="k">assert</span> <span class="n">cfg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dryrun_info</span><span class="si">}</span><span class="s2"> missing cfg&quot;</span>
 
@@ -656,7 +683,7 @@
 
         <span class="k">return</span> <span class="n">req</span><span class="o">.</span><span class="n">job_name</span></div>
 
-    <span class="k">def</span> <span class="nf">_submit_dryrun</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_submit_dryrun</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">AWSSageMakerOpts</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppDryRunInfo</span><span class="p">[</span><span class="n">AWSSageMakerJob</span><span class="p">]:</span>
         <span class="n">role</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -702,9 +729,9 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> is controlled by aws_sagemaker_scheduler and is set to </span><span class="si">{</span><span class="n">job_def</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
                 <span class="p">)</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>  <span class="c1"># pyre-ignore[26]</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
             <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">job_def</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+                <span class="n">job_def</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>  <span class="c1"># type: ignore</span>
 
         <span class="n">req</span> <span class="o">=</span> <span class="n">AWSSageMakerJob</span><span class="p">(</span>
             <span class="n">job_name</span><span class="o">=</span><span class="n">job_name</span><span class="p">,</span>
@@ -713,7 +740,7 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">AppDryRunInfo</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="nb">repr</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_parse_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_parse_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Not enough args to resolve entrypoint&quot;</span><span class="p">)</span>
         <span class="n">offset</span> <span class="o">=</span> <span class="mi">1</span>
@@ -743,7 +770,7 @@
             <span class="n">hyperparameters</span><span class="p">[</span><span class="n">key</span><span class="p">[</span><span class="mi">2</span><span class="p">:]]</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">return</span> <span class="n">entrypoint</span><span class="p">,</span> <span class="n">hyperparameters</span>
 
-    <span class="k">def</span> <span class="nf">_run_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">runopts</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_run_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">runopts</span><span class="p">:</span>
         <span class="n">opts</span> <span class="o">=</span> <span class="n">runopts</span><span class="p">()</span>
         <span class="n">opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
             <span class="s2">&quot;role&quot;</span><span class="p">,</span>
@@ -981,7 +1008,7 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">opts</span>
 
-<div class="viewcode-block" id="AWSSageMakerScheduler.describe"><a class="viewcode-back" href="../../../schedulers/aws_sagemaker.html#torchx.schedulers.aws_sagemaker_scheduler.AWSSageMakerScheduler.describe">[docs]</a>    <span class="k">def</span> <span class="nf">describe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DescribeAppResponse</span><span class="p">]:</span>
+<div class="viewcode-block" id="AWSSageMakerScheduler.describe"><a class="viewcode-back" href="../../../schedulers/aws_sagemaker.html#torchx.schedulers.aws_sagemaker_scheduler.AWSSageMakerScheduler.describe">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">describe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DescribeAppResponse</span><span class="p">]:</span>
         <span class="n">job</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_job</span><span class="p">(</span><span class="n">app_id</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">job</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
@@ -992,13 +1019,13 @@
             <span class="n">ui_url</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_job_ui_url</span><span class="p">(</span><span class="n">job</span><span class="p">[</span><span class="s2">&quot;TrainingJobArn&quot;</span><span class="p">]),</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="AWSSageMakerScheduler.list"><a class="viewcode-back" href="../../../schedulers/aws_sagemaker.html#torchx.schedulers.aws_sagemaker_scheduler.AWSSageMakerScheduler.list">[docs]</a>    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ListAppResponse</span><span class="p">]:</span>
+<div class="viewcode-block" id="AWSSageMakerScheduler.list"><a class="viewcode-back" href="../../../schedulers/aws_sagemaker.html#torchx.schedulers.aws_sagemaker_scheduler.AWSSageMakerScheduler.list">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ListAppResponse</span><span class="p">]:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
-    <span class="k">def</span> <span class="nf">_cancel_existing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_cancel_existing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">stop_training_job</span><span class="p">(</span><span class="n">TrainingJobName</span><span class="o">=</span><span class="n">app_id</span><span class="p">)</span>
 
-<div class="viewcode-block" id="AWSSageMakerScheduler.log_iter"><a class="viewcode-back" href="../../../schedulers/aws_sagemaker.html#torchx.schedulers.aws_sagemaker_scheduler.AWSSageMakerScheduler.log_iter">[docs]</a>    <span class="k">def</span> <span class="nf">log_iter</span><span class="p">(</span>
+<div class="viewcode-block" id="AWSSageMakerScheduler.log_iter"><a class="viewcode-back" href="../../../schedulers/aws_sagemaker.html#torchx.schedulers.aws_sagemaker_scheduler.AWSSageMakerScheduler.log_iter">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">log_iter</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">role_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -1011,11 +1038,11 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
-    <span class="k">def</span> <span class="nf">_get_job</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_job</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
         <span class="n">job</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">describe_training_job</span><span class="p">(</span><span class="n">TrainingJobName</span><span class="o">=</span><span class="n">app_id</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">job</span>
 
-    <span class="k">def</span> <span class="nf">_job_ui_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_arn</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_job_ui_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_arn</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span>
             <span class="s2">&quot;arn:aws:sagemaker:(?P&lt;region&gt;[a-z-0-9]+):[0-9]+:training-job/(?P&lt;job_id&gt;[a-z-0-9]+)&quot;</span><span class="p">,</span>
             <span class="n">job_arn</span><span class="p">,</span>
@@ -1027,7 +1054,7 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;https://</span><span class="si">{</span><span class="n">region</span><span class="si">}</span><span class="s2">.console.aws.amazon.com/sagemaker/home?region=</span><span class="si">{</span><span class="n">region</span><span class="si">}</span><span class="s2">#jobs/</span><span class="si">{</span><span class="n">job_id</span><span class="si">}</span><span class="s2">&quot;</span></div>
 
 
-<div class="viewcode-block" id="create_scheduler"><a class="viewcode-back" href="../../../schedulers/aws_sagemaker.html#torchx.schedulers.aws_sagemaker_scheduler.create_scheduler">[docs]</a><span class="k">def</span> <span class="nf">create_scheduler</span><span class="p">(</span><span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AWSSageMakerScheduler</span><span class="p">:</span>
+<div class="viewcode-block" id="create_scheduler"><a class="viewcode-back" href="../../../schedulers/aws_sagemaker.html#torchx.schedulers.aws_sagemaker_scheduler.create_scheduler">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">create_scheduler</span><span class="p">(</span><span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AWSSageMakerScheduler</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">AWSSageMakerScheduler</span><span class="p">(</span><span class="n">session_name</span><span class="o">=</span><span class="n">session_name</span><span class="p">)</span></div>
 </pre></div>
 
@@ -1256,7 +1283,7 @@
                <a href="https://pytorch.org/resources">Developer Resources</a>
              </li>
              <li>
-               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2023</a>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2024</a>
              </li>
            </ul>
 
@@ -1271,6 +1298,9 @@
              
              <li>
                <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch Documentation</a>
              </li>
            </ul>
 
@@ -1310,6 +1340,9 @@
             <li>
               <a href="https://pytorch.org/events">Events</a>
             </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">Newsletter</a>
+             </li>
           </ul>
           
           <li class="resources-mobile-menu-title">
@@ -1322,6 +1355,18 @@
             </li>
             <li>
               <a href="https://pytorch.org/governing-board">Governing Board</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">Cloud Credit Program</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">Technical Advisory Council</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">Staff</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">Contact Us</a>
             </li>
           </ul>
         </ul>

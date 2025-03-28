@@ -134,8 +134,8 @@
                   <span class=dropdown-title>Developer Resources</span>
                   <p>Find resources and get questions answered</p>
                 </a>
-                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2023">
-                  <span class="dropdown-title">Contributor Awards - 2023</span>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">Contributor Awards - 2024</span>
                   <p>Award winners announced at this year's PyTorch Conference</p>
                 </a>
               </div>
@@ -155,6 +155,9 @@
                 <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
                   <span class="dropdown-title">ExecuTorch</span>
                   <p>End-to-end solution for enabling on-device inference capabilities across mobile and edge devices</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch Docs</span>
                 </a>
               </div>
             </div>  
@@ -203,6 +206,10 @@
                   <span class="dropdown-title">Events</span>
                   <p>Find events, webinars, and podcasts</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">Newsletter</span>
+                  <p>Stay up-to-date with the latest updates</p>
+                </a>
             </div>
           </li>
 
@@ -218,7 +225,18 @@
                 </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
                   <span class="dropdown-title">Governing Board</span>
-                  <p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">Cloud Credit Program</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">Technical Advisory Council</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">Staff</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">Contact Us</span>
                 </a>
               </div>
             </div>
@@ -448,14 +466,14 @@
 
 <span class="c1"># pyre-strict</span>
 
-<span class="kn">import</span> <span class="nn">abc</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
-<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TypeVar</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">abc</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TypeVar</span>
 
-<span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.specs</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">AppDef</span><span class="p">,</span>
     <span class="n">AppDryRunInfo</span><span class="p">,</span>
     <span class="n">AppState</span><span class="p">,</span>
@@ -465,20 +483,20 @@
     <span class="n">RoleStatus</span><span class="p">,</span>
     <span class="n">runopts</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">torchx.workspace.api</span> <span class="kn">import</span> <span class="n">WorkspaceMixin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.workspace.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">WorkspaceMixin</span>
 
 
 <span class="n">DAYS_IN_2_WEEKS</span> <span class="o">=</span> <span class="mi">14</span>
 
 
-<span class="k">class</span> <span class="nc">Stream</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Stream</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
     <span class="n">STDOUT</span> <span class="o">=</span> <span class="s2">&quot;stdout&quot;</span>
     <span class="n">STDERR</span> <span class="o">=</span> <span class="s2">&quot;stderr&quot;</span>
     <span class="n">COMBINED</span> <span class="o">=</span> <span class="s2">&quot;combined&quot;</span>
 
 
 <div class="viewcode-block" id="DescribeAppResponse"><a class="viewcode-back" href="../../../schedulers.html#torchx.schedulers.DescribeAppResponse">[docs]</a><span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">DescribeAppResponse</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DescribeAppResponse</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Response object returned by ``Scheduler.describe(app)`` API. Contains</span>
 <span class="sd">    the status and description of the application as known by the scheduler.</span>
@@ -508,7 +526,7 @@
 
 
 <div class="viewcode-block" id="ListAppResponse"><a class="viewcode-back" href="../../../schedulers.html#torchx.schedulers.ListAppResponse">[docs]</a><span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">ListAppResponse</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ListAppResponse</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Response object returned by ``scheduler.list()`` and ``runner.list()`` APIs.</span>
 <span class="sd">    Contains the app_id, app_handle and status of the application.</span>
@@ -530,25 +548,27 @@
     <span class="c1"># Implementing __hash__() makes ListAppResponse hashable which makes</span>
     <span class="c1"># it easier to check if a ListAppResponse object exists in a list of</span>
     <span class="c1"># objects for testing purposes.</span>
-    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">hash</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">app_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">app_handle</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">))</span></div>
 
 
 <span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;T&quot;</span><span class="p">)</span>
+<span class="n">A</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;A&quot;</span><span class="p">)</span>
+<span class="n">D</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;D&quot;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="Scheduler"><a class="viewcode-back" href="../../../schedulers.html#torchx.schedulers.Scheduler">[docs]</a><span class="k">class</span> <span class="nc">Scheduler</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
+<div class="viewcode-block" id="Scheduler"><a class="viewcode-back" href="../../../schedulers.html#torchx.schedulers.Scheduler">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">Scheduler</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">T</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">D</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    An interface abstracting functionalities of a scheduler.</span>
 <span class="sd">    Implementers need only implement those methods annotated with</span>
 <span class="sd">    ``@abc.abstractmethod``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">backend</span> <span class="o">=</span> <span class="n">backend</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">session_name</span> <span class="o">=</span> <span class="n">session_name</span>
 
-<div class="viewcode-block" id="Scheduler.close"><a class="viewcode-back" href="../../../schedulers.html#torchx.schedulers.Scheduler.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="Scheduler.close"><a class="viewcode-back" href="../../../schedulers.html#torchx.schedulers.Scheduler.close">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Only for schedulers that have local state! Closes the scheduler</span>
 <span class="sd">        freeing any allocated resources. Once closed, the scheduler object</span>
@@ -565,9 +585,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="Scheduler.submit"><a class="viewcode-back" href="../../../schedulers.html#torchx.schedulers.Scheduler.submit">[docs]</a>    <span class="k">def</span> <span class="nf">submit</span><span class="p">(</span>
+<div class="viewcode-block" id="Scheduler.submit"><a class="viewcode-back" href="../../../schedulers.html#torchx.schedulers.Scheduler.submit">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">submit</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span>
+        <span class="n">app</span><span class="p">:</span> <span class="n">A</span><span class="p">,</span>
         <span class="n">cfg</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span>
         <span class="n">workspace</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -591,7 +611,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">schedule</span><span class="p">(</span><span class="n">dryrun_info</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Scheduler.schedule"><a class="viewcode-back" href="../../../schedulers.html#torchx.schedulers.Scheduler.schedule">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dryrun_info</span><span class="p">:</span> <span class="n">AppDryRunInfo</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dryrun_info</span><span class="p">:</span> <span class="n">D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Same as ``submit`` except that it takes an ``AppDryRunInfo``.</span>
 <span class="sd">        Implementers are encouraged to implement this method rather than</span>
@@ -607,7 +627,7 @@
 
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Scheduler.submit_dryrun"><a class="viewcode-back" href="../../../schedulers.html#torchx.schedulers.Scheduler.submit_dryrun">[docs]</a>    <span class="k">def</span> <span class="nf">submit_dryrun</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppDryRunInfo</span><span class="p">:</span>
+<div class="viewcode-block" id="Scheduler.submit_dryrun"><a class="viewcode-back" href="../../../schedulers.html#torchx.schedulers.Scheduler.submit_dryrun">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">submit_dryrun</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">A</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">D</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Rather than submitting the request to run the app, returns the</span>
 <span class="sd">        request object that would have been submitted to the underlying</span>
@@ -620,17 +640,19 @@
         <span class="n">resolved_cfg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_opts</span><span class="p">()</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
         <span class="c1"># pyre-fixme: _submit_dryrun takes Generic type for resolved_cfg</span>
         <span class="n">dryrun_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_submit_dryrun</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">resolved_cfg</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">app</span><span class="o">.</span><span class="n">roles</span><span class="p">:</span>
-            <span class="n">dryrun_info</span> <span class="o">=</span> <span class="n">role</span><span class="o">.</span><span class="n">pre_proc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">,</span> <span class="n">dryrun_info</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">AppDef</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">app</span><span class="o">.</span><span class="n">roles</span><span class="p">:</span>
+                <span class="n">dryrun_info</span> <span class="o">=</span> <span class="n">role</span><span class="o">.</span><span class="n">pre_proc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">,</span> <span class="n">dryrun_info</span><span class="p">)</span>
         <span class="n">dryrun_info</span><span class="o">.</span><span class="n">_app</span> <span class="o">=</span> <span class="n">app</span>
         <span class="n">dryrun_info</span><span class="o">.</span><span class="n">_cfg</span> <span class="o">=</span> <span class="n">resolved_cfg</span>
         <span class="k">return</span> <span class="n">dryrun_info</span></div>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">_submit_dryrun</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppDryRunInfo</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_submit_dryrun</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">A</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">D</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 
-<div class="viewcode-block" id="Scheduler.run_opts"><a class="viewcode-back" href="../../../schedulers.html#torchx.schedulers.Scheduler.run_opts">[docs]</a>    <span class="k">def</span> <span class="nf">run_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">runopts</span><span class="p">:</span>
+<div class="viewcode-block" id="Scheduler.run_opts"><a class="viewcode-back" href="../../../schedulers.html#torchx.schedulers.Scheduler.run_opts">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">run_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">runopts</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the run configuration options expected by the scheduler.</span>
 <span class="sd">        Basically a ``--help`` for the ``run`` API.</span>
@@ -640,11 +662,11 @@
             <span class="n">opts</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workspace_opts</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">opts</span></div>
 
-    <span class="k">def</span> <span class="nf">_run_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">runopts</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_run_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">runopts</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">runopts</span><span class="p">()</span>
 
 <div class="viewcode-block" id="Scheduler.describe"><a class="viewcode-back" href="../../../schedulers.html#torchx.schedulers.Scheduler.describe">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">describe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DescribeAppResponse</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">describe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DescribeAppResponse</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Describes the specified application.</span>
 
@@ -654,7 +676,7 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Scheduler.list"><a class="viewcode-back" href="../../../schedulers.html#torchx.schedulers.Scheduler.list">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ListAppResponse</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ListAppResponse</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        For apps launched on the scheduler, this API returns a list of ListAppResponse</span>
 <span class="sd">        objects each of which have app id and its status.</span>
@@ -662,7 +684,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Scheduler.exists"><a class="viewcode-back" href="../../../schedulers.html#torchx.schedulers.Scheduler.exists">[docs]</a>    <span class="k">def</span> <span class="nf">exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<div class="viewcode-block" id="Scheduler.exists"><a class="viewcode-back" href="../../../schedulers.html#torchx.schedulers.Scheduler.exists">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            ``True`` if the app exists (was submitted), ``False`` otherwise</span>
@@ -671,14 +693,14 @@
         <span class="k">return</span> <span class="n">desc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span></div>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">_cancel_existing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_cancel_existing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Kills the application. This method will only be called on an</span>
 <span class="sd">        application that exists.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 
-<div class="viewcode-block" id="Scheduler.cancel"><a class="viewcode-back" href="../../../schedulers.html#torchx.schedulers.Scheduler.cancel">[docs]</a>    <span class="k">def</span> <span class="nf">cancel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="Scheduler.cancel"><a class="viewcode-back" href="../../../schedulers.html#torchx.schedulers.Scheduler.cancel">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">cancel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Cancels/kills the application. This method is idempotent within the same</span>
 <span class="sd">        thread and is safe to call on the same application multiple times.</span>
@@ -696,7 +718,7 @@
             <span class="c1"># do nothing if the app does not exist</span>
             <span class="k">return</span></div>
 
-<div class="viewcode-block" id="Scheduler.log_iter"><a class="viewcode-back" href="../../../schedulers.html#torchx.schedulers.Scheduler.log_iter">[docs]</a>    <span class="k">def</span> <span class="nf">log_iter</span><span class="p">(</span>
+<div class="viewcode-block" id="Scheduler.log_iter"><a class="viewcode-back" href="../../../schedulers.html#torchx.schedulers.Scheduler.log_iter">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">log_iter</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">role_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -778,22 +800,30 @@
             <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2"> does not support application log iteration&quot;</span>
         <span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">_validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_pre_build_validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Validates whether application is consistent with the scheduler.</span>
+<span class="sd">        validates before workspace build whether application is consistent with the scheduler.</span>
 
-<span class="sd">        Raises:</span>
-<span class="sd">            ValueError: if application is not compatible with scheduler</span>
+<span class="sd">        Raises error if application is not compatible with scheduler</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">app</span><span class="o">.</span><span class="n">roles</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">role</span><span class="o">.</span><span class="n">resource</span> <span class="o">==</span> <span class="n">NULL_RESOURCE</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;No resource for role: </span><span class="si">{</span><span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="si">}</span><span class="s2">.&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot; Did you forget to attach resource to the role&quot;</span>
-                <span class="p">)</span></div>
+        <span class="k">pass</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">A</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validates after workspace build whether application is consistent with the scheduler.</span>
+
+<span class="sd">        Raises error if application is not compatible with scheduler</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">AppDef</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">app</span><span class="o">.</span><span class="n">roles</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">role</span><span class="o">.</span><span class="n">resource</span> <span class="o">==</span> <span class="n">NULL_RESOURCE</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;No resource for role: </span><span class="si">{</span><span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="si">}</span><span class="s2">.&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot; Did you forget to attach resource to the role&quot;</span>
+                    <span class="p">)</span></div>
 
 
-<span class="k">def</span> <span class="nf">filter_regex</span><span class="p">(</span><span class="n">regex</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">filter_regex</span><span class="p">(</span><span class="n">regex</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    filter_regex takes a string iterator and returns an iterator that only has</span>
 <span class="sd">    values that match the regex.</span>
@@ -803,7 +833,7 @@
     <span class="k">return</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">datum</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">datum</span><span class="p">),</span> <span class="n">data</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">split_lines</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">split_lines</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    split_lines splits the string by new lines and keeps the new line characters.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -819,7 +849,7 @@
     <span class="k">return</span> <span class="n">lines</span>
 
 
-<span class="k">def</span> <span class="nf">split_lines_iterator</span><span class="p">(</span><span class="n">chunks</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">split_lines_iterator</span><span class="p">(</span><span class="n">chunks</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    split_lines_iterator splits each chunk in the iterator by new lines and</span>
 <span class="sd">    returns them.</span>
@@ -1055,7 +1085,7 @@
                <a href="https://pytorch.org/resources">Developer Resources</a>
              </li>
              <li>
-               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2023</a>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2024</a>
              </li>
            </ul>
 
@@ -1070,6 +1100,9 @@
              
              <li>
                <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch Documentation</a>
              </li>
            </ul>
 
@@ -1109,6 +1142,9 @@
             <li>
               <a href="https://pytorch.org/events">Events</a>
             </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">Newsletter</a>
+             </li>
           </ul>
           
           <li class="resources-mobile-menu-title">
@@ -1121,6 +1157,18 @@
             </li>
             <li>
               <a href="https://pytorch.org/governing-board">Governing Board</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">Cloud Credit Program</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">Technical Advisory Council</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">Staff</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">Contact Us</a>
             </li>
           </ul>
         </ul>

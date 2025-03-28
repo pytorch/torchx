@@ -137,8 +137,8 @@
                   <span class=dropdown-title>Developer Resources</span>
                   <p>Find resources and get questions answered</p>
                 </a>
-                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2023">
-                  <span class="dropdown-title">Contributor Awards - 2023</span>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">Contributor Awards - 2024</span>
                   <p>Award winners announced at this year's PyTorch Conference</p>
                 </a>
               </div>
@@ -158,6 +158,9 @@
                 <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
                   <span class="dropdown-title">ExecuTorch</span>
                   <p>End-to-end solution for enabling on-device inference capabilities across mobile and edge devices</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch Docs</span>
                 </a>
               </div>
             </div>  
@@ -206,6 +209,10 @@
                   <span class="dropdown-title">Events</span>
                   <p>Find events, webinars, and podcasts</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">Newsletter</span>
+                  <p>Stay up-to-date with the latest updates</p>
+                </a>
             </div>
           </li>
 
@@ -221,7 +228,18 @@
                 </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
                   <span class="dropdown-title">Governing Board</span>
-                  <p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">Cloud Credit Program</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">Technical Advisory Council</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">Staff</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">Contact Us</span>
                 </a>
               </div>
             </div>
@@ -488,22 +506,22 @@ in the <code class="docutils literal notranslate"><span class="pre">-s</span></c
 <div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx<span class="w"> </span>run<span class="w"> </span>-s<span class="w"> </span>kubernetes<span class="w"> </span>-cfg<span class="w"> </span><span class="nv">queue</span><span class="o">=</span>foo,namespace<span class="o">=</span>bar<span class="w"> </span>utils.python<span class="w">       </span>--script<span class="w"> </span>./datapreproc/datapreproc.py<span class="w">       </span>--<span class="w">       </span>--input_path<span class="o">=</span><span class="s2">&quot;http://cs231n.stanford.edu/tiny-imagenet-200.zip&quot;</span><span class="w">       </span>--output_path<span class="o">=</span>/tmp/torchx/datapreproc
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">argparse</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">tarfile</span>
-<span class="kn">import</span> <span class="nn">tempfile</span>
-<span class="kn">import</span> <span class="nn">zipfile</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <a href="https://docs.python.org/3/library/typing.html#typing.List" title="typing.List" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">List</span></a>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tarfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">zipfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/typing.html#typing.List" title="typing.List" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">List</span></a>
 
-<span class="kn">import</span> <span class="nn">fsspec</span>
-<span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
-<span class="kn">from</span> <span class="nn">torchvision</span> <span class="kn">import</span> <span class="n">transforms</span>
-<span class="kn">from</span> <span class="nn">torchvision.datasets.folder</span> <span class="kn">import</span> <span class="n">is_image_file</span>
-<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">fsspec</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchvision</span><span class="w"> </span><span class="kn">import</span> <span class="n">transforms</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchvision.datasets.folder</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_image_file</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
 
 
-<span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.List" title="typing.List" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">List</span></a><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <a href="https://docs.python.org/3/library/argparse.html#argparse.Namespace" title="argparse.Namespace" class="sphx-glr-backref-module-argparse sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span></a><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.List" title="typing.List" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">List</span></a><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <a href="https://docs.python.org/3/library/argparse.html#argparse.Namespace" title="argparse.Namespace" class="sphx-glr-backref-module-argparse sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span></a><span class="p">:</span>
     <span class="n">parser</span> <span class="o">=</span> <a href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" title="argparse.ArgumentParser" class="sphx-glr-backref-module-argparse sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span></a><span class="p">(</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;example data preprocessing&quot;</span><span class="p">,</span>
     <span class="p">)</span>
@@ -527,13 +545,13 @@ in the <code class="docutils literal notranslate"><span class="pre">-s</span></c
     <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">download_and_extract_zip_archive</span><span class="p">(</span><span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">download_and_extract_zip_archive</span><span class="p">(</span><span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">with</span> <span class="n">fsspec</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="k">with</span> <a href="https://docs.python.org/3/library/zipfile.html#zipfile.ZipFile" title="zipfile.ZipFile" class="sphx-glr-backref-module-zipfile sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span></a><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">zip_ref</span><span class="p">:</span>
             <span class="n">zip_ref</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">argv</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.List" title="typing.List" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">List</span></a><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">argv</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.List" title="typing.List" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">List</span></a><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
     <span class="k">with</span> <a href="https://docs.python.org/3/library/tempfile.html#tempfile.TemporaryDirectory" title="tempfile.TemporaryDirectory" class="sphx-glr-backref-module-tempfile sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span></a><span class="p">()</span> <span class="k">as</span> <span class="n">tmpdir</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;downloading </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">input_path</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">tmpdir</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
@@ -843,7 +861,7 @@ in the <code class="docutils literal notranslate"><span class="pre">-s</span></c
                <a href="https://pytorch.org/resources">Developer Resources</a>
              </li>
              <li>
-               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2023</a>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2024</a>
              </li>
            </ul>
 
@@ -858,6 +876,9 @@ in the <code class="docutils literal notranslate"><span class="pre">-s</span></c
              
              <li>
                <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch Documentation</a>
              </li>
            </ul>
 
@@ -897,6 +918,9 @@ in the <code class="docutils literal notranslate"><span class="pre">-s</span></c
             <li>
               <a href="https://pytorch.org/events">Events</a>
             </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">Newsletter</a>
+             </li>
           </ul>
           
           <li class="resources-mobile-menu-title">
@@ -909,6 +933,18 @@ in the <code class="docutils literal notranslate"><span class="pre">-s</span></c
             </li>
             <li>
               <a href="https://pytorch.org/governing-board">Governing Board</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">Cloud Credit Program</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">Technical Advisory Council</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">Staff</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">Contact Us</a>
             </li>
           </ul>
         </ul>

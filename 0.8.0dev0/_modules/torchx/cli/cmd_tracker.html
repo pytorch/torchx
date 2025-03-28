@@ -134,8 +134,8 @@
                   <span class=dropdown-title>Developer Resources</span>
                   <p>Find resources and get questions answered</p>
                 </a>
-                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2023">
-                  <span class="dropdown-title">Contributor Awards - 2023</span>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">Contributor Awards - 2024</span>
                   <p>Award winners announced at this year's PyTorch Conference</p>
                 </a>
               </div>
@@ -155,6 +155,9 @@
                 <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
                   <span class="dropdown-title">ExecuTorch</span>
                   <p>End-to-end solution for enabling on-device inference capabilities across mobile and edge devices</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch Docs</span>
                 </a>
               </div>
             </div>  
@@ -203,6 +206,10 @@
                   <span class="dropdown-title">Events</span>
                   <p>Find events, webinars, and podcasts</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">Newsletter</span>
+                  <p>Stay up-to-date with the latest updates</p>
+                </a>
             </div>
           </li>
 
@@ -218,7 +225,18 @@
                 </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
                   <span class="dropdown-title">Governing Board</span>
-                  <p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">Cloud Credit Program</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">Technical Advisory Council</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">Staff</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">Contact Us</span>
                 </a>
               </div>
             </div>
@@ -445,19 +463,19 @@
 
 <span class="c1"># pyre-strict</span>
 
-<span class="kn">import</span> <span class="nn">argparse</span>
-<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 
-<span class="kn">from</span> <span class="nn">tabulate</span> <span class="kn">import</span> <span class="n">tabulate</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tabulate</span><span class="w"> </span><span class="kn">import</span> <span class="n">tabulate</span>
 
-<span class="kn">from</span> <span class="nn">torchx.cli.cmd_base</span> <span class="kn">import</span> <span class="n">SubCommand</span>
-<span class="kn">from</span> <span class="nn">torchx.runner.api</span> <span class="kn">import</span> <span class="n">get_configured_trackers</span>
-<span class="kn">from</span> <span class="nn">torchx.tracker.api</span> <span class="kn">import</span> <span class="n">build_trackers</span><span class="p">,</span> <span class="n">TrackerBase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.cli.cmd_base</span><span class="w"> </span><span class="kn">import</span> <span class="n">SubCommand</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.runner.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_configured_trackers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.tracker.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_trackers</span><span class="p">,</span> <span class="n">TrackerBase</span>
 
 <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="CmdTracker"><a class="viewcode-back" href="../../../tracker.html#torchx.cli.cmd_tracker.CmdTracker">[docs]</a><span class="k">class</span> <span class="nc">CmdTracker</span><span class="p">(</span><span class="n">SubCommand</span><span class="p">):</span>
+<div class="viewcode-block" id="CmdTracker"><a class="viewcode-back" href="../../../tracker.html#torchx.cli.cmd_tracker.CmdTracker">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">CmdTracker</span><span class="p">(</span><span class="n">SubCommand</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Prototype TorchX tracker subcommand that allows querying data by</span>
 <span class="sd">    interacting with tracker implementation.</span>
@@ -470,13 +488,13 @@
 <span class="sd">        - tracker list artifacts  [–artifact ARTIFACT_NAME] RUN_ID</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Queries available tracker implementations and uses the first available one.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">tracker</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TrackerBase</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tracker</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TrackerBase</span><span class="p">:</span>
         <span class="n">trackers</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">build_trackers</span><span class="p">(</span><span class="n">get_configured_trackers</span><span class="p">()))</span>
         <span class="k">if</span> <span class="n">trackers</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using `</span><span class="si">{</span><span class="n">trackers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">` tracker to query data&quot;</span><span class="p">)</span>
@@ -487,19 +505,19 @@
                 <span class="s2">&quot; See: https://pytorch.org/torchx/latest/runtime/tracking.html&quot;</span>
             <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">add_list_job_arguments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subparser</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_list_job_arguments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subparser</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">subparser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
             <span class="s2">&quot;--parent-run-id&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Optional job parent run ID&quot;</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">list_jobs_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">list_jobs_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">parent_run_id</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">parent_run_id</span>
         <span class="n">job_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracker</span><span class="o">.</span><span class="n">run_ids</span><span class="p">(</span><span class="n">parent_run_id</span><span class="o">=</span><span class="n">parent_run_id</span><span class="p">)</span>
 
         <span class="n">tabulated_job_ids</span> <span class="o">=</span> <span class="p">[[</span><span class="n">job_id</span><span class="p">]</span> <span class="k">for</span> <span class="n">job_id</span> <span class="ow">in</span> <span class="n">job_ids</span><span class="p">]</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">tabulate</span><span class="p">(</span><span class="n">tabulated_job_ids</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;JOB ID&quot;</span><span class="p">]))</span>
 
-    <span class="k">def</span> <span class="nf">add_job_lineage_arguments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subparser</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_job_lineage_arguments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subparser</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">group</span> <span class="o">=</span> <span class="n">subparser</span><span class="o">.</span><span class="n">add_mutually_exclusive_group</span><span class="p">()</span>
         <span class="n">group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
             <span class="s2">&quot;--sources-only&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Limit to sources&quot;</span>
@@ -513,27 +531,27 @@
         <span class="p">)</span>
         <span class="n">subparser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;RUN_ID&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Job run ID&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">job_lineage_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">job_lineage_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">add_metadata_arguments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subparser</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_metadata_arguments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subparser</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">subparser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;RUN_ID&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Job run ID&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">list_metadata_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">list_metadata_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">run_id</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">RUN_ID</span>
         <span class="n">metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracker</span><span class="o">.</span><span class="n">metadata</span><span class="p">(</span><span class="n">run_id</span><span class="p">)</span>
         <span class="n">print_data</span> <span class="o">=</span> <span class="p">[[</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">metadata</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
 
         <span class="nb">print</span><span class="p">(</span><span class="n">tabulate</span><span class="p">(</span><span class="n">print_data</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;ID&quot;</span><span class="p">,</span> <span class="s2">&quot;VALUE&quot;</span><span class="p">]))</span>
 
-    <span class="k">def</span> <span class="nf">add_artifacts_arguments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subparser</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_artifacts_arguments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subparser</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">subparser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
             <span class="s2">&quot;--artifact&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Limit to specific artifact&quot;</span>
         <span class="p">)</span>
 
         <span class="n">subparser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;RUN_ID&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Job run ID&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">list_artifacts_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">list_artifacts_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">run_id</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">RUN_ID</span>
         <span class="n">artifact_filter</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">artifact</span>
 
@@ -546,7 +564,7 @@
 
         <span class="nb">print</span><span class="p">(</span><span class="n">tabulate</span><span class="p">(</span><span class="n">print_data</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;ARTIFACT&quot;</span><span class="p">,</span> <span class="s2">&quot;PATH&quot;</span><span class="p">,</span> <span class="s2">&quot;METADATA&quot;</span><span class="p">]))</span>
 
-    <span class="k">def</span> <span class="nf">add_arguments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subparser</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_arguments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subparser</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">tracker_subparsers</span> <span class="o">=</span> <span class="n">subparser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">(</span>
             <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Experimental tracker subcommands to query available tracked data.&quot;</span><span class="p">,</span>
         <span class="p">)</span>
@@ -571,7 +589,7 @@
         <span class="n">job_lineage_subparser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">job_lineage_command</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_job_lineage_arguments</span><span class="p">(</span><span class="n">job_lineage_subparser</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># This command defines default func for each tracker subcomand.</span>
         <span class="k">pass</span></div>
 </pre></div>
@@ -801,7 +819,7 @@
                <a href="https://pytorch.org/resources">Developer Resources</a>
              </li>
              <li>
-               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2023</a>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2024</a>
              </li>
            </ul>
 
@@ -816,6 +834,9 @@
              
              <li>
                <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch Documentation</a>
              </li>
            </ul>
 
@@ -855,6 +876,9 @@
             <li>
               <a href="https://pytorch.org/events">Events</a>
             </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">Newsletter</a>
+             </li>
           </ul>
           
           <li class="resources-mobile-menu-title">
@@ -867,6 +891,18 @@
             </li>
             <li>
               <a href="https://pytorch.org/governing-board">Governing Board</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">Cloud Credit Program</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">Technical Advisory Council</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">Staff</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">Contact Us</a>
             </li>
           </ul>
         </ul>

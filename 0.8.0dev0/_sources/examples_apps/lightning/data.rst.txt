@@ -77,17 +77,17 @@ our trainer and other components that need to load data.
 
 
 
-    # pyre-fixme[13]: Attribute `test_ds` is never initialized.
-    # pyre-fixme[13]: Attribute `train_ds` is never initialized.
-    # pyre-fixme[13]: Attribute `val_ds` is never initialized.
     class TinyImageNetDataModule(pl.LightningDataModule):
         """
         TinyImageNetDataModule is a pytorch LightningDataModule for the tiny
         imagenet dataset.
         """
 
+        # pyre-fixme[13]: Attribute `test_ds` is never initialized.
         train_ds: ImageFolderSamplesDataset
+        # pyre-fixme[13]: Attribute `train_ds` is never initialized.
         val_ds: ImageFolderSamplesDataset
+        # pyre-fixme[13]: Attribute `val_ds` is never initialized.
         test_ds: ImageFolderSamplesDataset
 
         def __init__(

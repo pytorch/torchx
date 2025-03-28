@@ -134,8 +134,8 @@
                   <span class=dropdown-title>Developer Resources</span>
                   <p>Find resources and get questions answered</p>
                 </a>
-                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2023">
-                  <span class="dropdown-title">Contributor Awards - 2023</span>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">Contributor Awards - 2024</span>
                   <p>Award winners announced at this year's PyTorch Conference</p>
                 </a>
               </div>
@@ -155,6 +155,9 @@
                 <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
                   <span class="dropdown-title">ExecuTorch</span>
                   <p>End-to-end solution for enabling on-device inference capabilities across mobile and edge devices</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch Docs</span>
                 </a>
               </div>
             </div>  
@@ -203,6 +206,10 @@
                   <span class="dropdown-title">Events</span>
                   <p>Find events, webinars, and podcasts</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">Newsletter</span>
+                  <p>Stay up-to-date with the latest updates</p>
+                </a>
             </div>
           </li>
 
@@ -218,7 +225,18 @@
                 </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
                   <span class="dropdown-title">Governing Board</span>
-                  <p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">Cloud Credit Program</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">Technical Advisory Council</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">Staff</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">Contact Us</span>
                 </a>
               </div>
             </div>
@@ -451,10 +469,10 @@
 <span class="sd">used by components to define the apps which can then be launched via a TorchX</span>
 <span class="sd">scheduler or pipeline adapter.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">difflib</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">difflib</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
 
-<span class="kn">from</span> <span class="nn">torchx.specs.api</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.specs.api</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">ALL</span><span class="p">,</span>
     <span class="n">AppDef</span><span class="p">,</span>
     <span class="n">AppDryRunInfo</span><span class="p">,</span>
@@ -485,18 +503,18 @@
     <span class="n">UnknownSchedulerException</span><span class="p">,</span>
     <span class="n">VolumeMount</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">torchx.specs.builders</span> <span class="kn">import</span> <span class="n">make_app_handle</span><span class="p">,</span> <span class="n">materialize_appdef</span><span class="p">,</span> <span class="n">parse_mounts</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.specs.builders</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_app_handle</span><span class="p">,</span> <span class="n">materialize_appdef</span><span class="p">,</span> <span class="n">parse_mounts</span>
 
-<span class="kn">from</span> <span class="nn">torchx.specs.named_resources_aws</span> <span class="kn">import</span> <span class="n">NAMED_RESOURCES</span> <span class="k">as</span> <span class="n">AWS_NAMED_RESOURCES</span>
-<span class="kn">from</span> <span class="nn">torchx.specs.named_resources_generic</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.specs.named_resources_aws</span><span class="w"> </span><span class="kn">import</span> <span class="n">NAMED_RESOURCES</span> <span class="k">as</span> <span class="n">AWS_NAMED_RESOURCES</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.specs.named_resources_generic</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">NAMED_RESOURCES</span> <span class="k">as</span> <span class="n">GENERIC_NAMED_RESOURCES</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">torchx.util.entrypoints</span> <span class="kn">import</span> <span class="n">load_group</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchx.util.entrypoints</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_group</span>
 
 <span class="n">GiB</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span>
 
 
-<span class="k">def</span> <span class="nf">_load_named_resources</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Resource</span><span class="p">]]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_load_named_resources</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Resource</span><span class="p">]]:</span>
     <span class="n">resource_methods</span> <span class="o">=</span> <span class="n">load_group</span><span class="p">(</span><span class="s2">&quot;torchx.named_resources&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">{})</span>
     <span class="n">materialized_resources</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Resource</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -515,8 +533,8 @@
 <span class="n">_named_resource_factories</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Resource</span><span class="p">]]</span> <span class="o">=</span> <span class="n">_load_named_resources</span><span class="p">()</span>
 
 
-<span class="k">class</span> <span class="nc">_NamedResourcesLibrary</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Resource</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_NamedResourcesLibrary</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Resource</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">_named_resource_factories</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">_named_resource_factories</span><span class="p">[</span><span class="n">key</span><span class="p">]()</span>
         <span class="k">else</span><span class="p">:</span>
@@ -532,17 +550,17 @@
 
             <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No named resource found for `</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">`. </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">_named_resource_factories</span>
 
-    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;named resources doesn&#39;t support iterating&quot;</span><span class="p">)</span>
 
 
 <span class="n">named_resources</span><span class="p">:</span> <span class="n">_NamedResourcesLibrary</span> <span class="o">=</span> <span class="n">_NamedResourcesLibrary</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="resource"><a class="viewcode-back" href="../../specs.html#torchx.specs.resource">[docs]</a><span class="k">def</span> <span class="nf">resource</span><span class="p">(</span>
+<div class="viewcode-block" id="resource"><a class="viewcode-back" href="../../specs.html#torchx.specs.resource">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">resource</span><span class="p">(</span>
     <span class="n">cpu</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">gpu</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">memMB</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -588,7 +606,7 @@
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="get_named_resources"><a class="viewcode-back" href="../../specs.html#torchx.specs.get_named_resources">[docs]</a><span class="k">def</span> <span class="nf">get_named_resources</span><span class="p">(</span><span class="n">res</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Resource</span><span class="p">:</span>
+<div class="viewcode-block" id="get_named_resources"><a class="viewcode-back" href="../../specs.html#torchx.specs.get_named_resources">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_named_resources</span><span class="p">(</span><span class="n">res</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Resource</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get resource object based on the string definition registered via entrypoints.txt.</span>
 
@@ -888,7 +906,7 @@
                <a href="https://pytorch.org/resources">Developer Resources</a>
              </li>
              <li>
-               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2023</a>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2024</a>
              </li>
            </ul>
 
@@ -903,6 +921,9 @@
              
              <li>
                <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch Documentation</a>
              </li>
            </ul>
 
@@ -942,6 +963,9 @@
             <li>
               <a href="https://pytorch.org/events">Events</a>
             </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">Newsletter</a>
+             </li>
           </ul>
           
           <li class="resources-mobile-menu-title">
@@ -954,6 +978,18 @@
             </li>
             <li>
               <a href="https://pytorch.org/governing-board">Governing Board</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">Cloud Credit Program</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">Technical Advisory Council</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">Staff</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">Contact Us</a>
             </li>
           </ul>
         </ul>
