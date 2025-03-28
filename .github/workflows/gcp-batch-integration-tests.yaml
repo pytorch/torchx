@@ -9,7 +9,7 @@ on:
 jobs:
   gcpbatch:
     if: github.event.pull_request.head.repo.fork == false
-    runs-on: ubuntu-20.04
+    runs-on: linux.24_04.4x
     permissions:
       id-token: write
       contents: read

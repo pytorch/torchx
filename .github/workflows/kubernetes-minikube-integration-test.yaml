@@ -8,7 +8,7 @@ on:
 
 jobs:
   kubernetes-launch:
-    runs-on: "linux.20_04.16x"
+    runs-on: linux.24_04.16x
     permissions:
       id-token: write
       contents: read
