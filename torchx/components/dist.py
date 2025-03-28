@@ -248,6 +248,7 @@ def ddp(
     )
 
     env["TORCHX_TRACKING_EXPERIMENT_NAME"] = argname.experiment_name
+    env["TORCHX_TRACKING_RUN_NAME"] = argname.run_name
 
     env.setdefault("LOGLEVEL", os.getenv("LOGLEVEL", "WARNING"))
     if debug:
