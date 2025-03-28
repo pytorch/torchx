@@ -705,6 +705,7 @@
     <span class="p">)</span>
 
     <span class="n">env</span><span class="p">[</span><span class="s2">&quot;TORCHX_TRACKING_EXPERIMENT_NAME&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">argname</span><span class="o">.</span><span class="n">experiment_name</span>
+    <span class="n">env</span><span class="p">[</span><span class="s2">&quot;TORCHX_TRACKING_RUN_NAME&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">argname</span><span class="o">.</span><span class="n">run_name</span>
 
     <span class="n">env</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;LOGLEVEL&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;LOGLEVEL&quot;</span><span class="p">,</span> <span class="s2">&quot;WARNING&quot;</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
