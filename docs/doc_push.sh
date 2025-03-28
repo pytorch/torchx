@@ -54,8 +54,12 @@ else
     redirects=(latest main)
 fi
 
-echo "Installing torchx from $repo_root..."
+echo "Installing TorchX and Doc dependencies from $repo_root..."
 cd "$repo_root" || exit
+
+# First install doc requirements, then install torchx
+# so that torchx's pinned requirements are honored
+pip install -r docs/requirements.txt
 pip uninstall -y torchx
 pip install -r dev-requirements.txt
 python setup.py install
@@ -66,7 +70,7 @@ echo "Building torchx-$torchx_ver docs..."
 docs_dir=$repo_root/docs
 build_dir=$docs_dir/build
 cd "$docs_dir" || exit
-pip install -r requirements.txt
+
 make clean html
 echo "Doc build complete"
 
