@@ -180,6 +180,11 @@ class TorchxFunctionArgsValidator(TorchxFunctionValidator):
 
 
 class TorchxReturnValidator(TorchxFunctionValidator):
+
+    def __init__(self, supported_return_type: str) -> None:
+        super().__init__()
+        self._supported_return_type = supported_return_type
+
     def _get_return_annotation(
         self, app_specs_func_def: ast.FunctionDef
     ) -> Optional[str]:
@@ -203,7 +208,7 @@ class TorchxReturnValidator(TorchxFunctionValidator):
             * AppDef
             * specs.AppDef
         """
-        supported_return_annotation = "AppDef"
+        supported_return_annotation = self._supported_return_type
         return_annotation = self._get_return_annotation(app_specs_func_def)
         linter_errors = []
         if not return_annotation:
@@ -252,7 +257,7 @@ class TorchFunctionVisitor(ast.NodeVisitor):
         if validators is None:
             self.validators: List[TorchxFunctionValidator] = [
                 TorchxFunctionArgsValidator(),
-                TorchxReturnValidator(),
+                TorchxReturnValidator("AppDef"),
             ]
         else:
             self.validators = validators

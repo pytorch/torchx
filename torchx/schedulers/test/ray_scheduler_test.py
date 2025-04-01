@@ -390,7 +390,12 @@ if has_ray():
             ):
                 _scheduler_with_client.submit(app=app, cfg={})
 
-        def _assertDictContainsSubset(self, expected, actual, msg=None):
+        def _assertDictContainsSubset(
+            self,
+            expected: dict[str, Any],
+            actual: dict[str, Any],
+            msg: Optional[str] = None,
+        ) -> None:
             # NB: implement unittest.TestCase.assertDictContainsSubsetNew() since it was removed in python-3.11
             for key, value in expected.items():
                 self.assertIn(key, actual, msg)

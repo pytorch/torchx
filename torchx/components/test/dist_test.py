@@ -56,6 +56,7 @@ class SpmdTest(ComponentTestCase):
     def test_spmd_call_by_module_or_script_no_name(self) -> None:
         appdef = spmd(script="foo/bar.py")
         self.assertEqual("bar", appdef.name)
+        self.assertEqual("bar", appdef.roles[0].env["TORCHX_TRACKING_RUN_NAME"])
         self.assertEqual(
             "default-experiment",
             appdef.roles[0].env["TORCHX_TRACKING_EXPERIMENT_NAME"],
@@ -63,6 +64,7 @@ class SpmdTest(ComponentTestCase):
 
         appdef = spmd("-a", "b", script="foo/bar.py")
         self.assertEqual("bar", appdef.name)
+        self.assertEqual("bar", appdef.roles[0].env["TORCHX_TRACKING_RUN_NAME"])
         self.assertEqual(
             "default-experiment",
             appdef.roles[0].env["TORCHX_TRACKING_EXPERIMENT_NAME"],
@@ -70,6 +72,7 @@ class SpmdTest(ComponentTestCase):
 
         appdef = spmd(m="foo.bar")
         self.assertEqual("bar", appdef.name)
+        self.assertEqual("bar", appdef.roles[0].env["TORCHX_TRACKING_RUN_NAME"])
         self.assertEqual(
             "default-experiment",
             appdef.roles[0].env["TORCHX_TRACKING_EXPERIMENT_NAME"],
@@ -77,6 +80,7 @@ class SpmdTest(ComponentTestCase):
 
         appdef = spmd("-a", "b", m="foo.bar")
         self.assertEqual("bar", appdef.name)
+        self.assertEqual("bar", appdef.roles[0].env["TORCHX_TRACKING_RUN_NAME"])
         self.assertEqual(
             "default-experiment",
             appdef.roles[0].env["TORCHX_TRACKING_EXPERIMENT_NAME"],
@@ -91,35 +95,43 @@ class SpmdTest(ComponentTestCase):
     def test_spmd_call_by_module_or_script_with_name(self) -> None:
         appdef = spmd(script="foo/bar.py", name="baz/trial_1")
         self.assertEqual("trial_1", appdef.name)
+        self.assertEqual("trial_1", appdef.roles[0].env["TORCHX_TRACKING_RUN_NAME"])
         self.assertEqual("baz", appdef.roles[0].env["TORCHX_TRACKING_EXPERIMENT_NAME"])
 
         appdef = spmd("-a", "b", script="foo/bar.py", name="baz/trial_1")
         self.assertEqual("trial_1", appdef.name)
         self.assertEqual("baz", appdef.roles[0].env["TORCHX_TRACKING_EXPERIMENT_NAME"])
+        self.assertEqual("trial_1", appdef.roles[0].env["TORCHX_TRACKING_RUN_NAME"])
 
         appdef = spmd(m="foo.bar", name="baz/trial_1")
         self.assertEqual("trial_1", appdef.name)
+        self.assertEqual("trial_1", appdef.roles[0].env["TORCHX_TRACKING_RUN_NAME"])
         self.assertEqual("baz", appdef.roles[0].env["TORCHX_TRACKING_EXPERIMENT_NAME"])
 
         appdef = spmd("-a", "b", m="foo.bar", name="baz/trial_1")
         self.assertEqual("trial_1", appdef.name)
+        self.assertEqual("trial_1", appdef.roles[0].env["TORCHX_TRACKING_RUN_NAME"])
         self.assertEqual("baz", appdef.roles[0].env["TORCHX_TRACKING_EXPERIMENT_NAME"])
 
     def test_spmd_call_by_module_or_script_with_experiment_name(self) -> None:
         appdef = spmd(script="foo/bar.py", name="baz/")
         self.assertEqual("bar", appdef.name)
+        self.assertEqual("bar", appdef.roles[0].env["TORCHX_TRACKING_RUN_NAME"])
         self.assertEqual("baz", appdef.roles[0].env["TORCHX_TRACKING_EXPERIMENT_NAME"])
 
         appdef = spmd("-a", "b", script="foo/bar.py", name="baz/")
         self.assertEqual("bar", appdef.name)
+        self.assertEqual("bar", appdef.roles[0].env["TORCHX_TRACKING_RUN_NAME"])
         self.assertEqual("baz", appdef.roles[0].env["TORCHX_TRACKING_EXPERIMENT_NAME"])
 
         appdef = spmd(m="foo.bar", name="baz/")
         self.assertEqual("bar", appdef.name)
+        self.assertEqual("bar", appdef.roles[0].env["TORCHX_TRACKING_RUN_NAME"])
         self.assertEqual("baz", appdef.roles[0].env["TORCHX_TRACKING_EXPERIMENT_NAME"])
 
         appdef = spmd("-a", "b", m="foo.bar", name="baz/")
         self.assertEqual("bar", appdef.name)
+        self.assertEqual("bar", appdef.roles[0].env["TORCHX_TRACKING_RUN_NAME"])
         self.assertEqual("baz", appdef.roles[0].env["TORCHX_TRACKING_EXPERIMENT_NAME"])
 
     def test_spmd_call_by_module_or_script_with_run_name(self) -> None:
@@ -129,12 +141,20 @@ class SpmdTest(ComponentTestCase):
             "default-experiment",
             appdef.roles[0].env["TORCHX_TRACKING_EXPERIMENT_NAME"],
         )
+        self.assertEqual(
+            "trial_1",
+            appdef.roles[0].env["TORCHX_TRACKING_RUN_NAME"],
+        )
 
         appdef = spmd("-a", "b", script="foo/bar.py", name="/trial_1")
         self.assertEqual("trial_1", appdef.name)
         self.assertEqual(
             "default-experiment",
             appdef.roles[0].env["TORCHX_TRACKING_EXPERIMENT_NAME"],
+        )
+        self.assertEqual(
+            "trial_1",
+            appdef.roles[0].env["TORCHX_TRACKING_RUN_NAME"],
         )
 
         appdef = spmd(m="foo.bar", name="/trial_1")
@@ -143,10 +163,18 @@ class SpmdTest(ComponentTestCase):
             "default-experiment",
             appdef.roles[0].env["TORCHX_TRACKING_EXPERIMENT_NAME"],
         )
+        self.assertEqual(
+            "trial_1",
+            appdef.roles[0].env["TORCHX_TRACKING_RUN_NAME"],
+        )
 
         appdef = spmd("-a", "b", m="foo.bar", name="/trial_1")
         self.assertEqual("trial_1", appdef.name)
         self.assertEqual(
             "default-experiment",
             appdef.roles[0].env["TORCHX_TRACKING_EXPERIMENT_NAME"],
+        )
+        self.assertEqual(
+            "trial_1",
+            appdef.roles[0].env["TORCHX_TRACKING_RUN_NAME"],
         )
