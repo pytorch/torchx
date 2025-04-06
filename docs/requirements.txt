@@ -10,4 +10,5 @@ jupytext
 ipython_genutils
 # https://github.com/jupyter/nbconvert/issues/1736
 jinja2>=3.1.4
-apache-airflow
+apache-airflow==2.6.3  # newer versions require incompatible protobuf version
+protobuf==3.20.3  # kfp requires protobuf < 4.0.0
