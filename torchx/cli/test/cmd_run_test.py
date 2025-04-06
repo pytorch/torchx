@@ -51,14 +51,12 @@ class CmdRunTest(unittest.TestCase):
         torchxconfig.called_args = set()
 
     def test_run_with_multiple_scheduler_args(self) -> None:
-
         args = ["--scheduler_args", "first_args", "--scheduler_args", "second_args"]
         with self.assertRaises(SystemExit) as cm:
             self.parser.parse_args(args)
         self.assertEqual(cm.exception.code, 1)
 
     def test_run_with_multiple_schedule_args(self) -> None:
-
         args = [
             "--scheduler",
             "local_cwd",
