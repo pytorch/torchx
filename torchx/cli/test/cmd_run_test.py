@@ -21,7 +21,6 @@ from typing import Generator
 from unittest.mock import MagicMock, patch
 
 from torchx.cli.argparse_util import ArgOnceAction, torchxconfig
-
 from torchx.cli.cmd_run import _parse_component_name_and_args, CmdBuiltins, CmdRun
 from torchx.schedulers.local_scheduler import SignalException
 
@@ -216,38 +215,41 @@ class CmdRunTest(unittest.TestCase):
         self.assertEqual(call_kwargs["parent_run_id"], "experiment_1")
 
     def test_parse_component_name_and_args_no_default(self) -> None:
+        # set dirs to test tmpdir so tests don't accidentally pick up user's $HOME/.torchxconfig
+        dirs = [str(self.tmpdir)]
+
         sp = argparse.ArgumentParser(prog="test")
         self.assertEqual(
             ("utils.echo", []),
-            _parse_component_name_and_args(["utils.echo"], sp),
+            _parse_component_name_and_args(["utils.echo"], sp, dirs),
         )
         self.assertEqual(
             ("utils.echo", []),
-            _parse_component_name_and_args(["--", "utils.echo"], sp),
+            _parse_component_name_and_args(["--", "utils.echo"], sp, dirs),
         )
         self.assertEqual(
             ("utils.echo", ["--msg", "hello"]),
-            _parse_component_name_and_args(["utils.echo", "--msg", "hello"], sp),
+            _parse_component_name_and_args(["utils.echo", "--msg", "hello"], sp, dirs),
         )
 
         self.assertEqual(
             ("utils.echo", ["--msg", "hello", "--", "--"]),
             _parse_component_name_and_args(
-                ["utils.echo", "--msg", "hello", "--", "--"], sp
+                ["utils.echo", "--msg", "hello", "--", "--"], sp, dirs
             ),
         )
 
         self.assertEqual(
             ("utils.echo", ["--msg", "hello", "-", "-"]),
             _parse_component_name_and_args(
-                ["utils.echo", "--msg", "hello", "-", "-"], sp
+                ["utils.echo", "--msg", "hello", "-", "-"], sp, dirs
             ),
         )
 
         self.assertEqual(
             ("utils.echo", ["--msg", "hello", "-  ", "-  "]),
             _parse_component_name_and_args(
-                ["utils.echo", "--msg", "hello", "-  ", "-  "], sp
+                ["utils.echo", "--msg", "hello", "-  ", "-  "], sp, dirs
             ),
         )
 
@@ -274,32 +276,35 @@ class CmdRunTest(unittest.TestCase):
                     "-m",
                 ],
                 sp,
+                dirs,
             ),
         )
 
         with self.assertRaises(SystemExit):
-            _parse_component_name_and_args(["--"], sp)
+            _parse_component_name_and_args(["--"], sp, dirs)
 
         with self.assertRaises(SystemExit):
-            _parse_component_name_and_args(["--msg", "hello"], sp)
+            _parse_component_name_and_args(["--msg", "hello"], sp, dirs)
 
         with self.assertRaises(SystemExit):
-            _parse_component_name_and_args(["-m", "hello"], sp)
+            _parse_component_name_and_args(["-m", "hello"], sp, dirs)
 
         with self.assertRaises(SystemExit):
-            _parse_component_name_and_args(["-m", "hello", "-m", "repeate"], sp)
-
-        with self.assertRaises(SystemExit):
-            _parse_component_name_and_args(["--msg", "hello", "--msg", "repeate"], sp)
+            _parse_component_name_and_args(["-m", "hello", "-m", "repeate"], sp, dirs)
 
         with self.assertRaises(SystemExit):
             _parse_component_name_and_args(
-                ["--msg  ", "hello", "--msg     ", "repeate"], sp
+                ["--msg", "hello", "--msg", "repeate"], sp, dirs
             )
 
         with self.assertRaises(SystemExit):
             _parse_component_name_and_args(
-                ["--m", "hello", "--", "--msg", "msg", "--msg", "repeate"], sp
+                ["--msg  ", "hello", "--msg     ", "repeate"], sp, dirs
+            )
+
+        with self.assertRaises(SystemExit):
+            _parse_component_name_and_args(
+                ["--m", "hello", "--", "--msg", "msg", "--msg", "repeate"], sp, dirs
             )
 
     def test_parse_component_name_and_args_with_default(self) -> None:
