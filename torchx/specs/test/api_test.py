@@ -176,6 +176,42 @@ Traceback (most recent call last):
         # Split and compare to aviod AssertionError.
         self.assertEqual(expected_message.split(), actual_message.split())
 
+    def test_app_status_in_json(self) -> None:
+        app_status = self._get_test_app_status()
+        result = app_status.to_json()
+        error_msg = '{"message":{"message":"error","errorCode":-1,"extraInfo":{"timestamp":1293182}}}'
+        self.assertDictEqual(
+            result,
+            {
+                "state": "RUNNING",
+                "num_restarts": 0,
+                "roles": [
+                    {
+                        "role": "worker",
+                        "replicas": [
+                            {
+                                "id": 0,
+                                "state": 5,
+                                "role": "worker",
+                                "hostname": "localhost",
+                                "structured_error_msg": error_msg,
+                            },
+                            {
+                                "id": 1,
+                                "state": 3,
+                                "role": "worker",
+                                "hostname": "localhost",
+                                "structured_error_msg": "<NONE>",
+                            },
+                        ],
+                    }
+                ],
+                "msg": "",
+                "structured_error_msg": "<NONE>",
+                "url": None,
+            },
+        )
+
 
 class ResourceTest(unittest.TestCase):
     def test_copy_resource(self) -> None:
