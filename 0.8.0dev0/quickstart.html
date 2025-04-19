@@ -600,12 +600,12 @@ torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class=
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2025-04-18 20:57:07 INFO     Tracker configurations: {}
-torchx 2025-04-18 20:57:07 INFO     Log directory not set in scheduler cfg. Creating a temporary log dir that will be deleted on exit. To preserve log directory set the `log_dir` cfg option
-torchx 2025-04-18 20:57:07 INFO     Log directory is: /tmp/torchx_n09rhone
-torchx 2025-04-18 20:57:07 INFO     Waiting for the app to finish...
+torchx 2025-04-19 16:19:14 INFO     Tracker configurations: {}
+torchx 2025-04-19 16:19:14 INFO     Log directory not set in scheduler cfg. Creating a temporary log dir that will be deleted on exit. To preserve log directory set the `log_dir` cfg option
+torchx 2025-04-19 16:19:14 INFO     Log directory is: /tmp/torchx_ss1cl7u7
+torchx 2025-04-19 16:19:14 INFO     Waiting for the app to finish...
 python/0 Hello, your name!
-torchx 2025-04-18 20:57:08 INFO     Job finished: SUCCEEDED
+torchx 2025-04-19 16:19:15 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -613,7 +613,7 @@ torchx 2025-04-18 20:57:08 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_cwd://torchx/torchx_utils_python-h1ls0m71c26lc
+local_cwd://torchx/torchx_utils_python-ggmpk3qwn26xj
 </pre></div></div>
 </div>
 <p>We can run the exact same app via the <code class="docutils literal notranslate"><span class="pre">local_docker</span></code> scheduler. This scheduler will package up the local workspace as a layer on top of the specified image. This provides a very similar environment to the container based remote schedulers.</p>
@@ -633,26 +633,26 @@ torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class=
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2025-04-18 20:57:09 INFO     Tracker configurations: {}
-torchx 2025-04-18 20:57:09 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
-torchx 2025-04-18 20:57:09 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
-torchx 2025-04-18 20:57:09 INFO     Workspace `file:///home/runner/work/torchx/torchx/docs/source` resolved to filesystem path `/home/runner/work/torchx/torchx/docs/source`
-torchx 2025-04-18 20:57:09 INFO     Building workspace docker image (this may take a while)...
-torchx 2025-04-18 20:57:10 INFO     Step 1/4 : ARG IMAGE
-torchx 2025-04-18 20:57:10 INFO     Step 2/4 : FROM $IMAGE
-torchx 2025-04-18 20:57:10 INFO      ---&gt; dfdb0916a9dc
-torchx 2025-04-18 20:57:10 INFO     Step 3/4 : COPY . .
-torchx 2025-04-18 20:57:18 INFO      ---&gt; fcc9f646e112
-torchx 2025-04-18 20:57:18 INFO     Step 4/4 : LABEL torchx.pytorch.org/version=0.8.0dev0
-torchx 2025-04-18 20:57:18 INFO      ---&gt; Running in 37e14b9b5804
-torchx 2025-04-18 20:57:25 INFO      ---&gt; Removed intermediate container 37e14b9b5804
-torchx 2025-04-18 20:57:25 INFO      ---&gt; b76b52567b78
-torchx 2025-04-18 20:57:25 INFO     [Warning] One or more build-args [WORKSPACE] were not consumed
-torchx 2025-04-18 20:57:25 INFO     Successfully built b76b52567b78
-torchx 2025-04-18 20:57:25 INFO     Built new image `sha256:b76b52567b7816e21f6fe3fdcb38852bba69a1995313708e52ce3b57fc94b981` based on original image `ghcr.io/pytorch/torchx:0.8.0dev0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=python.
-torchx 2025-04-18 20:57:25 INFO     Waiting for the app to finish...
+torchx 2025-04-19 16:19:16 INFO     Tracker configurations: {}
+torchx 2025-04-19 16:19:16 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
+torchx 2025-04-19 16:19:16 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
+torchx 2025-04-19 16:19:16 INFO     Workspace `file:///home/runner/work/torchx/torchx/docs/source` resolved to filesystem path `/home/runner/work/torchx/torchx/docs/source`
+torchx 2025-04-19 16:19:17 INFO     Building workspace docker image (this may take a while)...
+torchx 2025-04-19 16:19:17 INFO     Step 1/4 : ARG IMAGE
+torchx 2025-04-19 16:19:17 INFO     Step 2/4 : FROM $IMAGE
+torchx 2025-04-19 16:19:17 INFO      ---&gt; 0f2b3ec73825
+torchx 2025-04-19 16:19:17 INFO     Step 3/4 : COPY . .
+torchx 2025-04-19 16:19:25 INFO      ---&gt; 914be23280d3
+torchx 2025-04-19 16:19:25 INFO     Step 4/4 : LABEL torchx.pytorch.org/version=0.8.0dev0
+torchx 2025-04-19 16:19:25 INFO      ---&gt; Running in 8a665ca42650
+torchx 2025-04-19 16:19:32 INFO      ---&gt; Removed intermediate container 8a665ca42650
+torchx 2025-04-19 16:19:32 INFO      ---&gt; c9442621c20c
+torchx 2025-04-19 16:19:32 INFO     [Warning] One or more build-args [WORKSPACE] were not consumed
+torchx 2025-04-19 16:19:32 INFO     Successfully built c9442621c20c
+torchx 2025-04-19 16:19:32 INFO     Built new image `sha256:c9442621c20cf703c7eb061fb807cec218afa8beebf76fa844149d698424097d` based on original image `ghcr.io/pytorch/torchx:0.8.0dev0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=python.
+torchx 2025-04-19 16:19:33 INFO     Waiting for the app to finish...
 python/0 Hello, your name!
-torchx 2025-04-18 20:57:26 INFO     Job finished: SUCCEEDED
+torchx 2025-04-19 16:19:34 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -660,7 +660,7 @@ torchx 2025-04-18 20:57:26 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/torchx_utils_python-t34h3cxp1kkljc
+local_docker://torchx/torchx_utils_python-nmb56bmv04f0c
 </pre></div></div>
 </div>
 <p>TorchX defaults to using the <a class="reference external" href="https://ghcr.io/pytorch/torchx">ghcr.io/pytorch/torchx</a> Docker container image which contains the PyTorch libraries, TorchX and related dependencies.</p>
@@ -783,53 +783,53 @@ torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class=
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2025-04-18 20:57:29 INFO     Tracker configurations: {}
-torchx 2025-04-18 20:57:29 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
-torchx 2025-04-18 20:57:29 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
-torchx 2025-04-18 20:57:29 INFO     Workspace `file:///home/runner/work/torchx/torchx/docs/source` resolved to filesystem path `/home/runner/work/torchx/torchx/docs/source`
-torchx 2025-04-18 20:57:29 INFO     Building workspace docker image (this may take a while)...
-torchx 2025-04-18 20:57:29 INFO     Step 1/4 : ARG IMAGE
-torchx 2025-04-18 20:57:29 INFO     Step 2/4 : FROM $IMAGE
-torchx 2025-04-18 20:57:29 INFO      ---&gt; dfdb0916a9dc
-torchx 2025-04-18 20:57:29 INFO     Step 3/4 : COPY . .
-torchx 2025-04-18 20:57:37 INFO      ---&gt; 125bebf67e09
-torchx 2025-04-18 20:57:37 INFO     Step 4/4 : LABEL torchx.pytorch.org/version=0.8.0dev0
-torchx 2025-04-18 20:57:37 INFO      ---&gt; Running in 95a49f14825c
-torchx 2025-04-18 20:57:44 INFO      ---&gt; Removed intermediate container 95a49f14825c
-torchx 2025-04-18 20:57:44 INFO      ---&gt; 03df6228cb54
-torchx 2025-04-18 20:57:44 INFO     [Warning] One or more build-args [WORKSPACE] were not consumed
-torchx 2025-04-18 20:57:44 INFO     Successfully built 03df6228cb54
-torchx 2025-04-18 20:57:44 INFO     Built new image `sha256:03df6228cb54eeb5839bbcaf7a7dee03bc7b167187d5ca5f85814ce7638f8877` based on original image `ghcr.io/pytorch/torchx:0.8.0dev0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=dist_app.
-torchx 2025-04-18 20:57:45 INFO     Waiting for the app to finish...
+torchx 2025-04-19 16:19:36 INFO     Tracker configurations: {}
+torchx 2025-04-19 16:19:36 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
+torchx 2025-04-19 16:19:36 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
+torchx 2025-04-19 16:19:36 INFO     Workspace `file:///home/runner/work/torchx/torchx/docs/source` resolved to filesystem path `/home/runner/work/torchx/torchx/docs/source`
+torchx 2025-04-19 16:19:36 INFO     Building workspace docker image (this may take a while)...
+torchx 2025-04-19 16:19:36 INFO     Step 1/4 : ARG IMAGE
+torchx 2025-04-19 16:19:36 INFO     Step 2/4 : FROM $IMAGE
+torchx 2025-04-19 16:19:36 INFO      ---&gt; 0f2b3ec73825
+torchx 2025-04-19 16:19:36 INFO     Step 3/4 : COPY . .
+torchx 2025-04-19 16:19:44 INFO      ---&gt; bab6ee786b70
+torchx 2025-04-19 16:19:44 INFO     Step 4/4 : LABEL torchx.pytorch.org/version=0.8.0dev0
+torchx 2025-04-19 16:19:44 INFO      ---&gt; Running in 6ffd7fde655e
+torchx 2025-04-19 16:19:51 INFO      ---&gt; Removed intermediate container 6ffd7fde655e
+torchx 2025-04-19 16:19:51 INFO      ---&gt; f87956b78a96
+torchx 2025-04-19 16:19:51 INFO     [Warning] One or more build-args [WORKSPACE] were not consumed
+torchx 2025-04-19 16:19:51 INFO     Successfully built f87956b78a96
+torchx 2025-04-19 16:19:51 INFO     Built new image `sha256:f87956b78a9666e6a8fefb9b79c461e435a853bd656a3766a368c052ac78c153` based on original image `ghcr.io/pytorch/torchx:0.8.0dev0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=dist_app.
+torchx 2025-04-19 16:19:52 INFO     Waiting for the app to finish...
 dist_app/0 /opt/conda/lib/python3.10/site-packages/torch/utils/_pytree.py:185: FutureWarning: optree is installed but the version is too old to support PyTorch Dynamo in C++ pytree. C++ pytree support is disabled. Please consider upgrading optree using `python3 -m pip install --upgrade &#39;optree&gt;=0.13.0&#39;`.
 dist_app/0   warnings.warn(
 dist_app/1 /opt/conda/lib/python3.10/site-packages/torch/utils/_pytree.py:185: FutureWarning: optree is installed but the version is too old to support PyTorch Dynamo in C++ pytree. C++ pytree support is disabled. Please consider upgrading optree using `python3 -m pip install --upgrade &#39;optree&gt;=0.13.0&#39;`.
 dist_app/1   warnings.warn(
-dist_app/0 W0418 20:57:46.914000 1 site-packages/torch/distributed/run.py:792]
-dist_app/0 W0418 20:57:46.914000 1 site-packages/torch/distributed/run.py:792] *****************************************
-dist_app/1 W0418 20:57:46.914000 1 site-packages/torch/distributed/run.py:792]
-dist_app/0 W0418 20:57:46.914000 1 site-packages/torch/distributed/run.py:792] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed.
-dist_app/0 W0418 20:57:46.914000 1 site-packages/torch/distributed/run.py:792] *****************************************
-dist_app/1 W0418 20:57:46.914000 1 site-packages/torch/distributed/run.py:792] *****************************************
-dist_app/1 W0418 20:57:46.914000 1 site-packages/torch/distributed/run.py:792] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed.
-dist_app/1 W0418 20:57:46.914000 1 site-packages/torch/distributed/run.py:792] *****************************************
-dist_app/1 [0]:/opt/conda/lib/python3.10/site-packages/torch/utils/_pytree.py:185: FutureWarning: optree is installed but the version is too old to support PyTorch Dynamo in C++ pytree. C++ pytree support is disabled. Please consider upgrading optree using `python3 -m pip install --upgrade &#39;optree&gt;=0.13.0&#39;`.
-dist_app/1 [0]:  warnings.warn(
+dist_app/0 W0419 16:19:54.256000 1 site-packages/torch/distributed/run.py:792]
+dist_app/0 W0419 16:19:54.256000 1 site-packages/torch/distributed/run.py:792] *****************************************
+dist_app/0 W0419 16:19:54.256000 1 site-packages/torch/distributed/run.py:792] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed.
+dist_app/0 W0419 16:19:54.256000 1 site-packages/torch/distributed/run.py:792] *****************************************
+dist_app/1 W0419 16:19:54.306000 1 site-packages/torch/distributed/run.py:792]
+dist_app/1 W0419 16:19:54.306000 1 site-packages/torch/distributed/run.py:792] *****************************************
+dist_app/1 W0419 16:19:54.306000 1 site-packages/torch/distributed/run.py:792] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed.
+dist_app/1 W0419 16:19:54.306000 1 site-packages/torch/distributed/run.py:792] *****************************************
 dist_app/1 [1]:/opt/conda/lib/python3.10/site-packages/torch/utils/_pytree.py:185: FutureWarning: optree is installed but the version is too old to support PyTorch Dynamo in C++ pytree. C++ pytree support is disabled. Please consider upgrading optree using `python3 -m pip install --upgrade &#39;optree&gt;=0.13.0&#39;`.
 dist_app/1 [1]:  warnings.warn(
-dist_app/0 [1]:/opt/conda/lib/python3.10/site-packages/torch/utils/_pytree.py:185: FutureWarning: optree is installed but the version is too old to support PyTorch Dynamo in C++ pytree. C++ pytree support is disabled. Please consider upgrading optree using `python3 -m pip install --upgrade &#39;optree&gt;=0.13.0&#39;`.
-dist_app/0 [1]:  warnings.warn(
 dist_app/0 [0]:/opt/conda/lib/python3.10/site-packages/torch/utils/_pytree.py:185: FutureWarning: optree is installed but the version is too old to support PyTorch Dynamo in C++ pytree. C++ pytree support is disabled. Please consider upgrading optree using `python3 -m pip install --upgrade &#39;optree&gt;=0.13.0&#39;`.
 dist_app/0 [0]:  warnings.warn(
+dist_app/0 [1]:/opt/conda/lib/python3.10/site-packages/torch/utils/_pytree.py:185: FutureWarning: optree is installed but the version is too old to support PyTorch Dynamo in C++ pytree. C++ pytree support is disabled. Please consider upgrading optree using `python3 -m pip install --upgrade &#39;optree&gt;=0.13.0&#39;`.
+dist_app/0 [1]:  warnings.warn(
+dist_app/1 [0]:/opt/conda/lib/python3.10/site-packages/torch/utils/_pytree.py:185: FutureWarning: optree is installed but the version is too old to support PyTorch Dynamo in C++ pytree. C++ pytree support is disabled. Please consider upgrading optree using `python3 -m pip install --upgrade &#39;optree&gt;=0.13.0&#39;`.
+dist_app/1 [0]:  warnings.warn(
 dist_app/1 [1]:I am worker 3 of 4!
 dist_app/1 [1]:all_reduce output = tensor([6])
 dist_app/1 [0]:I am worker 2 of 4!
 dist_app/1 [0]:all_reduce output = tensor([6])
-dist_app/0 [1]:I am worker 1 of 4!
-dist_app/0 [1]:all_reduce output = tensor([6])
 dist_app/0 [0]:I am worker 0 of 4!
 dist_app/0 [0]:all_reduce output = tensor([6])
-torchx 2025-04-18 20:57:52 INFO     Job finished: SUCCEEDED
+dist_app/0 [1]:I am worker 1 of 4!
+dist_app/0 [1]:all_reduce output = tensor([6])
+torchx 2025-04-19 16:19:59 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -837,7 +837,7 @@ torchx 2025-04-18 20:57:52 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/dist_app-vjskzsg6slhg1
+local_docker://torchx/dist_app-cvh11xmznm4x0c
 </pre></div></div>
 </div>
 </section>
@@ -1219,33 +1219,29 @@ torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class=
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2025-04-18 20:57:55 INFO     loaded configs from /home/runner/work/torchx/torchx/docs/source/.torchxconfig
-torchx 2025-04-18 20:57:55 INFO     Tracker configurations: {}
-torchx 2025-04-18 20:57:55 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
-torchx 2025-04-18 20:57:55 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
-torchx 2025-04-18 20:57:55 INFO     Workspace `file:///home/runner/work/torchx/torchx/docs/source` resolved to filesystem path `/home/runner/work/torchx/torchx/docs/source`
-torchx 2025-04-18 20:57:56 INFO     Building workspace docker image (this may take a while)...
-torchx 2025-04-18 20:57:56 INFO     Step 1/4 : FROM pytorch/pytorch:1.10.0-cuda11.3-cudnn8-runtime
-torchx 2025-04-18 20:59:05 INFO      ---&gt; c3f17e5ac010
-torchx 2025-04-18 20:59:05 INFO     Step 2/4 : RUN pip install timm
-torchx 2025-04-18 20:59:05 INFO      ---&gt; Running in 00cb084b5bf9
-torchx 2025-04-18 20:59:05 INFO     Collecting timm
-torchx 2025-04-18 20:59:06 INFO       Downloading timm-0.9.12-py3-none-any.whl (2.2 MB)
-torchx 2025-04-18 20:59:06 INFO     Requirement already satisfied: torchvision in /opt/conda/lib/python3.7/site-packages (from timm) (0.11.0)
-torchx 2025-04-18 20:59:06 INFO     Collecting huggingface-hub
-torchx 2025-04-18 20:59:06 INFO       Downloading huggingface_hub-0.16.4-py3-none-any.whl (268 kB)
-torchx 2025-04-18 20:59:06 INFO     Requirement already satisfied: torch&gt;=1.7 in /opt/conda/lib/python3.7/site-packages (from timm) (1.10.0)
-torchx 2025-04-18 20:59:06 INFO     Collecting safetensors
-torchx 2025-04-18 20:59:06 INFO       Downloading safetensors-0.5.3.tar.gz (67 kB)
-torchx 2025-04-18 20:59:06 INFO       Installing build dependencies: started
-torchx 2025-04-18 20:59:09 INFO       Installing build dependencies: finished with status &#39;done&#39;
-torchx 2025-04-18 20:59:09 INFO       Getting requirements to build wheel: started
-torchx 2025-04-18 20:59:09 INFO       Getting requirements to build wheel: finished with status &#39;done&#39;
-torchx 2025-04-18 20:59:09 INFO         Preparing wheel metadata: started
-torchx 2025-04-18 20:59:09 INFO         Preparing wheel metadata: finished with status &#39;error&#39;
-torchx 2025-04-18 20:59:09 INFO     <span class="ansi-red-intense-fg">    ERROR: Command errored out with exit status 1:
-     command: /opt/conda/bin/python /opt/conda/lib/python3.7/site-packages/pip/_vendor/pep517/_in_process.py prepare_metadata_for_build_wheel /tmp/tmpvc4wk6tt
-         cwd: /tmp/pip-install-eim4cuek/safetensors_fe5e4b5c96914c2d86c2058c24ba6abf
+torchx 2025-04-19 16:20:02 INFO     loaded configs from /home/runner/work/torchx/torchx/docs/source/.torchxconfig
+torchx 2025-04-19 16:20:03 INFO     Tracker configurations: {}
+torchx 2025-04-19 16:20:03 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
+torchx 2025-04-19 16:20:03 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
+torchx 2025-04-19 16:20:03 INFO     Workspace `file:///home/runner/work/torchx/torchx/docs/source` resolved to filesystem path `/home/runner/work/torchx/torchx/docs/source`
+torchx 2025-04-19 16:20:03 INFO     Building workspace docker image (this may take a while)...
+torchx 2025-04-19 16:20:03 INFO     Step 1/4 : FROM pytorch/pytorch:1.10.0-cuda11.3-cudnn8-runtime
+torchx 2025-04-19 16:21:05 INFO      ---&gt; c3f17e5ac010
+torchx 2025-04-19 16:21:05 INFO     Step 2/4 : RUN pip install timm
+torchx 2025-04-19 16:21:05 INFO      ---&gt; Running in 254dbcfc9ede
+torchx 2025-04-19 16:21:06 INFO     Collecting timm
+torchx 2025-04-19 16:21:06 INFO       Downloading timm-0.9.12-py3-none-any.whl (2.2 MB)
+torchx 2025-04-19 16:21:06 INFO     Collecting safetensors
+torchx 2025-04-19 16:21:06 INFO       Downloading safetensors-0.5.3.tar.gz (67 kB)
+torchx 2025-04-19 16:21:07 INFO       Installing build dependencies: started
+torchx 2025-04-19 16:21:08 INFO       Installing build dependencies: finished with status &#39;done&#39;
+torchx 2025-04-19 16:21:08 INFO       Getting requirements to build wheel: started
+torchx 2025-04-19 16:21:08 INFO       Getting requirements to build wheel: finished with status &#39;done&#39;
+torchx 2025-04-19 16:21:08 INFO         Preparing wheel metadata: started
+torchx 2025-04-19 16:21:08 INFO         Preparing wheel metadata: finished with status &#39;error&#39;
+torchx 2025-04-19 16:21:08 INFO     <span class="ansi-red-intense-fg">    ERROR: Command errored out with exit status 1:
+     command: /opt/conda/bin/python /opt/conda/lib/python3.7/site-packages/pip/_vendor/pep517/_in_process.py prepare_metadata_for_build_wheel /tmp/tmpp_ohs5ut
+         cwd: /tmp/pip-install-lte7w95m/safetensors_ddf29f06af0143a6be135168dd0b8316
     Complete output (6 lines):
 
     Cargo, the Rust package manager, is not installed or is not on PATH.
@@ -1255,18 +1251,18 @@ torchx 2025-04-18 20:59:09 INFO     <span class="ansi-red-intense-fg">    ERROR:
     Checking for Rust toolchain....
     ----------------------------------------
 </span>
-torchx 2025-04-18 20:59:09 INFO     <span class="ansi-red-intense-fg">WARNING: Discarding https://files.pythonhosted.org/packages/71/7e/2d5d6ee7b40c0682315367ec7475693d110f512922d582fef1bd4a63adc3/safetensors-0.5.3.tar.gz#sha256=b6b0d6ecacec39a4fdd99cc19f4576f5219ce858e6fd8dbe7609df0b8dc56965 (from https://pypi.org/simple/safetensors/) (requires-python:&gt;=3.7). Command errored out with exit status 1: /opt/conda/bin/python /opt/conda/lib/python3.7/site-packages/pip/_vendor/pep517/_in_process.py prepare_metadata_for_build_wheel /tmp/tmpvc4wk6tt Check the logs for full command output.
+torchx 2025-04-19 16:21:08 INFO     <span class="ansi-red-intense-fg">WARNING: Discarding https://files.pythonhosted.org/packages/71/7e/2d5d6ee7b40c0682315367ec7475693d110f512922d582fef1bd4a63adc3/safetensors-0.5.3.tar.gz#sha256=b6b0d6ecacec39a4fdd99cc19f4576f5219ce858e6fd8dbe7609df0b8dc56965 (from https://pypi.org/simple/safetensors/) (requires-python:&gt;=3.7). Command errored out with exit status 1: /opt/conda/bin/python /opt/conda/lib/python3.7/site-packages/pip/_vendor/pep517/_in_process.py prepare_metadata_for_build_wheel /tmp/tmpp_ohs5ut Check the logs for full command output.
 </span>
-torchx 2025-04-18 20:59:09 INFO       Downloading safetensors-0.5.2.tar.gz (66 kB)
-torchx 2025-04-18 20:59:09 INFO       Installing build dependencies: started
-torchx 2025-04-18 20:59:10 INFO       Installing build dependencies: finished with status &#39;done&#39;
-torchx 2025-04-18 20:59:10 INFO       Getting requirements to build wheel: started
-torchx 2025-04-18 20:59:10 INFO       Getting requirements to build wheel: finished with status &#39;done&#39;
-torchx 2025-04-18 20:59:10 INFO         Preparing wheel metadata: started
-torchx 2025-04-18 20:59:10 INFO         Preparing wheel metadata: finished with status &#39;error&#39;
-torchx 2025-04-18 20:59:10 INFO     <span class="ansi-red-intense-fg">    ERROR: Command errored out with exit status 1:
-     command: /opt/conda/bin/python /opt/conda/lib/python3.7/site-packages/pip/_vendor/pep517/_in_process.py prepare_metadata_for_build_wheel /tmp/tmp1u0joo_6
-         cwd: /tmp/pip-install-eim4cuek/safetensors_f4ea90b24cf04caa87a66c4e3395d988
+torchx 2025-04-19 16:21:08 INFO       Downloading safetensors-0.5.2.tar.gz (66 kB)
+torchx 2025-04-19 16:21:09 INFO       Installing build dependencies: started
+torchx 2025-04-19 16:21:10 INFO       Installing build dependencies: finished with status &#39;done&#39;
+torchx 2025-04-19 16:21:10 INFO       Getting requirements to build wheel: started
+torchx 2025-04-19 16:21:10 INFO       Getting requirements to build wheel: finished with status &#39;done&#39;
+torchx 2025-04-19 16:21:10 INFO         Preparing wheel metadata: started
+torchx 2025-04-19 16:21:10 INFO         Preparing wheel metadata: finished with status &#39;error&#39;
+torchx 2025-04-19 16:21:10 INFO     <span class="ansi-red-intense-fg">    ERROR: Command errored out with exit status 1:
+     command: /opt/conda/bin/python /opt/conda/lib/python3.7/site-packages/pip/_vendor/pep517/_in_process.py prepare_metadata_for_build_wheel /tmp/tmpc67r3ert
+         cwd: /tmp/pip-install-lte7w95m/safetensors_4d7e3b966f134b5496bf495f1a5ef625
     Complete output (6 lines):
 
     Cargo, the Rust package manager, is not installed or is not on PATH.
@@ -1276,18 +1272,18 @@ torchx 2025-04-18 20:59:10 INFO     <span class="ansi-red-intense-fg">    ERROR:
     Checking for Rust toolchain....
     ----------------------------------------
 </span>
-torchx 2025-04-18 20:59:10 INFO     <span class="ansi-red-intense-fg">WARNING: Discarding https://files.pythonhosted.org/packages/f4/4f/2ef9ef1766f8c194b01b67a63a444d2e557c8fe1d82faf3ebd85f370a917/safetensors-0.5.2.tar.gz#sha256=cb4a8d98ba12fa016f4241932b1fc5e702e5143f5374bba0bbcf7ddc1c4cf2b8 (from https://pypi.org/simple/safetensors/) (requires-python:&gt;=3.7). Command errored out with exit status 1: /opt/conda/bin/python /opt/conda/lib/python3.7/site-packages/pip/_vendor/pep517/_in_process.py prepare_metadata_for_build_wheel /tmp/tmp1u0joo_6 Check the logs for full command output.
+torchx 2025-04-19 16:21:10 INFO     <span class="ansi-red-intense-fg">WARNING: Discarding https://files.pythonhosted.org/packages/f4/4f/2ef9ef1766f8c194b01b67a63a444d2e557c8fe1d82faf3ebd85f370a917/safetensors-0.5.2.tar.gz#sha256=cb4a8d98ba12fa016f4241932b1fc5e702e5143f5374bba0bbcf7ddc1c4cf2b8 (from https://pypi.org/simple/safetensors/) (requires-python:&gt;=3.7). Command errored out with exit status 1: /opt/conda/bin/python /opt/conda/lib/python3.7/site-packages/pip/_vendor/pep517/_in_process.py prepare_metadata_for_build_wheel /tmp/tmpc67r3ert Check the logs for full command output.
 </span>
-torchx 2025-04-18 20:59:10 INFO       Downloading safetensors-0.5.1.tar.gz (66 kB)
-torchx 2025-04-18 20:59:10 INFO       Installing build dependencies: started
-torchx 2025-04-18 20:59:12 INFO       Installing build dependencies: finished with status &#39;done&#39;
-torchx 2025-04-18 20:59:12 INFO       Getting requirements to build wheel: started
-torchx 2025-04-18 20:59:12 INFO       Getting requirements to build wheel: finished with status &#39;done&#39;
-torchx 2025-04-18 20:59:12 INFO         Preparing wheel metadata: started
-torchx 2025-04-18 20:59:12 INFO         Preparing wheel metadata: finished with status &#39;error&#39;
-torchx 2025-04-18 20:59:12 INFO     <span class="ansi-red-intense-fg">    ERROR: Command errored out with exit status 1:
-     command: /opt/conda/bin/python /opt/conda/lib/python3.7/site-packages/pip/_vendor/pep517/_in_process.py prepare_metadata_for_build_wheel /tmp/tmp97fxy5pi
-         cwd: /tmp/pip-install-eim4cuek/safetensors_34b01637e40446d1b72c49da96a5d7ba
+torchx 2025-04-19 16:21:10 INFO       Downloading safetensors-0.5.1.tar.gz (66 kB)
+torchx 2025-04-19 16:21:10 INFO       Installing build dependencies: started
+torchx 2025-04-19 16:21:11 INFO       Installing build dependencies: finished with status &#39;done&#39;
+torchx 2025-04-19 16:21:11 INFO       Getting requirements to build wheel: started
+torchx 2025-04-19 16:21:11 INFO       Getting requirements to build wheel: finished with status &#39;done&#39;
+torchx 2025-04-19 16:21:11 INFO         Preparing wheel metadata: started
+torchx 2025-04-19 16:21:11 INFO         Preparing wheel metadata: finished with status &#39;error&#39;
+torchx 2025-04-19 16:21:11 INFO     <span class="ansi-red-intense-fg">    ERROR: Command errored out with exit status 1:
+     command: /opt/conda/bin/python /opt/conda/lib/python3.7/site-packages/pip/_vendor/pep517/_in_process.py prepare_metadata_for_build_wheel /tmp/tmp8sn5w79c
+         cwd: /tmp/pip-install-lte7w95m/safetensors_79aac936536c4e328eb41cb89d5d8cbe
     Complete output (6 lines):
 
     Cargo, the Rust package manager, is not installed or is not on PATH.
@@ -1297,18 +1293,18 @@ torchx 2025-04-18 20:59:12 INFO     <span class="ansi-red-intense-fg">    ERROR:
     Checking for Rust toolchain....
     ----------------------------------------
 </span>
-torchx 2025-04-18 20:59:12 INFO     <span class="ansi-red-intense-fg">WARNING: Discarding https://files.pythonhosted.org/packages/cd/4b/a45aedf2375cd86314749ad4760545b6e4ec7b306cfa142776daaca6c980/safetensors-0.5.1.tar.gz#sha256=75927919a73b0f34d6943b531d757f724e65797a900d88d8081fe8b4448eadc3 (from https://pypi.org/simple/safetensors/) (requires-python:&gt;=3.7). Command errored out with exit status 1: /opt/conda/bin/python /opt/conda/lib/python3.7/site-packages/pip/_vendor/pep517/_in_process.py prepare_metadata_for_build_wheel /tmp/tmp97fxy5pi Check the logs for full command output.
+torchx 2025-04-19 16:21:11 INFO     <span class="ansi-red-intense-fg">WARNING: Discarding https://files.pythonhosted.org/packages/cd/4b/a45aedf2375cd86314749ad4760545b6e4ec7b306cfa142776daaca6c980/safetensors-0.5.1.tar.gz#sha256=75927919a73b0f34d6943b531d757f724e65797a900d88d8081fe8b4448eadc3 (from https://pypi.org/simple/safetensors/) (requires-python:&gt;=3.7). Command errored out with exit status 1: /opt/conda/bin/python /opt/conda/lib/python3.7/site-packages/pip/_vendor/pep517/_in_process.py prepare_metadata_for_build_wheel /tmp/tmp8sn5w79c Check the logs for full command output.
 </span>
-torchx 2025-04-18 20:59:12 INFO       Downloading safetensors-0.5.0.tar.gz (65 kB)
-torchx 2025-04-18 20:59:12 INFO       Installing build dependencies: started
-torchx 2025-04-18 20:59:13 INFO       Installing build dependencies: finished with status &#39;done&#39;
-torchx 2025-04-18 20:59:13 INFO       Getting requirements to build wheel: started
-torchx 2025-04-18 20:59:13 INFO       Getting requirements to build wheel: finished with status &#39;done&#39;
-torchx 2025-04-18 20:59:13 INFO         Preparing wheel metadata: started
-torchx 2025-04-18 20:59:13 INFO         Preparing wheel metadata: finished with status &#39;error&#39;
-torchx 2025-04-18 20:59:13 INFO     <span class="ansi-red-intense-fg">    ERROR: Command errored out with exit status 1:
-     command: /opt/conda/bin/python /opt/conda/lib/python3.7/site-packages/pip/_vendor/pep517/_in_process.py prepare_metadata_for_build_wheel /tmp/tmpco4z0r56
-         cwd: /tmp/pip-install-eim4cuek/safetensors_59b53b8ecd9d4d3cb1eda75397e1e908
+torchx 2025-04-19 16:21:11 INFO       Downloading safetensors-0.5.0.tar.gz (65 kB)
+torchx 2025-04-19 16:21:11 INFO       Installing build dependencies: started
+torchx 2025-04-19 16:21:13 INFO       Installing build dependencies: finished with status &#39;done&#39;
+torchx 2025-04-19 16:21:13 INFO       Getting requirements to build wheel: started
+torchx 2025-04-19 16:21:13 INFO       Getting requirements to build wheel: finished with status &#39;done&#39;
+torchx 2025-04-19 16:21:13 INFO         Preparing wheel metadata: started
+torchx 2025-04-19 16:21:13 INFO         Preparing wheel metadata: finished with status &#39;error&#39;
+torchx 2025-04-19 16:21:13 INFO     <span class="ansi-red-intense-fg">    ERROR: Command errored out with exit status 1:
+     command: /opt/conda/bin/python /opt/conda/lib/python3.7/site-packages/pip/_vendor/pep517/_in_process.py prepare_metadata_for_build_wheel /tmp/tmptdiq6doy
+         cwd: /tmp/pip-install-lte7w95m/safetensors_4bf7da39b84346bb87905a59050cc77c
     Complete output (6 lines):
 
     Cargo, the Rust package manager, is not installed or is not on PATH.
@@ -1318,42 +1314,46 @@ torchx 2025-04-18 20:59:13 INFO     <span class="ansi-red-intense-fg">    ERROR:
     Checking for Rust toolchain....
     ----------------------------------------
 </span>
-torchx 2025-04-18 20:59:13 INFO     <span class="ansi-red-intense-fg">WARNING: Discarding https://files.pythonhosted.org/packages/5d/b3/1d9000e9d0470499d124ca63c6908f8092b528b48bd95ba11507e14d9dba/safetensors-0.5.0.tar.gz#sha256=c47b34c549fa1e0c655c4644da31332c61332c732c47c8dd9399347e9aac69d1 (from https://pypi.org/simple/safetensors/) (requires-python:&gt;=3.7). Command errored out with exit status 1: /opt/conda/bin/python /opt/conda/lib/python3.7/site-packages/pip/_vendor/pep517/_in_process.py prepare_metadata_for_build_wheel /tmp/tmpco4z0r56 Check the logs for full command output.
+torchx 2025-04-19 16:21:13 INFO     <span class="ansi-red-intense-fg">WARNING: Discarding https://files.pythonhosted.org/packages/5d/b3/1d9000e9d0470499d124ca63c6908f8092b528b48bd95ba11507e14d9dba/safetensors-0.5.0.tar.gz#sha256=c47b34c549fa1e0c655c4644da31332c61332c732c47c8dd9399347e9aac69d1 (from https://pypi.org/simple/safetensors/) (requires-python:&gt;=3.7). Command errored out with exit status 1: /opt/conda/bin/python /opt/conda/lib/python3.7/site-packages/pip/_vendor/pep517/_in_process.py prepare_metadata_for_build_wheel /tmp/tmptdiq6doy Check the logs for full command output.
 </span>
-torchx 2025-04-18 20:59:13 INFO       Downloading safetensors-0.4.5-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (436 kB)
-torchx 2025-04-18 20:59:13 INFO     Requirement already satisfied: pyyaml in /opt/conda/lib/python3.7/site-packages (from timm) (5.4.1)
-torchx 2025-04-18 20:59:13 INFO     Requirement already satisfied: typing_extensions in /opt/conda/lib/python3.7/site-packages (from torch&gt;=1.7-&gt;timm) (3.10.0.2)
-torchx 2025-04-18 20:59:13 INFO     Collecting fsspec
-torchx 2025-04-18 20:59:13 INFO       Downloading fsspec-2023.1.0-py3-none-any.whl (143 kB)
-torchx 2025-04-18 20:59:13 INFO     Collecting packaging&gt;=20.9
-torchx 2025-04-18 20:59:14 INFO       Downloading packaging-24.0-py3-none-any.whl (53 kB)
-torchx 2025-04-18 20:59:14 INFO     Requirement already satisfied: requests in /opt/conda/lib/python3.7/site-packages (from huggingface-hub-&gt;timm) (2.25.1)
-torchx 2025-04-18 20:59:14 INFO     Requirement already satisfied: tqdm&gt;=4.42.1 in /opt/conda/lib/python3.7/site-packages (from huggingface-hub-&gt;timm) (4.61.2)
-torchx 2025-04-18 20:59:14 INFO     Collecting importlib-metadata
-torchx 2025-04-18 20:59:14 INFO       Downloading importlib_metadata-6.7.0-py3-none-any.whl (22 kB)
-torchx 2025-04-18 20:59:14 INFO     Requirement already satisfied: filelock in /opt/conda/lib/python3.7/site-packages (from huggingface-hub-&gt;timm) (3.0.12)
-torchx 2025-04-18 20:59:14 INFO     Collecting zipp&gt;=0.5
-torchx 2025-04-18 20:59:14 INFO       Downloading zipp-3.15.0-py3-none-any.whl (6.8 kB)
-torchx 2025-04-18 20:59:14 INFO     Requirement already satisfied: chardet&lt;5,&gt;=3.0.2 in /opt/conda/lib/python3.7/site-packages (from requests-&gt;huggingface-hub-&gt;timm) (4.0.0)
-torchx 2025-04-18 20:59:14 INFO     Requirement already satisfied: idna&lt;3,&gt;=2.5 in /opt/conda/lib/python3.7/site-packages (from requests-&gt;huggingface-hub-&gt;timm) (2.10)
-torchx 2025-04-18 20:59:14 INFO     Requirement already satisfied: urllib3&lt;1.27,&gt;=1.21.1 in /opt/conda/lib/python3.7/site-packages (from requests-&gt;huggingface-hub-&gt;timm) (1.26.6)
-torchx 2025-04-18 20:59:14 INFO     Requirement already satisfied: certifi&gt;=2017.4.17 in /opt/conda/lib/python3.7/site-packages (from requests-&gt;huggingface-hub-&gt;timm) (2021.10.8)
-torchx 2025-04-18 20:59:14 INFO     Requirement already satisfied: numpy in /opt/conda/lib/python3.7/site-packages (from torchvision-&gt;timm) (1.21.2)
-torchx 2025-04-18 20:59:14 INFO     Requirement already satisfied: pillow!=8.3.0,&gt;=5.3.0 in /opt/conda/lib/python3.7/site-packages (from torchvision-&gt;timm) (8.4.0)
-torchx 2025-04-18 20:59:14 INFO     Installing collected packages: zipp, packaging, importlib-metadata, fsspec, safetensors, huggingface-hub, timm
-torchx 2025-04-18 20:59:15 INFO     Successfully installed fsspec-2023.1.0 huggingface-hub-0.16.4 importlib-metadata-6.7.0 packaging-24.0 safetensors-0.4.5 timm-0.9.12 zipp-3.15.0
-torchx 2025-04-18 20:59:18 INFO      ---&gt; Removed intermediate container 00cb084b5bf9
-torchx 2025-04-18 20:59:18 INFO      ---&gt; cd1881e3328c
-torchx 2025-04-18 20:59:18 INFO     Step 3/4 : COPY . .
-torchx 2025-04-18 20:59:20 INFO      ---&gt; 74e90fb34b99
-torchx 2025-04-18 20:59:20 INFO     Step 4/4 : LABEL torchx.pytorch.org/version=0.8.0dev0
-torchx 2025-04-18 20:59:20 INFO      ---&gt; Running in 4c5b61595928
-torchx 2025-04-18 20:59:23 INFO      ---&gt; Removed intermediate container 4c5b61595928
-torchx 2025-04-18 20:59:23 INFO      ---&gt; fab66d37ad5c
-torchx 2025-04-18 20:59:23 INFO     [Warning] One or more build-args [IMAGE WORKSPACE] were not consumed
-torchx 2025-04-18 20:59:23 INFO     Successfully built fab66d37ad5c
-torchx 2025-04-18 20:59:23 INFO     Built new image `sha256:fab66d37ad5c539d9e95ebdacd503e820a89b180cc91f5747330c9592c7aa95f` based on original image `ghcr.io/pytorch/torchx:0.8.0dev0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=python.
-torchx 2025-04-18 20:59:23 INFO     Waiting for the app to finish...
+torchx 2025-04-19 16:21:13 INFO       Downloading safetensors-0.4.5-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (436 kB)
+torchx 2025-04-19 16:21:13 INFO     Requirement already satisfied: torchvision in /opt/conda/lib/python3.7/site-packages (from timm) (0.11.0)
+torchx 2025-04-19 16:21:13 INFO     Requirement already satisfied: pyyaml in /opt/conda/lib/python3.7/site-packages (from timm) (5.4.1)
+torchx 2025-04-19 16:21:13 INFO     Requirement already satisfied: torch&gt;=1.7 in /opt/conda/lib/python3.7/site-packages (from timm) (1.10.0)
+torchx 2025-04-19 16:21:13 INFO     Collecting huggingface-hub
+torchx 2025-04-19 16:21:13 INFO       Downloading huggingface_hub-0.16.4-py3-none-any.whl (268 kB)
+torchx 2025-04-19 16:21:13 INFO     Requirement already satisfied: typing_extensions in /opt/conda/lib/python3.7/site-packages (from torch&gt;=1.7-&gt;timm) (3.10.0.2)
+torchx 2025-04-19 16:21:13 INFO     Requirement already satisfied: tqdm&gt;=4.42.1 in /opt/conda/lib/python3.7/site-packages (from huggingface-hub-&gt;timm) (4.61.2)
+torchx 2025-04-19 16:21:13 INFO     Collecting fsspec
+torchx 2025-04-19 16:21:13 INFO       Downloading fsspec-2023.1.0-py3-none-any.whl (143 kB)
+torchx 2025-04-19 16:21:13 INFO     Collecting packaging&gt;=20.9
+torchx 2025-04-19 16:21:13 INFO       Downloading packaging-24.0-py3-none-any.whl (53 kB)
+torchx 2025-04-19 16:21:13 INFO     Requirement already satisfied: requests in /opt/conda/lib/python3.7/site-packages (from huggingface-hub-&gt;timm) (2.25.1)
+torchx 2025-04-19 16:21:13 INFO     Requirement already satisfied: filelock in /opt/conda/lib/python3.7/site-packages (from huggingface-hub-&gt;timm) (3.0.12)
+torchx 2025-04-19 16:21:13 INFO     Collecting importlib-metadata
+torchx 2025-04-19 16:21:13 INFO       Downloading importlib_metadata-6.7.0-py3-none-any.whl (22 kB)
+torchx 2025-04-19 16:21:13 INFO     Collecting zipp&gt;=0.5
+torchx 2025-04-19 16:21:13 INFO       Downloading zipp-3.15.0-py3-none-any.whl (6.8 kB)
+torchx 2025-04-19 16:21:14 INFO     Requirement already satisfied: chardet&lt;5,&gt;=3.0.2 in /opt/conda/lib/python3.7/site-packages (from requests-&gt;huggingface-hub-&gt;timm) (4.0.0)
+torchx 2025-04-19 16:21:14 INFO     Requirement already satisfied: idna&lt;3,&gt;=2.5 in /opt/conda/lib/python3.7/site-packages (from requests-&gt;huggingface-hub-&gt;timm) (2.10)
+torchx 2025-04-19 16:21:14 INFO     Requirement already satisfied: urllib3&lt;1.27,&gt;=1.21.1 in /opt/conda/lib/python3.7/site-packages (from requests-&gt;huggingface-hub-&gt;timm) (1.26.6)
+torchx 2025-04-19 16:21:14 INFO     Requirement already satisfied: certifi&gt;=2017.4.17 in /opt/conda/lib/python3.7/site-packages (from requests-&gt;huggingface-hub-&gt;timm) (2021.10.8)
+torchx 2025-04-19 16:21:14 INFO     Requirement already satisfied: numpy in /opt/conda/lib/python3.7/site-packages (from torchvision-&gt;timm) (1.21.2)
+torchx 2025-04-19 16:21:14 INFO     Requirement already satisfied: pillow!=8.3.0,&gt;=5.3.0 in /opt/conda/lib/python3.7/site-packages (from torchvision-&gt;timm) (8.4.0)
+torchx 2025-04-19 16:21:14 INFO     Installing collected packages: zipp, packaging, importlib-metadata, fsspec, safetensors, huggingface-hub, timm
+torchx 2025-04-19 16:21:14 INFO     Successfully installed fsspec-2023.1.0 huggingface-hub-0.16.4 importlib-metadata-6.7.0 packaging-24.0 safetensors-0.4.5 timm-0.9.12 zipp-3.15.0
+torchx 2025-04-19 16:21:17 INFO      ---&gt; Removed intermediate container 254dbcfc9ede
+torchx 2025-04-19 16:21:17 INFO      ---&gt; 9576027c5346
+torchx 2025-04-19 16:21:17 INFO     Step 3/4 : COPY . .
+torchx 2025-04-19 16:21:20 INFO      ---&gt; 37007136def0
+torchx 2025-04-19 16:21:20 INFO     Step 4/4 : LABEL torchx.pytorch.org/version=0.8.0dev0
+torchx 2025-04-19 16:21:20 INFO      ---&gt; Running in 5b59ecefdc06
+torchx 2025-04-19 16:21:22 INFO      ---&gt; Removed intermediate container 5b59ecefdc06
+torchx 2025-04-19 16:21:22 INFO      ---&gt; 46268a704812
+torchx 2025-04-19 16:21:22 INFO     [Warning] One or more build-args [IMAGE WORKSPACE] were not consumed
+torchx 2025-04-19 16:21:22 INFO     Successfully built 46268a704812
+torchx 2025-04-19 16:21:22 INFO     Built new image `sha256:46268a704812e9a392a0f761f68a8b28bf52e3e04e0d1015de3dfb8c0a8d6e5c` based on original image `ghcr.io/pytorch/torchx:0.8.0dev0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=python.
+torchx 2025-04-19 16:21:22 INFO     Waiting for the app to finish...
 python/0 ResNet(
 python/0   (conv1): Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
 python/0   (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
@@ -1462,7 +1462,7 @@ python/0   )
 python/0   (global_pool): SelectAdaptivePool2d(pool_type=avg, flatten=Flatten(start_dim=1, end_dim=-1))
 python/0   (fc): Linear(in_features=512, out_features=1000, bias=True)
 python/0 )
-torchx 2025-04-18 20:59:25 INFO     Job finished: SUCCEEDED
+torchx 2025-04-19 16:21:24 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1470,7 +1470,7 @@ torchx 2025-04-18 20:59:25 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/torchx_utils_python-tm1m25tk0bgtl
+local_docker://torchx/torchx_utils_python-b55gw9f096v1vc
 </pre></div></div>
 </div>
 </section>

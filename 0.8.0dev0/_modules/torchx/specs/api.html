@@ -997,6 +997,15 @@
     <span class="n">role</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">replicas</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ReplicaStatus</span><span class="p">]</span>
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert the RoleStatus to a json object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">role</span><span class="p">,</span>
+            <span class="s2">&quot;replicas&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">asdict</span><span class="p">(</span><span class="n">replica</span><span class="p">)</span> <span class="k">for</span> <span class="n">replica</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">replicas</span><span class="p">],</span>
+        <span class="p">}</span>
+
 
 <div class="viewcode-block" id="AppStatus"><a class="viewcode-back" href="../../../specs.html#torchx.specs.AppStatus">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">AppStatus</span><span class="p">:</span>
@@ -1116,6 +1125,21 @@
             <span class="n">replica_data</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_replica_status</span><span class="p">(</span><span class="n">replica</span><span class="p">)</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">replica_data</span><span class="si">}</span><span class="s2">&quot;</span>
 
+<div class="viewcode-block" id="AppStatus.to_json"><a class="viewcode-back" href="../../../specs.html#torchx.specs.AppStatus.to_json">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filter_roles</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert the AppStatus to a json object, including RoleStatus.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">roles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_role_statuses</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">roles</span><span class="p">,</span> <span class="n">filter_roles</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">),</span>
+            <span class="s2">&quot;num_restarts&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_restarts</span><span class="p">,</span>
+            <span class="s2">&quot;roles&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">role_status</span><span class="o">.</span><span class="n">to_json</span><span class="p">()</span> <span class="k">for</span> <span class="n">role_status</span> <span class="ow">in</span> <span class="n">roles</span><span class="p">],</span>
+            <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">msg</span><span class="p">,</span>
+            <span class="s2">&quot;structured_error_msg&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">structured_error_msg</span><span class="p">,</span>
+            <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui_url</span><span class="p">,</span>
+        <span class="p">}</span></div>
+
 <div class="viewcode-block" id="AppStatus.format"><a class="viewcode-back" href="../../../specs.html#torchx.specs.AppStatus.format">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">format</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">filter_roles</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1131,6 +1155,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">roles_data</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="n">roles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_role_statuses</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">roles</span><span class="p">,</span> <span class="n">filter_roles</span><span class="p">)</span>
+
         <span class="k">for</span> <span class="n">role_status</span> <span class="ow">in</span> <span class="n">roles</span><span class="p">:</span>
             <span class="n">roles_data</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_role_status</span><span class="p">(</span><span class="n">role_status</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Template</span><span class="p">(</span><span class="n">_APP_STATUS_FORMAT_TEMPLATE</span><span class="p">)</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span>
