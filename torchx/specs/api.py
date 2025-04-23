@@ -538,6 +538,15 @@ class RoleStatus:
     role: str
     replicas: List[ReplicaStatus]
 
+    def to_json(self) -> Dict[str, Any]:
+        """
+        Convert the RoleStatus to a json object.
+        """
+        return {
+            "role": self.role,
+            "replicas": [asdict(replica) for replica in self.replicas],
+        }
+
 
 @dataclass
 class AppStatus:
@@ -657,6 +666,21 @@ class AppStatus:
             replica_data += self._format_replica_status(replica)
         return f"{replica_data}"
 
+    def to_json(self, filter_roles: Optional[List[str]] = None) -> Dict[str, Any]:
+        """
+        Convert the AppStatus to a json object, including RoleStatus.
+        """
+        roles = self._get_role_statuses(self.roles, filter_roles)
+
+        return {
+            "state": str(self.state),
+            "num_restarts": self.num_restarts,
+            "roles": [role_status.to_json() for role_status in roles],
+            "msg": self.msg,
+            "structured_error_msg": self.structured_error_msg,
+            "url": self.ui_url,
+        }
+
     def format(
         self,
         filter_roles: Optional[List[str]] = None,
@@ -672,6 +696,7 @@ class AppStatus:
         """
         roles_data = ""
         roles = self._get_role_statuses(self.roles, filter_roles)
+
         for role_status in roles:
             roles_data += self._format_role_status(role_status)
         return Template(_APP_STATUS_FORMAT_TEMPLATE).substitute(
