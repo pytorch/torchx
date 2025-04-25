@@ -13,7 +13,7 @@ used by components to define the apps which can then be launched via a TorchX
 scheduler or pipeline adapter.
 """
 import difflib
-from typing import Callable, Dict, Optional
+from typing import Callable, Dict, Mapping, Optional
 
 from torchx.specs.api import (
     ALL,
@@ -48,11 +48,16 @@ from torchx.specs.api import (
 )
 from torchx.specs.builders import make_app_handle, materialize_appdef, parse_mounts
 
-from torchx.specs.named_resources_aws import NAMED_RESOURCES as AWS_NAMED_RESOURCES
-from torchx.specs.named_resources_generic import (
-    NAMED_RESOURCES as GENERIC_NAMED_RESOURCES,
-)
 from torchx.util.entrypoints import load_group
+
+from torchx.util.modules import import_attr
+
+AWS_NAMED_RESOURCES: Mapping[str, Callable[[], Resource]] = import_attr(
+    "torchx.specs.named_resources_aws", "NAMED_RESOURCES", default={}
+)
+GENERIC_NAMED_RESOURCES: Mapping[str, Callable[[], Resource]] = import_attr(
+    "torchx.specs.named_resources_generic", "NAMED_RESOURCES", default={}
+)
 
 GiB: int = 1024
 
