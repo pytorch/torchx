@@ -22,6 +22,7 @@ from unittest.mock import MagicMock, patch
 
 from torchx.cli.argparse_util import ArgOnceAction, torchxconfig
 from torchx.cli.cmd_run import _parse_component_name_and_args, CmdBuiltins, CmdRun
+from torchx.runner.config import ENV_TORCHXCONFIG
 from torchx.schedulers.local_scheduler import SignalException
 
 from torchx.specs import AppDryRunInfo
@@ -40,11 +41,19 @@ def cwd(path: str) -> Generator[None, None, None]:
 class CmdRunTest(unittest.TestCase):
     def setUp(self) -> None:
         self.tmpdir = Path(tempfile.mkdtemp())
+
+        # create empty .torchxconfig so that user .torchxconfig is not picked up
+        empty_config = self.tmpdir / ".torchxconfig"
+        empty_config.touch()
+        self.mock_env = patch.dict(os.environ, {ENV_TORCHXCONFIG: str(empty_config)})
+        self.mock_env.start()
+
         self.parser = argparse.ArgumentParser()
         self.cmd_run = CmdRun()
         self.cmd_run.add_arguments(self.parser)
 
     def tearDown(self) -> None:
+        self.mock_env.stop()
         shutil.rmtree(self.tmpdir, ignore_errors=True)
         ArgOnceAction.called_args = set()
         torchxconfig.called_args = set()
