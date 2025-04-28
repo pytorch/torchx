@@ -61,6 +61,7 @@ class DescribeAppResponse:
     msg: str = NONE
     structured_error_msg: str = NONE
     ui_url: Optional[str] = None
+    ji_url: Optional[str] = None
 
     roles_statuses: List[RoleStatus] = field(default_factory=list)
     roles: List[Role] = field(default_factory=list)

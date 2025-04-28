@@ -567,6 +567,7 @@ class AppStatus:
     msg: str = ""
     structured_error_msg: str = NONE
     ui_url: Optional[str] = None
+    ji_url: Optional[str] = None
     roles: List[RoleStatus] = field(default_factory=list)
 
     def is_terminal(self) -> bool:
