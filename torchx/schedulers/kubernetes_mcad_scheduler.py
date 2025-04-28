@@ -17,8 +17,8 @@ Prerequisites
 
 TorchX Kubernetes_MCAD scheduler depends on AppWrapper + MCAD.
 
-Install MCAD: 
-See deploying Multi-Cluster-Application-Dispatcher guide 
+Install MCAD:
+See deploying Multi-Cluster-Application-Dispatcher guide
 https://github.com/project-codeflare/multi-cluster-app-dispatcher/blob/main/doc/deploy/deployment.md
 
 This implementation requires MCAD v1.34.1 or higher.
@@ -478,8 +478,10 @@ def get_unique_truncated_appid(app: AppDef) -> str:
     unique_id_size = default_size if size > default_size else size
 
     if unique_id_size <= 3:
-        msg = "Name size has too many characters for some Kubernetes objects. Truncating \
+        msg = (
+            "Name size has too many characters for some Kubernetes objects. Truncating \
 application name."
+        )
         warnings.warn(msg)
         end = 63 - uid_chars - pg_chars
         substring = app.name[0:end]

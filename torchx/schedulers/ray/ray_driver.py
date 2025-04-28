@@ -18,6 +18,7 @@ will be executed. Command actors are state machines their behavior is defined by
 _step function, this give more flexibility to us if we want to bette handle the
 node failures.
 """
+
 import json
 import logging
 import os
@@ -148,12 +149,12 @@ class RayDriver:
         else:
             self.min_replicas = replicas[0].min_replicas  # pyre-ignore[8]
 
-        self.placement_groups: List[PlacementGroup] = (
-            []
-        )  # all the placement groups, shall never change
-        self.actor_info_of_id: Dict[str, ActorInfo] = (
-            {}
-        )  # store the info used to recover an actor
+        self.placement_groups: List[
+            PlacementGroup
+        ] = []  # all the placement groups, shall never change
+        self.actor_info_of_id: Dict[
+            str, ActorInfo
+        ] = {}  # store the info used to recover an actor
         self.active_tasks: List["ray.ObjectRef"] = []  # list of active tasks
 
         self.terminating: bool = False  # if the job has finished and being terminated

@@ -112,9 +112,7 @@ class KubernetesSchedulerTest(unittest.TestCase):
             resource = app_to_resource(app, "test_queue", service_account=None)
             actual_cmd = (
                 # pyre-ignore [16]
-                resource["spec"]["tasks"][0]["template"]
-                .spec.containers[0]
-                .command
+                resource["spec"]["tasks"][0]["template"].spec.containers[0].command
             )
             expected_cmd = [
                 "main",
