@@ -7,7 +7,6 @@ kubernetes==25.3.0
 flake8==3.9.0
 fsspec==2024.3.1
 s3fs==2024.3.1
-google-api-core
 google-cloud-batch==0.17.14
 google-cloud-logging==3.10.0
 google-cloud-runtimeconfig==0.34.0
