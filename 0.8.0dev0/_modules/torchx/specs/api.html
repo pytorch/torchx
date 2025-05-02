@@ -1574,14 +1574,31 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">parse_app_handle</span><span class="p">(</span><span class="n">app_handle</span><span class="p">:</span> <span class="n">AppHandle</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParsedAppHandle</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    parses the app handle into ```(scheduler_backend, session_name, and app_id)```</span>
+<span class="sd">    Parses the app handle into ```(scheduler_backend, session_name, and app_id)```.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. doctest::</span>
+
+<span class="sd">     assert parse_app_handle(&quot;k8s://default/foo_bar&quot;) == (&quot;k8s&quot;, &quot;default&quot;, &quot;foo_bar&quot;)</span>
+<span class="sd">     assert parse_app_handle(&quot;k8s:///foo_bar&quot;) == (&quot;k8s&quot;, &quot;&quot;, &quot;foo_bar&quot;)</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        app_handle: a URI of the form ``{scheduler}://{session_name}/{app_id}``,</span>
+<span class="sd">            where the ``session_name`` is optional. In this case the app handle is</span>
+<span class="sd">            of the form ``{scheduler}:///{app_id}`` (notice the triple slashes).</span>
+
+<span class="sd">    Returns: A ``Tuple`` of three elements, ``(scheduler, session_name, app_id)``</span>
+<span class="sd">        parsed from the app_handle URI str. If the session name is not present then</span>
+<span class="sd">        an empty string is returned in its place in the tuple.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># parse it manually b/c currently torchx does not</span>
     <span class="c1"># define allowed characters nor length for session name and app_id</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 
-    <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;(?P&lt;scheduler_backend&gt;.+)://(?P&lt;session_name&gt;.+)/(?P&lt;app_id&gt;.+)&quot;</span>
+    <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;(?P&lt;scheduler_backend&gt;.+)://(?P&lt;session_name&gt;.*)/(?P&lt;app_id&gt;.+)&quot;</span>
     <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">app_handle</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">MalformedAppHandleException</span><span class="p">(</span><span class="n">app_handle</span><span class="p">)</span>
