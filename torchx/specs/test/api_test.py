@@ -377,6 +377,15 @@ class AppHandleTest(unittest.TestCase):
                 with self.assertRaises(MalformedAppHandleException):
                     parse_app_handle(handle)
 
+    def test_parse_app_handle_empty_session_name(self) -> None:
+        # missing session name is not OK but an empty one is
+        app_handle = "local:///my_application_id"
+        handle = parse_app_handle(app_handle)
+
+        self.assertEqual(handle.app_id, "my_application_id")
+        self.assertEqual("local", handle.scheduler_backend)
+        self.assertEqual("", handle.session_name)
+
     def test_parse(self) -> None:
         (scheduler_backend, session_name, app_id) = parse_app_handle(
             "local://my_session/my_app_id_1234"
