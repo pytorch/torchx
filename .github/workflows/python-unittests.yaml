@@ -28,6 +28,14 @@ jobs:
           architecture: x64
       - name: Checkout TorchX
         uses: actions/checkout@v2
+      - name: Pin pip-25.0.1
+        run: |
+          set -eux
+          # required since pip-25.1 breaks a few old deps in dev-requirements.txt
+          # (upgrading those will take some time)
+          # see: https://pip.pypa.io/en/stable/news/#v25-1
+          python -m pip install pip==25.0.1
+          pip --version
       - name: Install dependencies
         run: |
           set -eux
