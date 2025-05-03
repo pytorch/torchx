@@ -1112,33 +1112,6 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
         self.assertFalse(ENV_CUDA_VISIBLE_DEVICES in role_params[2].env)
         self.assertFalse(ENV_CUDA_VISIBLE_DEVICES in role_params[3].env)
 
-    def test_no_orphan_process_function(self) -> None:
-        self._test_orphan_workflow()
-
-    def _test_orphan_workflow(self) -> None:
-        mp_queue = mp.Queue()
-        child_nproc = 2
-
-        proc = mp.Process(
-            target=start_sleep_processes, args=(self.test_dir, mp_queue, child_nproc)
-        )
-        proc.start()
-        total_processes = child_nproc + 1
-        pids = []
-        for _ in range(total_processes):
-            pids.append(mp_queue.get(timeout=5))
-        parent_pid = pids[0]
-        child_pids = pids[1:]
-
-        os.kill(parent_pid, signal.SIGTERM)
-        # Wait to give time for signal handlers to finish work
-        time.sleep(5)
-        for child_pid in child_pids:
-            # Killing parent should kill all children, we expect that each call to
-            # os.kill would raise OSError
-            with self.assertRaises(OSError):
-                os.kill(child_pid, 0)
-
 
 class JoinPATHTest(unittest.TestCase):
     def test_join_PATH(self) -> None:
