@@ -197,6 +197,11 @@ class TypesTest(unittest.TestCase):
             to_dict("key1=value1,,foo=bar"),
         )
 
+        self.assertDictEqual(
+            {"FOO": "value with = and , and ;"},
+            to_dict('FOO="value with = and , and ;"'),
+        )
+
     def test_to_dict_malformed_literal(self) -> None:
         for malformed in ["FOO", "FOO,", "FOO;", "FOO=", "FOO=;BAR=v1"]:
             with self.subTest(malformed=malformed):
