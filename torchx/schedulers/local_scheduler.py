@@ -311,7 +311,7 @@ class _LocalReplica:
         """
         # safe to call terminate on a process that already died
         try:
-            os.killpg(self.proc.pid, signal.SIGTERM)
+            os.kill(self.proc.pid, signal.SIGTERM)
         except ProcessLookupError as e:
             log.debug(f"Process {self.proc.pid} already got terminated")
 
