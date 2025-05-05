@@ -153,6 +153,7 @@ class RunnerTest(TestWithTmpDir):
             )
 
             app_handle = runner.run(app, "local", self.cfg)
+            runner.wait(app_handle, wait_interval=0.1)
 
             scheduler, session_name, app_id = parse_app_handle(app_handle)
             self.assertEqual(scheduler, "local")
