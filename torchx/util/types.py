@@ -7,6 +7,7 @@
 # pyre-strict
 
 import inspect
+import re
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type, TypeVar, Union
 
 import typing_inspect
@@ -30,6 +31,9 @@ def to_dict(arg: str) -> Dict[str, str]:
     to specify multiple key-value pairs in the ``arg`` literal (see examples below).
     When values are lists, the last delimiter is used as kv-pair delimiter
     (e.g. ``FOO=v1,v2,BAR=v3``). Empty values of ``arg`` returns an empty map.
+
+    Values can be quoted with single or double quotes to include special characters
+    (``"="``, ``","``, ``";"``) without them being interpreted as separators.
 
     Note that values that encode list literals are returned as list literals
     NOT actual lists. The caller must further process each value in the returned
@@ -57,6 +61,7 @@ def to_dict(arg: str) -> Dict[str, str]:
      to_dict("FOO=v1;v2,BAR=v3") == {"FOO": "v1;v2", "BAR": "v3"}
      to_dict("FOO=v1;v2;BAR=v3") == {"FOO": "v1;v2", "BAR": "v3"}
 
+     to_dict('FOO="value with = and , and ;"') == {"FOO": "value with = and , and ;"}
     """
 
     def parse_val_key(vk: str) -> Tuple[str, str]:
@@ -74,6 +79,10 @@ def to_dict(arg: str) -> Dict[str, str]:
             return vk[0:idx].strip(), vk[idx + 1 :].strip()
 
     def to_val(val: str) -> str:
+        if (val.startswith("'") and val.endswith("'")) or (
+            val.startswith('"') and val.endswith('"')
+        ):
+            return val[1:-1]
         return val if val != '""' and val != "''" else ""
 
     arg_map: Dict[str, str] = {}
@@ -81,12 +90,23 @@ def to_dict(arg: str) -> Dict[str, str]:
     if not arg:
         return arg_map
 
+    # find quoted values
+    quoted_pattern = r'([\'"])((?:\\.|(?!\1).)*?)\1'
+    quoted_values: List[str] = []
+
+    def replace_quoted(match):
+        quoted_values.append(match.group(0))
+        return f"__QUOTED_{len(quoted_values) - 1}__"
+
+    # replace quoted values with placeholders
+    processed_arg = re.sub(quoted_pattern, replace_quoted, arg)
+
     # split cfgs
     cfg_kv_delim = "="
 
     # ["FOO", "v1;v2,BAR", v3, "BAZ", "v4,v5"]
     split_arg = [
-        s.strip() for s in arg.split(cfg_kv_delim) if s.strip()
+        s.strip() for s in processed_arg.split(cfg_kv_delim) if s.strip()
     ]  # remove empty
     split_arg_len = len(split_arg)
 
@@ -98,10 +118,16 @@ def to_dict(arg: str) -> Dict[str, str]:
     # middle elements are value_{n}<delim>key_{n+1}
     for vk in split_arg[1 : split_arg_len - 1]:  # python deals with
         val, key_next = parse_val_key(vk)
+        for i, quoted in enumerate(quoted_values):
+            val = val.replace(f"__QUOTED_{i}__", quoted)
         arg_map[key] = to_val(val)
         key = key_next
+
     val = split_arg[-1]  # last element is always a value
+    for i, quoted in enumerate(quoted_values):
+        val = val.replace(f"__QUOTED_{i}__", quoted)
     arg_map[key] = to_val(val)
+
     return arg_map
 
 
