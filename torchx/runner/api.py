@@ -597,7 +597,7 @@ class Runner:
             if not app:
                 desc = scheduler.describe(app_id)
                 if desc:
-                    app = AppDef(name=app_id, roles=desc.roles)
+                    app = AppDef(name=app_id, roles=desc.roles, metadata=desc.metadata)
             return app
 
     def log_lines(

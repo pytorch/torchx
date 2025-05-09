@@ -440,6 +440,7 @@ class RunnerTest(TestWithTmpDir):
 
     def test_describe(self, _) -> None:
         with self.get_runner() as runner:
+            metadata = {"a": "b", "c": "d"}
             role = Role(
                 name="sleep",
                 image=str(self.tmpdir),
@@ -447,7 +448,7 @@ class RunnerTest(TestWithTmpDir):
                 entrypoint="sleep",
                 args=["60"],
             )
-            app = AppDef("sleeper", roles=[role])
+            app = AppDef("sleeper", roles=[role], metadata=metadata)
 
             app_handle = runner.run(app, scheduler="local_dir", cfg=self.cfg)
             self.assertEqual(app, runner.describe(app_handle))

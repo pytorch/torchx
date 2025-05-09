@@ -43,7 +43,7 @@ class DescribeAppResponse:
     the status and description of the application as known by the scheduler.
     For some schedulers implementations this response object has necessary
     and sufficient information to recreate an ``AppDef`` object. For these types
-    of schedulers, the user can re-``run()`` the recreted application. Otherwise
+    of schedulers, the user can re-``run()`` the recreated application. Otherwise
     the user can only call non-creating methods (e.g. ``wait()``, ``status()``,
     etc).
 
@@ -61,6 +61,7 @@ class DescribeAppResponse:
     msg: str = NONE
     structured_error_msg: str = NONE
     ui_url: Optional[str] = None
+    metadata: dict[str, str] = field(default_factory=dict)
 
     roles_statuses: List[RoleStatus] = field(default_factory=list)
     roles: List[Role] = field(default_factory=list)
