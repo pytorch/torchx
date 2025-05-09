@@ -224,11 +224,15 @@ class macros:
                                 v[i] = self.substitute(v[i])
             return d
 
+        # Overrides the asdict method to generate a dictionary of macro values to be substituted.
+        def to_dict(self) -> Dict[str, Any]:
+            return asdict(self)
+
         def substitute(self, arg: str) -> str:
             """
             substitute applies the values to the template arg.
             """
-            return Template(arg).safe_substitute(**asdict(self))
+            return Template(arg).safe_substitute(**self.to_dict())
 
 
 class RetryPolicy(str, Enum):
