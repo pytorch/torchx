@@ -502,7 +502,7 @@
 <span class="sd">    the status and description of the application as known by the scheduler.</span>
 <span class="sd">    For some schedulers implementations this response object has necessary</span>
 <span class="sd">    and sufficient information to recreate an ``AppDef`` object. For these types</span>
-<span class="sd">    of schedulers, the user can re-``run()`` the recreted application. Otherwise</span>
+<span class="sd">    of schedulers, the user can re-``run()`` the recreated application. Otherwise</span>
 <span class="sd">    the user can only call non-creating methods (e.g. ``wait()``, ``status()``,</span>
 <span class="sd">    etc).</span>
 
@@ -520,6 +520,7 @@
     <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">NONE</span>
     <span class="n">structured_error_msg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">NONE</span>
     <span class="n">ui_url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
 
     <span class="n">roles_statuses</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">RoleStatus</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
     <span class="n">roles</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Role</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span></div>
