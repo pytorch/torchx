@@ -7,6 +7,7 @@
 # pyre-strict
 
 import abc
+import copy
 import importlib
 import inspect
 import logging
@@ -281,7 +282,9 @@ class CustomComponentsFinder(ComponentsFinder):
         )
 
         file_source = read_conf_file(self._filepath)
-        namespace = globals()
+        namespace = copy.copy(globals())
+        # so that __file__ used inside the component points to the correct file
+        namespace["__file__"] = os.path.abspath(self._filepath)
         exec(file_source, namespace)  # noqa: P204
         if self._function_name not in namespace:
             raise ComponentNotFoundException(

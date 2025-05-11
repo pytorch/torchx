@@ -224,11 +224,15 @@ class macros:
                                 v[i] = self.substitute(v[i])
             return d
 
+        # Overrides the asdict method to generate a dictionary of macro values to be substituted.
+        def to_dict(self) -> Dict[str, Any]:
+            return asdict(self)
+
         def substitute(self, arg: str) -> str:
             """
             substitute applies the values to the template arg.
             """
-            return Template(arg).safe_substitute(**asdict(self))
+            return Template(arg).safe_substitute(**self.to_dict())
 
 
 class RetryPolicy(str, Enum):
@@ -1115,14 +1119,31 @@ class UnknownAppException(Exception):
 
 def parse_app_handle(app_handle: AppHandle) -> ParsedAppHandle:
     """
-    parses the app handle into ```(scheduler_backend, session_name, and app_id)```
+    Parses the app handle into ```(scheduler_backend, session_name, and app_id)```.
+
+    Example:
+
+    .. doctest::
+
+     assert parse_app_handle("k8s://default/foo_bar") == ("k8s", "default", "foo_bar")
+     assert parse_app_handle("k8s:///foo_bar") == ("k8s", "", "foo_bar")
+
+    Args:
+        app_handle: a URI of the form ``{scheduler}://{session_name}/{app_id}``,
+            where the ``session_name`` is optional. In this case the app handle is
+            of the form ``{scheduler}:///{app_id}`` (notice the triple slashes).
+
+    Returns: A ``Tuple`` of three elements, ``(scheduler, session_name, app_id)``
+        parsed from the app_handle URI str. If the session name is not present then
+        an empty string is returned in its place in the tuple.
+
     """
 
     # parse it manually b/c currently torchx does not
     # define allowed characters nor length for session name and app_id
     import re
 
-    pattern = r"(?P<scheduler_backend>.+)://(?P<session_name>.+)/(?P<app_id>.+)"
+    pattern = r"(?P<scheduler_backend>.+)://(?P<session_name>.*)/(?P<app_id>.+)"
     match = re.match(pattern, app_handle)
     if not match:
         raise MalformedAppHandleException(app_handle)

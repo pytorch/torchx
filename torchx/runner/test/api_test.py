@@ -25,6 +25,7 @@ from torchx.specs.api import (
     AppDef,
     AppHandle,
     AppState,
+    parse_app_handle,
     Resource,
     Role,
     UnknownAppException,
@@ -131,6 +132,33 @@ class RunnerTest(TestWithTmpDir):
             for i in range(record_mock.call_count):
                 event = record_mock.call_args_list[i].args[0]
                 self.assertEqual(event.session, CURRENT_SESSION_ID)
+
+    def test_empty_session_id(self, _: MagicMock) -> None:
+        empty_session_name = ""
+        with Runner(
+            empty_session_name,
+            {"local": cast(SchedulerFactory, create_scheduler)},
+        ) as runner:
+            app = AppDef(
+                "__unused_for_test__",
+                roles=[
+                    Role(
+                        name="echo",
+                        image=str(self.tmpdir),
+                        resource=resource.SMALL,
+                        entrypoint="echo",
+                        args=["__unused_for_test__"],
+                    )
+                ],
+            )
+
+            app_handle = runner.run(app, "local", self.cfg)
+            runner.wait(app_handle, wait_interval=0.1)
+
+            scheduler, session_name, app_id = parse_app_handle(app_handle)
+            self.assertEqual(scheduler, "local")
+            self.assertEqual(empty_session_name, session_name)
+            self.assertEqual(app_handle, f"local:///{app_id}")
 
     def test_run(self, record_mock: MagicMock) -> None:
         test_file = self.tmpdir / "test_file"
@@ -412,6 +440,7 @@ class RunnerTest(TestWithTmpDir):
 
     def test_describe(self, _) -> None:
         with self.get_runner() as runner:
+            metadata = {"a": "b", "c": "d"}
             role = Role(
                 name="sleep",
                 image=str(self.tmpdir),
@@ -419,7 +448,7 @@ class RunnerTest(TestWithTmpDir):
                 entrypoint="sleep",
                 args=["60"],
             )
-            app = AppDef("sleeper", roles=[role])
+            app = AppDef("sleeper", roles=[role], metadata=metadata)
 
             app_handle = runner.run(app, scheduler="local_dir", cfg=self.cfg)
             self.assertEqual(app, runner.describe(app_handle))
