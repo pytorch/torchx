@@ -941,6 +941,12 @@
         <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">&quot;scancel&quot;</span><span class="p">,</span> <span class="n">app_id</span><span class="p">],</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <div class="viewcode-block" id="SlurmScheduler.describe"><a class="viewcode-back" href="../../../schedulers/slurm.html#torchx.schedulers.slurm_scheduler.SlurmScheduler.describe">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">describe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DescribeAppResponse</span><span class="p">]:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_describe_sacct</span><span class="p">(</span><span class="n">app_id</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_describe_squeue</span><span class="p">(</span><span class="n">app_id</span><span class="p">)</span></div>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_describe_sacct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DescribeAppResponse</span><span class="p">]:</span>
         <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
             <span class="p">[</span><span class="s2">&quot;sacct&quot;</span><span class="p">,</span> <span class="s2">&quot;--parsable2&quot;</span><span class="p">,</span> <span class="s2">&quot;-j&quot;</span><span class="p">,</span> <span class="n">app_id</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span>
         <span class="p">)</span>
@@ -991,7 +997,49 @@
             <span class="n">roles_statuses</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">roles_statuses</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span>
             <span class="n">state</span><span class="o">=</span><span class="n">app_state</span><span class="p">,</span>
             <span class="n">msg</span><span class="o">=</span><span class="n">msg</span><span class="p">,</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_describe_squeue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DescribeAppResponse</span><span class="p">]:</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;squeue&quot;</span><span class="p">,</span> <span class="s2">&quot;--json&quot;</span><span class="p">,</span> <span class="s2">&quot;-j&quot;</span><span class="p">,</span> <span class="n">app_id</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="n">output_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+
+        <span class="n">roles</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">roles_statuses</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">app_state</span> <span class="o">=</span> <span class="n">AppState</span><span class="o">.</span><span class="n">UNKNOWN</span>
+        <span class="k">for</span> <span class="n">job</span> <span class="ow">in</span> <span class="n">output_json</span><span class="p">[</span><span class="s2">&quot;jobs&quot;</span><span class="p">]:</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">job</span><span class="p">[</span><span class="s2">&quot;job_state&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="n">state</span>
+            <span class="n">state_enum</span> <span class="o">=</span> <span class="n">SLURM_STATES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="p">(</span>
+                <span class="n">state_enum</span>
+            <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;failed to translate slurm state </span><span class="si">{</span><span class="n">state</span><span class="si">}</span><span class="s2"> to torchx state&quot;</span>
+            <span class="n">app_state</span> <span class="o">=</span> <span class="n">state_enum</span>
+
+            <span class="n">role</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">replica_id</span> <span class="o">=</span> <span class="n">job</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">rpartition</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">replica_id</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">role</span><span class="p">:</span>
+                <span class="c1"># name should always have at least 3 parts but sometimes sacct</span>
+                <span class="c1"># is slow to update</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">role</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">roles</span><span class="p">:</span>
+                <span class="n">roles</span><span class="p">[</span><span class="n">role</span><span class="p">]</span> <span class="o">=</span> <span class="n">Role</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">role</span><span class="p">,</span> <span class="n">num_replicas</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="n">roles_statuses</span><span class="p">[</span><span class="n">role</span><span class="p">]</span> <span class="o">=</span> <span class="n">RoleStatus</span><span class="p">(</span><span class="n">role</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="n">roles</span><span class="p">[</span><span class="n">role</span><span class="p">]</span><span class="o">.</span><span class="n">num_replicas</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">roles_statuses</span><span class="p">[</span><span class="n">role</span><span class="p">]</span><span class="o">.</span><span class="n">replicas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">ReplicaStatus</span><span class="p">(</span>
+                    <span class="nb">id</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">replica_id</span><span class="p">),</span> <span class="n">role</span><span class="o">=</span><span class="n">role</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="n">app_state</span><span class="p">,</span> <span class="n">hostname</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">DescribeAppResponse</span><span class="p">(</span>
+            <span class="n">app_id</span><span class="o">=</span><span class="n">app_id</span><span class="p">,</span>
+            <span class="n">roles</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">roles</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span>
+            <span class="n">roles_statuses</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">roles_statuses</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span>
+            <span class="n">state</span><span class="o">=</span><span class="n">app_state</span><span class="p">,</span>
+            <span class="n">msg</span><span class="o">=</span><span class="n">msg</span><span class="p">,</span>
+        <span class="p">)</span>
 
 <div class="viewcode-block" id="SlurmScheduler.log_iter"><a class="viewcode-back" href="../../../schedulers/slurm.html#torchx.schedulers.slurm_scheduler.SlurmScheduler.log_iter">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">log_iter</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1033,6 +1081,12 @@
         <span class="k">return</span> <span class="n">iterator</span></div>
 
 <div class="viewcode-block" id="SlurmScheduler.list"><a class="viewcode-back" href="../../../schedulers/slurm.html#torchx.schedulers.slurm_scheduler.SlurmScheduler.list">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ListAppResponse</span><span class="p">]:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_list_sacct</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_list_squeue</span><span class="p">()</span></div>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_list_sacct</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ListAppResponse</span><span class="p">]:</span>
         <span class="c1"># By default sacct only returns accounting information of jobs launched on the current day</span>
         <span class="c1"># To return all jobs launched, set starttime to one second past unix epoch time</span>
         <span class="c1"># Starttime will be modified when listing jobs by timeframe is supported</span>
@@ -1047,7 +1101,39 @@
                 <span class="n">app_id</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">job</span><span class="p">[</span><span class="s2">&quot;job_id&quot;</span><span class="p">]),</span> <span class="n">state</span><span class="o">=</span><span class="n">SLURM_STATES</span><span class="p">[</span><span class="n">job</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">][</span><span class="s2">&quot;current&quot;</span><span class="p">]]</span>
             <span class="p">)</span>
             <span class="k">for</span> <span class="n">job</span> <span class="ow">in</span> <span class="n">output_json</span><span class="p">[</span><span class="s2">&quot;jobs&quot;</span><span class="p">]</span>
-        <span class="p">]</span></div></div>
+        <span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_list_squeue</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ListAppResponse</span><span class="p">]:</span>
+        <span class="c1"># if sacct isn&#39;t configured on the cluster, fallback to squeue which</span>
+        <span class="c1"># only has currently running jobs</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;squeue&quot;</span><span class="p">,</span> <span class="s2">&quot;--json&quot;</span><span class="p">],</span>
+            <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+            <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">output_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+
+        <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">job</span> <span class="ow">in</span> <span class="n">output_json</span><span class="p">[</span><span class="s2">&quot;jobs&quot;</span><span class="p">]:</span>
+            <span class="n">job_id</span> <span class="o">=</span> <span class="n">job</span><span class="p">[</span><span class="s2">&quot;job_id&quot;</span><span class="p">]</span>
+
+            <span class="n">het_job_id</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;het_job_id&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">het_job_id</span>
+                <span class="ow">and</span> <span class="n">het_job_id</span><span class="p">[</span><span class="s2">&quot;set&quot;</span><span class="p">]</span>
+                <span class="ow">and</span> <span class="n">het_job_id</span><span class="p">[</span><span class="s2">&quot;number&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">job_id</span>
+                <span class="ow">and</span> <span class="n">het_job_id</span><span class="p">[</span><span class="s2">&quot;number&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="p">):</span>
+                <span class="k">continue</span>
+
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">ListAppResponse</span><span class="p">(</span>
+                    <span class="n">app_id</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">job</span><span class="p">[</span><span class="s2">&quot;job_id&quot;</span><span class="p">]),</span>
+                    <span class="n">state</span><span class="o">=</span><span class="n">SLURM_STATES</span><span class="p">[</span><span class="n">job</span><span class="p">[</span><span class="s2">&quot;job_state&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]],</span>
+                    <span class="n">name</span><span class="o">=</span><span class="n">job</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span></div>
 
 
 <div class="viewcode-block" id="create_scheduler"><a class="viewcode-back" href="../../../schedulers/slurm.html#torchx.schedulers.slurm_scheduler.create_scheduler">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">create_scheduler</span><span class="p">(</span><span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SlurmScheduler</span><span class="p">:</span>
