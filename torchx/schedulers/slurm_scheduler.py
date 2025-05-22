@@ -482,6 +482,12 @@ class SlurmScheduler(
         subprocess.run(["scancel", app_id], check=True)
 
     def describe(self, app_id: str) -> Optional[DescribeAppResponse]:
+        try:
+            return self._describe_sacct(app_id)
+        except subprocess.CalledProcessError:
+            return self._describe_squeue(app_id)
+
+    def _describe_sacct(self, app_id: str) -> Optional[DescribeAppResponse]:
         p = subprocess.run(
             ["sacct", "--parsable2", "-j", app_id], stdout=subprocess.PIPE, check=True
         )
@@ -512,6 +518,48 @@ class SlurmScheduler(
             app_state = state_enum
 
             role, _, replica_id = row["JobName"].rpartition("-")
+            if not replica_id or not role:
+                # name should always have at least 3 parts but sometimes sacct
+                # is slow to update
+                continue
+            if role not in roles:
+                roles[role] = Role(name=role, num_replicas=0, image="")
+                roles_statuses[role] = RoleStatus(role, [])
+            roles[role].num_replicas += 1
+            roles_statuses[role].replicas.append(
+                ReplicaStatus(
+                    id=int(replica_id), role=role, state=app_state, hostname=""
+                ),
+            )
+
+        return DescribeAppResponse(
+            app_id=app_id,
+            roles=list(roles.values()),
+            roles_statuses=list(roles_statuses.values()),
+            state=app_state,
+            msg=msg,
+        )
+
+    def _describe_squeue(self, app_id: str) -> Optional[DescribeAppResponse]:
+        p = subprocess.run(
+            ["squeue", "--json", "-j", app_id], stdout=subprocess.PIPE, check=True
+        )
+        output_json = json.loads(p.stdout.decode("utf-8"))
+
+        roles = {}
+        roles_statuses = {}
+        msg = ""
+        app_state = AppState.UNKNOWN
+        for job in output_json["jobs"]:
+            state = job["job_state"][0]
+            msg = state
+            state_enum = SLURM_STATES.get(state)
+            assert (
+                state_enum
+            ), f"failed to translate slurm state {state} to torchx state"
+            app_state = state_enum
+
+            role, _, replica_id = job["name"].rpartition("-")
             if not replica_id or not role:
                 # name should always have at least 3 parts but sometimes sacct
                 # is slow to update
@@ -574,6 +622,12 @@ class SlurmScheduler(
         return iterator
 
     def list(self) -> List[ListAppResponse]:
+        try:
+            return self._list_sacct()
+        except subprocess.CalledProcessError:
+            return self._list_squeue()
+
+    def _list_sacct(self) -> List[ListAppResponse]:
         # By default sacct only returns accounting information of jobs launched on the current day
         # To return all jobs launched, set starttime to one second past unix epoch time
         # Starttime will be modified when listing jobs by timeframe is supported
@@ -589,6 +643,38 @@ class SlurmScheduler(
             )
             for job in output_json["jobs"]
         ]
+
+    def _list_squeue(self) -> List[ListAppResponse]:
+        # if sacct isn't configured on the cluster, fallback to squeue which
+        # only has currently running jobs
+        p = subprocess.run(
+            ["squeue", "--json"],
+            stdout=subprocess.PIPE,
+            check=True,
+        )
+        output_json = json.loads(p.stdout.decode("utf-8"))
+
+        out = []
+        for job in output_json["jobs"]:
+            job_id = job["job_id"]
+
+            het_job_id = job.get("het_job_id")
+            if (
+                het_job_id
+                and het_job_id["set"]
+                and het_job_id["number"] != job_id
+                and het_job_id["number"] > 0
+            ):
+                continue
+
+            out.append(
+                ListAppResponse(
+                    app_id=str(job["job_id"]),
+                    state=SLURM_STATES[job["job_state"][0]],
+                    name=job["name"],
+                )
+            )
+        return out
 
 
 def create_scheduler(session_name: str, **kwargs: Any) -> SlurmScheduler:
