@@ -399,7 +399,48 @@ JobID|JobName|Partition|Account|AllocCPUS|State|ExitCode
         self.assertEqual(out.state, specs.AppState.RUNNING)
 
     @patch("subprocess.run")
-    def test_list(self, run: MagicMock) -> None:
+    def test_describe_squeue(self, run: MagicMock) -> None:
+        run.return_value.stdout = b"""{
+  "jobs": [
+    {
+        "job_id": 1236,
+        "name": "foo-0",
+        "job_state": ["RUNNING"],
+        "het_job_id": {
+            "set": true,
+            "infinite": false,
+            "number": 1236
+        }
+    },
+    {
+        "job_id": 1237,
+        "name": "foo-1",
+        "job_state": ["RUNNING"],
+        "het_job_id": {
+            "set": true,
+            "infinite": false,
+            "number": 1236
+        }
+    }
+  ]
+}"""
+
+        scheduler = create_scheduler("foo")
+        out = scheduler._describe_squeue("54")
+
+        self.assertEqual(run.call_count, 1)
+        self.assertEqual(
+            run.call_args,
+            call(["squeue", "--json", "-j", "54"], stdout=subprocess.PIPE, check=True),
+        )
+
+        self.assertIsNotNone(out)
+        self.assertEqual(out.app_id, "54")
+        self.assertEqual(out.msg, "RUNNING")
+        self.assertEqual(out.state, specs.AppState.RUNNING)
+
+    @patch("subprocess.run")
+    def test_list_sacct(self, run: MagicMock) -> None:
         run.return_value.stdout = b"""{\n   "meta": {\n   },\n   "errors": [\n   ],\n   "jobs": [
 \n     {\n       "account": null,\n       "job_id": 123,\n       "name": "main-0",
 \n       "state": {\n   "current": "COMPLETED",\n   "reason": "None"},
@@ -413,6 +454,57 @@ JobID|JobName|Partition|Account|AllocCPUS|State|ExitCode
             ListAppResponse(app_id="124", state=AppState.CANCELLED),
         ]
         apps = scheduler.list()
+        self.assertIsNotNone(apps)
+        self.assertEqual(apps, expected_apps)
+
+    @patch("subprocess.run")
+    def test_list_squeue(self, run: MagicMock) -> None:
+        run.return_value.stdout = b"""{
+  "jobs": [
+    {
+        "job_id": 1234,
+        "name": "foo",
+        "job_state": ["FAILED"]
+    },
+    {
+        "job_id": 1235,
+        "name": "foo",
+        "job_state": ["FAILED"],
+        "het_job_id": {
+            "set": true,
+            "infinite": false,
+            "number": 0
+        }
+    },
+    {
+        "job_id": 1236,
+        "name": "foo-0",
+        "job_state": ["RUNNING"],
+        "het_job_id": {
+            "set": true,
+            "infinite": false,
+            "number": 1236
+        }
+    },
+    {
+        "job_id": 1237,
+        "name": "foo-1",
+        "job_state": ["RUNNING"],
+        "het_job_id": {
+            "set": true,
+            "infinite": false,
+            "number": 1236
+        }
+    }
+  ]
+}"""
+        scheduler = create_scheduler("foo")
+        expected_apps = [
+            ListAppResponse(app_id="1234", state=AppState.FAILED, name="foo"),
+            ListAppResponse(app_id="1235", state=AppState.FAILED, name="foo"),
+            ListAppResponse(app_id="1236", state=AppState.RUNNING, name="foo-0"),
+        ]
+        apps = scheduler._list_squeue()
         self.assertIsNotNone(apps)
         self.assertEqual(apps, expected_apps)
 

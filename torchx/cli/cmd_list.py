@@ -21,6 +21,7 @@ logger: logging.Logger = logging.getLogger(__name__)
 
 HANDLE_HEADER = "APP HANDLE"
 STATUS_HEADER = "APP STATUS"
+NAME_HEADER = "APP NAME"
 
 
 class CmdList(SubCommand):
@@ -39,5 +40,7 @@ class CmdList(SubCommand):
     def run(self, args: argparse.Namespace) -> None:
         with get_runner() as runner:
             apps = runner.list(args.scheduler)
-            apps_data = [[app.app_handle, str(app.state)] for app in apps]
-            print(tabulate(apps_data, headers=[HANDLE_HEADER, STATUS_HEADER]))
+            apps_data = [[app.app_handle, app.name, str(app.state)] for app in apps]
+            print(
+                tabulate(apps_data, headers=[HANDLE_HEADER, NAME_HEADER, STATUS_HEADER])
+            )
