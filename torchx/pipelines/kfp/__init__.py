@@ -18,12 +18,13 @@ components.
 import kfp
 
 from .version import __version__ as __version__  # noqa F401
-
+import warnings
 
 def _check_kfp_version() -> None:
-    if not kfp.__version__.startswith("1."):
-        raise ImportError(
-            f"Only kfp version 1.x.x is supported! kfp version {kfp.__version__}"
+    if kfp.__version__.startswith("1."):
+        warnings.warn(
+            f"KFP version 1.x.x is deprecated! Please upgrade to kfp version 2.x.x. Current version: {kfp.__version__}",
+            DeprecationWarning
         )
 
 

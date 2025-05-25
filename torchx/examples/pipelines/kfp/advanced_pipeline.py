@@ -28,14 +28,14 @@ import os.path
 import sys
 from typing import Dict
 
-import kfp
+from kfp import dsl
+from kfp import compiler
 import torchx
 from torchx import specs
 from torchx.components.dist import ddp as dist_ddp
 from torchx.components.serve import torchserve
 from torchx.components.utils import copy as utils_copy, python as utils_python
 from torchx.pipelines.kfp.adapter import container_from_app
-
 
 parser = argparse.ArgumentParser(description="example kfp pipeline")
 
@@ -238,48 +238,54 @@ interpret_app: specs.AppDef = utils_python(
 # cluster.
 #
 # The KFP adapter currently doesn't track the input and outputs so the
-# containers need to have their dependencies specified via `.after()`.
+# containers need to have their dependencies specified.
 #
-# We call `.set_tty()` to make the logs from the components more responsive for
-# example purposes.
+# We no longer need to call `.set_tty()` as that was a v1 feature.
 
 
+@dsl.pipeline(
+    name="TorchX Advanced Pipeline",
+    description="Advanced KFP pipeline with TorchX components"
+)
 def pipeline() -> None:
-    # container_from_app creates a KFP container from the TorchX app
+    # container_from_app creates a KFP v2 task from the TorchX app
     # definition.
-    copy = container_from_app(copy_app)
-    copy.container.set_tty()
+    copy_task = container_from_app(copy_app)
+    copy_task.set_display_name("Download Data")
 
-    datapreproc = container_from_app(datapreproc_app)
-    datapreproc.container.set_tty()
-    datapreproc.after(copy)
+    datapreproc_task = container_from_app(datapreproc_app)
+    datapreproc_task.set_display_name("Preprocess Data")
+    # In KFP v2, dependencies are automatically handled based on data flow
+    # If you need explicit dependencies, you need to pass outputs as inputs
+    datapreproc_task.after(copy_task)
 
     # For the trainer we want to log that UI metadata so you can access
     # tensorboard from the UI.
-    trainer = container_from_app(trainer_app, ui_metadata=ui_metadata)
-    trainer.container.set_tty()
-    trainer.after(datapreproc)
+    trainer_task = container_from_app(trainer_app, ui_metadata=ui_metadata)
+    trainer_task.set_display_name("Train Model")
+    trainer_task.after(datapreproc_task)
 
     if False:
-        serve = container_from_app(serve_app)
-        serve.container.set_tty()
-        serve.after(trainer)
+        serve_task = container_from_app(serve_app)
+        serve_task.set_display_name("Serve Model")
+        serve_task.after(trainer_task)
 
     if False:
         # Serve and interpret only require the trained model so we can run them
         # in parallel to each other.
-        interpret = container_from_app(interpret_app)
-        interpret.container.set_tty()
-        interpret.after(trainer)
+        interpret_task = container_from_app(interpret_app)
+        interpret_task.set_display_name("Interpret Model")
+        interpret_task.after(trainer_task)
 
 
-kfp.compiler.Compiler().compile(
-    pipeline_func=pipeline,
-    package_path="pipeline.yaml",
-)
+if __name__ == "__main__":
+    compiler.Compiler().compile(
+        pipeline_func=pipeline,
+        package_path="pipeline.yaml",
+    )
 
-with open("pipeline.yaml", "rt") as f:
-    print(f.read())
+    with open("pipeline.yaml", "rt") as f:
+        print(f.read())
 
 # %%
 # Once this has all run you should have a pipeline file (typically

@@ -21,18 +21,23 @@ component as part of a KubeFlow Pipeline.
 
 TorchX tries to leverage standard mechanisms wherever possible. For KFP we use
 the existing KFP pipeline definition syntax and add a single
-`component_from_app` conversion step to convert a TorchX component into one
+`container_from_app` conversion step to convert a TorchX component into one
 KFP can understand.
 
 Typically you have a separate component file but for this example we define the
 AppDef inline.
 """
 
-import kfp
+from kfp import dsl
+from kfp import compiler
 from torchx import specs
 from torchx.pipelines.kfp.adapter import container_from_app
 
 
+@dsl.pipeline(
+    name="intro-pipeline",
+    description="An introductory pipeline using TorchX components"
+)
 def pipeline() -> None:
     # First we define our AppDef for the component. AppDef is a core part of TorchX
     # and can be used to describe complex distributed multi container apps or
@@ -50,22 +55,26 @@ def pipeline() -> None:
     )
 
     # To convert the TorchX AppDef into a KFP container we use
-    # the container_from_app adapter. This takes generates a KFP component
-    # definition from the TorchX app def and instantiates it into a container.
-    echo_container: kfp.dsl.ContainerOp = container_from_app(echo_app)
+    # the container_from_app adapter. This generates a KFP v2 component
+    # definition from the TorchX app def and instantiates it into a container task.
+    echo_container = container_from_app(echo_app)
+    
+    # In KFP v2, you can set display name for better visualization
+    echo_container.set_display_name("Echo Hello TorchX")
 
 
 # %%
 # To generate the pipeline definition file we need to call into the KFP compiler
 # with our pipeline function.
 
-kfp.compiler.Compiler().compile(
-    pipeline_func=pipeline,
-    package_path="pipeline.yaml",
-)
+if __name__ == "__main__":
+    compiler.Compiler().compile(
+        pipeline_func=pipeline,
+        package_path="pipeline.yaml",
+    )
 
-with open("pipeline.yaml", "rt") as f:
-    print(f.read())
+    with open("pipeline.yaml", "rt") as f:
+        print(f.read())
 
 # %%
 # Once this has all run you should have a pipeline file (typically
@@ -73,7 +82,7 @@ with open("pipeline.yaml", "rt") as f:
 # a kfp.Client.
 #
 # See the
-# `KFP SDK Examples <https://www.kubeflow.org/docs/components/pipelines/legacy-v1/tutorials/sdk-examples/#examples>`_
+# `KFP SDK Examples <https://www.kubeflow.org/docs/components/pipelines/user-guides/core-functions/create-a-pipeline-run/>`_
 # for more info on launching KFP pipelines.
 
 # %%
