@@ -50,7 +50,9 @@ class KFPSpecsTest(unittest.TestCase):
         """Compile pipeline and return the compiled structure."""
         with tempfile.TemporaryDirectory() as tmpdir:
             pipeline_file = os.path.join(tmpdir, "pipeline.yaml")
-            compiler.Compiler().compile(pipeline_func=pipeline, package_path=pipeline_file)
+            compiler.Compiler().compile(
+                pipeline_func=pipeline, package_path=pipeline_file
+            )
             with open(pipeline_file, "r") as f:
                 data = yaml.safe_load(f)
         return data
@@ -60,7 +62,7 @@ class KFPSpecsTest(unittest.TestCase):
 
         # component_spec_from_app is deprecated and returns app name and role
         app_name, role = component_spec_from_app(app)
-        
+
         # The function should return the app name and first role
         self.assertEqual(app_name, "test")
         self.assertEqual(role, app.roles[0])
@@ -80,28 +82,28 @@ class KFPSpecsTest(unittest.TestCase):
 
         # Compile and check structure
         data = self._compile_pipeline(pipeline)
-        
+
         # KFP v2 compiled pipelines have this structure at root level
         self.assertIn("components", data)
         self.assertIn("deploymentSpec", data)
         self.assertIn("root", data)
-        
+
         # Check that we have components
         components = data["components"]
         self.assertGreater(len(components), 0)
-        
+
         # Check executors
         executors = data["deploymentSpec"]["executors"]
         self.assertGreater(len(executors), 0)
-        
+
         # Check the task structure
         self.assertIn("dag", data["root"])
         self.assertIn("tasks", data["root"]["dag"])
-        
+
         # We should have 2 tasks
         tasks = data["root"]["dag"]["tasks"]
         self.assertEqual(len(tasks), 2)
-        
+
         # Check dependency - second task should depend on first
         task_names = list(tasks.keys())
         second_task = tasks[task_names[1]]
@@ -121,16 +123,18 @@ class KFPSpecsTest(unittest.TestCase):
         @dsl.pipeline(name="test-pipeline-metadata")
         def pipeline() -> None:
             # Create component with UI metadata
-            a = container_from_app(app, ui_metadata=ui_metadata, display_name="Task with Metadata")
+            a = container_from_app(
+                app, ui_metadata=ui_metadata, display_name="Task with Metadata"
+            )
 
         # Compile pipeline
         data = self._compile_pipeline(pipeline)
-        
+
         # Check basic structure
         self.assertIn("components", data)
         self.assertIn("deploymentSpec", data)
         self.assertIn("root", data)
-        
+
         # Check that UI metadata affects the command
         executors = data["deploymentSpec"]["executors"]
         # UI metadata should be present in at least one executor
@@ -157,17 +161,17 @@ class KFPSpecsTest(unittest.TestCase):
         # Compile and verify
         data = self._compile_pipeline(pipeline)
         self.assertIn("root", data)
-        
+
         # Check tasks
         tasks = data["root"]["dag"]["tasks"]
         self.assertEqual(len(tasks), 2)
-        
+
         # Check dependency
         # The second task should have a dependency on the first
         task_names = list(tasks.keys())
         second_task = tasks[task_names[1]]
         self.assertIn("dependentTasks", second_task)
-        
+
         # Check display names
         for task_name, task in tasks.items():
             self.assertIn("taskInfo", task)
@@ -176,16 +180,16 @@ class KFPSpecsTest(unittest.TestCase):
     def test_resource_configuration(self) -> None:
         """Test that resources are properly configured in the component."""
         app = self._test_app()
-        
+
         # Create a component and check that it has the right resources
         component = component_from_app(app)
-        
+
         # The component function should exist
         self.assertIsNotNone(component)
-        
+
         # Check that the component has the expected metadata
         # In KFP v2, components store metadata differently
-        if hasattr(component, '_torchx_role'):
+        if hasattr(component, "_torchx_role"):
             role = component._torchx_role
             self.assertEqual(role.resource.cpu, 2)
             self.assertEqual(role.resource.memMB, 3000)
@@ -194,17 +198,17 @@ class KFPSpecsTest(unittest.TestCase):
     def test_environment_variables(self) -> None:
         """Test that environment variables are properly passed."""
         app = self._test_app()
-        
+
         @dsl.pipeline(name="test-env-pipeline")
         def pipeline() -> None:
             task = container_from_app(app)
 
         # Compile pipeline
         data = self._compile_pipeline(pipeline)
-        
+
         # Check that the pipeline was compiled successfully
         self.assertIn("deploymentSpec", data)
-        
+
         # Find the executor and check environment variables
         executors = data["deploymentSpec"]["executors"]
         found_env = False
@@ -215,13 +219,18 @@ class KFPSpecsTest(unittest.TestCase):
                     # Check that FOO environment variable is set
                     env_vars = container["env"]
                     for env_var in env_vars:
-                        if env_var.get("name") == "FOO" and env_var.get("value") == "bar":
+                        if (
+                            env_var.get("name") == "FOO"
+                            and env_var.get("value") == "bar"
+                        ):
                             found_env = True
                             break
             if found_env:
                 break
-        
-        self.assertTrue(found_env, "Environment variable FOO=bar not found in any executor")
+
+        self.assertTrue(
+            found_env, "Environment variable FOO=bar not found in any executor"
+        )
 
 
 if __name__ == "__main__":

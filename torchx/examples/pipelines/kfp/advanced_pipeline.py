@@ -28,9 +28,9 @@ import os.path
 import sys
 from typing import Dict
 
-from kfp import dsl
-from kfp import compiler
 import torchx
+
+from kfp import compiler, dsl
 from torchx import specs
 from torchx.components.dist import ddp as dist_ddp
 from torchx.components.serve import torchserve
@@ -245,7 +245,7 @@ interpret_app: specs.AppDef = utils_python(
 
 @dsl.pipeline(
     name="TorchX Advanced Pipeline",
-    description="Advanced KFP pipeline with TorchX components"
+    description="Advanced KFP pipeline with TorchX components",
 )
 def pipeline() -> None:
     # container_from_app creates a KFP v2 task from the TorchX app

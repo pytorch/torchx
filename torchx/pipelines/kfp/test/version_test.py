@@ -9,8 +9,8 @@
 
 import importlib
 import unittest
-from unittest.mock import patch
 import warnings
+from unittest.mock import patch
 
 
 class VersionTest(unittest.TestCase):

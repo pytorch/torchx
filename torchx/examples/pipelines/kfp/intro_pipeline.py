@@ -28,15 +28,14 @@ Typically you have a separate component file but for this example we define the
 AppDef inline.
 """
 
-from kfp import dsl
-from kfp import compiler
+from kfp import compiler, dsl
 from torchx import specs
 from torchx.pipelines.kfp.adapter import container_from_app
 
 
 @dsl.pipeline(
     name="intro-pipeline",
-    description="An introductory pipeline using TorchX components"
+    description="An introductory pipeline using TorchX components",
 )
 def pipeline() -> None:
     # First we define our AppDef for the component. AppDef is a core part of TorchX
@@ -58,7 +57,7 @@ def pipeline() -> None:
     # the container_from_app adapter. This generates a KFP v2 component
     # definition from the TorchX app def and instantiates it into a container task.
     echo_container = container_from_app(echo_app)
-    
+
     # In KFP v2, you can set display name for better visualization
     echo_container.set_display_name("Echo Hello TorchX")
 

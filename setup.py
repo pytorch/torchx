@@ -88,7 +88,9 @@ if __name__ == "__main__":
                 "google-cloud-runtimeconfig>=0.33.2",
             ],
             # KFP 2.0+ is not supported yet, see https://github.com/pytorch/torchx/issues/123
-            "kfp": ["kfp>=2.8.0"],  # optional: required for Kubeflow Pipelines integration
+            "kfp": [
+                "kfp>=2.8.0"
+            ],  # optional: required for Kubeflow Pipelines integration
             "kubernetes": ["kubernetes>=11"],
             "ray": ["ray>=1.12.1"],
             "dev": dev_reqs,

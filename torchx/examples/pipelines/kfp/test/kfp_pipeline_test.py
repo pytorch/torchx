@@ -53,6 +53,8 @@ class KFPPipelineTest(unittest.TestCase):
 
     def test_dist_pipeline_v2_enhanced(self) -> None:
         sys.argv = ["dist_pipeline_v2_enhanced.py"]
-        from torchx.examples.pipelines.kfp import dist_pipeline_v2_enhanced  # noqa: F401
+        from torchx.examples.pipelines.kfp import (  # noqa: F401
+            dist_pipeline_v2_enhanced,
+        )
 
         self.assertTrue(os.path.exists("enhanced_distributed_pipeline.yaml"))

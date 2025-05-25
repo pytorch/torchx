@@ -15,11 +15,11 @@ Kubeflow Pipeline (KFP) v2 components.
 import json
 from typing import Any, Dict, Optional, Tuple
 
+import torchx.specs as api
+
 import yaml
 from kfp import dsl
 from kfp.dsl import ContainerSpec, OutputPath, PipelineTask
-
-import torchx.specs as api
 from torchx.schedulers import kubernetes_scheduler
 
 
@@ -38,7 +38,7 @@ def component_from_app(
 ) -> Any:
     """
     component_from_app creates a KFP v2 component from a TorchX AppDef.
-    
+
     In KFP v2, we use container components for single-container apps.
     For multi-role apps, we use the first role as the primary container.
 
@@ -57,11 +57,11 @@ def component_from_app(
         >>> from torchx import specs
         >>> from torchx.pipelines.kfp.adapter import component_from_app
         >>> from kfp import dsl
-        >>> 
+        >>>
         >>> app_def = specs.AppDef(
         ...     name="trainer",
         ...     roles=[specs.Role(
-        ...         name="trainer", 
+        ...         name="trainer",
         ...         image="pytorch/pytorch:latest",
         ...         entrypoint="python",
         ...         args=["-m", "train", "--epochs", "10"],
@@ -70,7 +70,7 @@ def component_from_app(
         ...     )],
         ... )
         >>> trainer_component = component_from_app(app_def)
-        >>> 
+        >>>
         >>> @dsl.pipeline(name="training-pipeline")
         >>> def my_pipeline():
         ...     trainer_task = container_from_app(app_def)
@@ -81,24 +81,26 @@ def component_from_app(
             f"KFP adapter does not support apps with more than one role. "
             f"AppDef has roles: {[r.name for r in app.roles]}"
         )
-    
+
     role = app.roles[0]
-    
+
     @dsl.container_component
-    def torchx_component(mlpipeline_ui_metadata: OutputPath(str) = None) -> ContainerSpec:
+    def torchx_component(
+        mlpipeline_ui_metadata: OutputPath(str) = None,
+    ) -> ContainerSpec:
         """KFP v2 wrapper for TorchX component."""
         # Basic container spec
         container_spec_dict = {
             "image": role.image,
         }
-        
+
         # Build command and args
         command = []
         if role.entrypoint:
             command.append(role.entrypoint)
         if role.args:
             command.extend(role.args)
-        
+
         # Set command or args
         if role.entrypoint and role.args:
             # If both entrypoint and args exist, use command for full command line
@@ -109,28 +111,34 @@ def component_from_app(
         elif role.args:
             # If only args exist, use them as args
             container_spec_dict["args"] = list(role.args)
-        
+
         # Handle UI metadata if provided
         if ui_metadata and mlpipeline_ui_metadata:
             metadata_json = json.dumps(ui_metadata)
-            metadata_cmd = f'echo \'{metadata_json}\' > {mlpipeline_ui_metadata}'
-            
+            metadata_cmd = f"echo '{metadata_json}' > {mlpipeline_ui_metadata}"
+
             # If there's an existing command, wrap it with metadata writing
             if "command" in container_spec_dict:
-                existing_cmd = ' '.join(container_spec_dict["command"])
-                container_spec_dict["command"] = ["sh", "-c", f"{metadata_cmd} && {existing_cmd}"]
+                existing_cmd = " ".join(container_spec_dict["command"])
+                container_spec_dict["command"] = [
+                    "sh",
+                    "-c",
+                    f"{metadata_cmd} && {existing_cmd}",
+                ]
             else:
                 container_spec_dict["command"] = ["sh", "-c", metadata_cmd]
-        
+
         return ContainerSpec(**container_spec_dict)
-    
+
     # Set component metadata
     torchx_component._component_human_name = f"{app.name}-{role.name}"
-    torchx_component._component_description = f"KFP v2 wrapper for TorchX component {app.name}, role {role.name}"
-    
+    torchx_component._component_description = (
+        f"KFP v2 wrapper for TorchX component {app.name}, role {role.name}"
+    )
+
     # Store role resource info as a component attribute so container_from_app can use it
     torchx_component._torchx_role = role
-    
+
     return torchx_component
 
 
@@ -173,29 +181,29 @@ def container_from_app(
         >>> from kfp import dsl
         >>> from torchx import specs
         >>> from torchx.pipelines.kfp.adapter import container_from_app
-        >>> 
+        >>>
         >>> app_def = specs.AppDef(
         ...     name="trainer",
         ...     roles=[specs.Role(
-        ...         name="trainer", 
+        ...         name="trainer",
         ...         image="pytorch/pytorch:latest",
         ...         entrypoint="python",
         ...         args=["train.py"],
         ...         resource=specs.Resource(cpu=4, memMB=16384, gpu=1)
         ...     )],
         ... )
-        >>> 
+        >>>
         >>> @dsl.pipeline(name="ml-pipeline")
         >>> def pipeline():
         ...     # Create a training task
         ...     trainer = container_from_app(
-        ...         app_def, 
+        ...         app_def,
         ...         display_name="PyTorch Training",
         ...         retry_policy={'max_retry_count': 3},
         ...         accelerator_type='nvidia-tesla-v100'
         ...     )
         ...     trainer.set_env_variable("WANDB_PROJECT", "my-project")
-        ...     
+        ...
         ...     # Create another task that depends on trainer
         ...     evaluator = container_from_app(
         ...         app_def,
@@ -206,11 +214,11 @@ def container_from_app(
     component = component_from_app(app, ui_metadata)
     # Call the component function to create a PipelineTask
     task = component(*args, **kwargs)
-    
+
     # Apply resource constraints and environment variables from the role
-    if hasattr(component, '_torchx_role'):
+    if hasattr(component, "_torchx_role"):
         role = component._torchx_role
-        
+
         # Set resources
         if role.resource.cpu > 0:
             task.set_cpu_request(str(int(role.resource.cpu)))
@@ -223,38 +231,38 @@ def container_from_app(
             # Check for accelerator type in metadata or use provided one
             acc_type = accelerator_type
             if not acc_type and app.metadata:
-                acc_type = app.metadata.get('accelerator_type')
+                acc_type = app.metadata.get("accelerator_type")
             if not acc_type:
-                acc_type = 'nvidia-tesla-k80'  # Default GPU type
-            
+                acc_type = "nvidia-tesla-k80"  # Default GPU type
+
             task.set_accelerator_type(acc_type)
             task.set_accelerator_limit(str(int(role.resource.gpu)))
-        
+
         # Set environment variables
         if role.env:
             for name, value in role.env.items():
                 task.set_env_variable(name=name, value=str(value))
-    
+
     # Apply additional configurations
     if display_name:
         task.set_display_name(display_name)
-    
+
     if retry_policy:
         retry_args = {}
-        if 'max_retry_count' in retry_policy:
-            retry_args['num_retries'] = retry_policy['max_retry_count']
-        if 'backoff_duration' in retry_policy:
-            retry_args['backoff_duration'] = retry_policy['backoff_duration']
-        if 'backoff_factor' in retry_policy:
-            retry_args['backoff_factor'] = retry_policy['backoff_factor']
-        if 'backoff_max_duration' in retry_policy:
-            retry_args['backoff_max_duration'] = retry_policy['backoff_max_duration']
+        if "max_retry_count" in retry_policy:
+            retry_args["num_retries"] = retry_policy["max_retry_count"]
+        if "backoff_duration" in retry_policy:
+            retry_args["backoff_duration"] = retry_policy["backoff_duration"]
+        if "backoff_factor" in retry_policy:
+            retry_args["backoff_factor"] = retry_policy["backoff_factor"]
+        if "backoff_max_duration" in retry_policy:
+            retry_args["backoff_max_duration"] = retry_policy["backoff_max_duration"]
         if retry_args:
             task.set_retry(**retry_args)
-    
+
     # Set caching options
     task.set_caching_options(enable_caching=enable_caching)
-    
+
     return task
 
 
@@ -290,26 +298,27 @@ def resource_from_app(
     ...     trainer = resource_from_app(app_def, queue="test")
     ...     print(trainer)
     """
+
     @dsl.container_component
     def volcano_job_component() -> ContainerSpec:
         """Creates a Volcano job via kubectl."""
         resource = kubernetes_scheduler.app_to_resource(
             app, queue, service_account, priority_class
         )
-        
+
         # Serialize the resource to YAML
         resource_yaml = yaml.dump(resource, default_flow_style=False)
-        
+
         # Use kubectl to create the resource
         return ContainerSpec(
             image="bitnami/kubectl:latest",
             command=["sh", "-c"],
             args=[f"echo '{resource_yaml}' | kubectl apply -f -"],
         )
-    
+
     volcano_job_component._component_human_name = f"{app.name}-volcano-job"
     volcano_job_component._component_description = f"Creates Volcano job for {app.name}"
-    
+
     return volcano_job_component()
 
 
@@ -320,18 +329,19 @@ def component_spec_from_app(app: api.AppDef) -> Tuple[str, api.Role]:
     Use component_from_app instead for KFP v2.
     """
     import warnings
+
     warnings.warn(
         "component_spec_from_app is deprecated. Use component_from_app for KFP v2.",
         DeprecationWarning,
-        stacklevel=2
+        stacklevel=2,
     )
-    
+
     if len(app.roles) != 1:
         raise ValueError(
             f"Distributed apps are only supported via resource_from_app. "
             f"{app.name} has roles: {[r.name for r in app.roles]}"
         )
-    
+
     return app.name, app.roles[0]
 
 
@@ -340,12 +350,13 @@ def component_spec_from_role(name: str, role: api.Role) -> Dict[str, Any]:
     DEPRECATED: Use component_from_app for KFP v2.
     """
     import warnings
+
     warnings.warn(
         "component_spec_from_role is deprecated. Use component_from_app for KFP v2.",
         DeprecationWarning,
-        stacklevel=2
+        stacklevel=2,
     )
-    
+
     # Return a minimal spec for backwards compatibility
     return {
         "name": f"{name}-{role.name}",

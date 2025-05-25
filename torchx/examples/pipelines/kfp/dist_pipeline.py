@@ -16,15 +16,14 @@ distributed job using the kubernetes/volcano job scheduler. This only works
 in Kubernetes KFP clusters with https://volcano.sh/en/docs/ installed on them.
 """
 
-from kfp import dsl
-from kfp import compiler
+from kfp import compiler, dsl
 from torchx import specs
 from torchx.pipelines.kfp.adapter import resource_from_app
 
 
 @dsl.pipeline(
     name="distributed-pipeline",
-    description="A distributed pipeline using Volcano job scheduler"
+    description="A distributed pipeline using Volcano job scheduler",
 )
 def pipeline() -> None:
     # First we define our AppDef for the component
@@ -45,7 +44,7 @@ def pipeline() -> None:
     # a Volcano job, we use the resource_from_app adapter.
     # This generates a task that uses kubectl to create the Volcano job.
     echo_task = resource_from_app(echo_app, queue="default")
-    
+
     # Set display name for better visualization
     echo_task.set_display_name("Distributed Echo Job")
 

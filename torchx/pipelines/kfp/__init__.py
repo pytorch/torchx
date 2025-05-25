@@ -15,16 +15,18 @@ The current KFP adapters only support single node (1 role and 1 replica)
 components.
 """
 
+import warnings
+
 import kfp
 
 from .version import __version__ as __version__  # noqa F401
-import warnings
+
 
 def _check_kfp_version() -> None:
     if kfp.__version__.startswith("1."):
         warnings.warn(
             f"KFP version 1.x.x is deprecated! Please upgrade to kfp version 2.x.x. Current version: {kfp.__version__}",
-            DeprecationWarning
+            DeprecationWarning,
         )
 
 

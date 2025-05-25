@@ -17,14 +17,15 @@ This example demonstrates all available task configuration options in KFP v2:
 """
 
 import argparse
-from kfp import dsl, compiler
+
+from kfp import compiler, dsl
 from torchx import specs
 from torchx.pipelines.kfp.adapter import container_from_app
 
 
 def main(args: argparse.Namespace) -> None:
     # Create various apps to demonstrate different configurations
-    
+
     # Basic CPU task
     cpu_app = specs.AppDef(
         name="cpu-task",
@@ -38,7 +39,7 @@ def main(args: argparse.Namespace) -> None:
             )
         ],
     )
-    
+
     # GPU task
     gpu_app = specs.AppDef(
         name="gpu-task",
@@ -49,14 +50,14 @@ def main(args: argparse.Namespace) -> None:
                 args=[
                     "-c",
                     "import torch; print(f'GPU available: {torch.cuda.is_available()}'); "
-                    "print(f'GPU count: {torch.cuda.device_count()}')"
+                    "print(f'GPU count: {torch.cuda.device_count()}')",
                 ],
                 image="pytorch/pytorch:2.0.1-cuda11.7-cudnn8-runtime",
                 resource=specs.Resource(cpu=4, memMB=8192, gpu=1),
             )
         ],
     )
-    
+
     # Task with environment variables
     env_app = specs.AppDef(
         name="env-task",
@@ -69,7 +70,7 @@ def main(args: argparse.Namespace) -> None:
                     "import os; "
                     "print(f'MODEL_NAME={os.getenv(\"MODEL_NAME\")}'); "
                     "print(f'BATCH_SIZE={os.getenv(\"BATCH_SIZE\")}'); "
-                    "print(f'LEARNING_RATE={os.getenv(\"LEARNING_RATE\")}');"
+                    "print(f'LEARNING_RATE={os.getenv(\"LEARNING_RATE\")}');",
                 ],
                 env={
                     "MODEL_NAME": "resnet50",
@@ -81,7 +82,7 @@ def main(args: argparse.Namespace) -> None:
             )
         ],
     )
-    
+
     # Task that might fail (for retry demonstration)
     flaky_app = specs.AppDef(
         name="flaky-task",
@@ -93,8 +94,8 @@ def main(args: argparse.Namespace) -> None:
                     "-c",
                     "import random; import sys; "
                     "success = random.random() > 0.7; "  # 70% failure rate
-                    "print(f'Attempt result: {\"SUCCESS\" if success else \"FAILURE\"}'); "
-                    "sys.exit(0 if success else 1);"
+                    'print(f\'Attempt result: {"SUCCESS" if success else "FAILURE"}\'); '
+                    "sys.exit(0 if success else 1);",
                 ],
                 image="python:3.9-slim",
                 resource=specs.Resource(cpu=1, memMB=512, gpu=0),
@@ -104,7 +105,7 @@ def main(args: argparse.Namespace) -> None:
 
     @dsl.pipeline(
         name="task-configuration-demo",
-        description="Demonstrates all KFP v2 task configuration options"
+        description="Demonstrates all KFP v2 task configuration options",
     )
     def pipeline():
         # Basic CPU task with display name
@@ -113,7 +114,7 @@ def main(args: argparse.Namespace) -> None:
             display_name="CPU Processing Task",
             enable_caching=True,
         )
-        
+
         # GPU task with custom accelerator configuration
         gpu_task = container_from_app(
             gpu_app,
@@ -123,52 +124,51 @@ def main(args: argparse.Namespace) -> None:
         # Note: GPU settings are automatically applied from the resource spec
         # But you can override the accelerator type if needed:
         # gpu_task.set_accelerator_type('nvidia-tesla-v100')
-        
+
         # Task with environment variables
         env_task = container_from_app(
             env_app,
             display_name="Environment Variables Demo",
         )
         # Add additional runtime environment variables
-        env_task.set_env_variable('RUNTIME_VAR', 'runtime_value')
-        env_task.set_env_variable('EXPERIMENT_ID', 'exp-001')
-        
+        env_task.set_env_variable("RUNTIME_VAR", "runtime_value")
+        env_task.set_env_variable("EXPERIMENT_ID", "exp-001")
+
         # Flaky task with retry policy
         flaky_task = container_from_app(
             flaky_app,
             display_name="Flaky Task with Retries",
             retry_policy={
-                'max_retry_count': 5,
-                'backoff_duration': '30s',
-                'backoff_factor': 2,
-                'backoff_max_duration': '300s',
+                "max_retry_count": 5,
+                "backoff_duration": "30s",
+                "backoff_factor": 2,
+                "backoff_max_duration": "300s",
             },
             enable_caching=False,  # Don't cache flaky tasks
         )
-        
+
         # Set task dependencies
         gpu_task.after(cpu_task)
         env_task.after(cpu_task)
         flaky_task.after(gpu_task, env_task)
-        
+
         # Additional task configurations
-        
+
         # Set resource requests/limits explicitly (override defaults)
-        cpu_task.set_cpu_request('1')
-        cpu_task.set_memory_request('1Gi')
-        
+        cpu_task.set_cpu_request("1")
+        cpu_task.set_memory_request("1Gi")
+
         # Chain multiple configurations
-        (gpu_task
-            .set_env_variable('CUDA_VISIBLE_DEVICES', '0')
-            .set_env_variable('TORCH_CUDA_ARCH_LIST', '7.0;7.5;8.0'))
+        (
+            gpu_task.set_env_variable("CUDA_VISIBLE_DEVICES", "0").set_env_variable(
+                "TORCH_CUDA_ARCH_LIST", "7.0;7.5;8.0"
+            )
+        )
 
     # Compile the pipeline
-    compiler.Compiler().compile(
-        pipeline_func=pipeline,
-        package_path=args.output_path
-    )
+    compiler.Compiler().compile(pipeline_func=pipeline, package_path=args.output_path)
     print(f"Pipeline compiled to: {args.output_path}")
-    
+
     # Print some helpful information
     print("\nTask Configuration Features Demonstrated:")
     print("1. Display names for better UI visualization")
@@ -190,6 +190,6 @@ if __name__ == "__main__":
         default="task_configs_pipeline.yaml",
         help="Path to save the compiled pipeline",
     )
-    
+
     args = parser.parse_args()
     main(args)
