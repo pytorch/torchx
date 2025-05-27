@@ -9,7 +9,7 @@
 import argparse
 import sys
 import unittest
-from dataclasses import asdict
+from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 from unittest.mock import patch
@@ -128,6 +128,34 @@ def example_test_complex_fn(
         )
         roles.append(role)
     return AppDef(app_name, roles)
+
+
+@dataclass
+class ComplexArgs:
+    app_name: str
+    containers: List[str]
+    roles_scripts: Dict[str, str]
+    num_cpus: Optional[List[int]] = None
+    num_gpus: Optional[Dict[str, int]] = None
+    nnodes: int = 4
+    first_arg: Optional[str] = None
+    nested_arg: Optional[Dict[str, List[str]]] = None
+
+
+def example_test_complex_fn_dataclass_arg(
+    args: ComplexArgs, *roles_args: str
+) -> AppDef:
+    return example_test_complex_fn(
+        args.app_name,
+        args.containers,
+        args.roles_scripts,
+        args.num_cpus,
+        args.num_gpus,
+        args.nnodes,
+        args.first_arg,
+        args.nested_arg,
+        *roles_args,
+    )
 
 
 _TEST_VAR_ARGS: Optional[Tuple[object, ...]] = None
@@ -290,6 +318,12 @@ class AppDefLoadTest(unittest.TestCase):
         expected_app = self._get_expected_app_with_all_args()
         app_args = self._get_app_args()
         actual_app = materialize_appdef(example_test_complex_fn, app_args)
+        self.assert_apps(expected_app, actual_app)
+
+    def test_load_from_fn_complex_all_args_dataclass(self) -> None:
+        expected_app = self._get_expected_app_with_all_args()
+        app_args = self._get_app_args()
+        actual_app = materialize_appdef(example_test_complex_fn_dataclass_arg, app_args)
         self.assert_apps(expected_app, actual_app)
 
     def test_required_args(self) -> None:
