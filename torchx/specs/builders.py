@@ -7,9 +7,11 @@
 # pyre-strict
 
 import argparse
+import dataclasses
 import inspect
 import os
 from argparse import Namespace
+from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Mapping, Optional, Union
 
 from torchx.specs.api import BindMount, MountType, VolumeMount
@@ -24,10 +26,72 @@ def _create_args_parser(
     cmpnt_defaults: Optional[Dict[str, str]] = None,
     config: Optional[Dict[str, Any]] = None,
 ) -> argparse.ArgumentParser:
-    parameters = inspect.signature(cmpnt_fn).parameters
+    parameters = _get_params_from_component_signature(cmpnt_fn).parameters
     return _create_args_parser_from_parameters(
         cmpnt_fn, parameters, cmpnt_defaults, config
     )
+
+
+@dataclass
+class SignatureInfo:
+    parameters: Mapping[str, inspect.Parameter]
+    dataclass_type: type[object] | None
+
+
+def _get_params_from_component_signature(
+    cmpnt_fn: Callable[..., AppDef]
+) -> SignatureInfo:
+    parameters = inspect.signature(cmpnt_fn).parameters
+    dataclass_type = _maybe_get_dataclass_type(parameters)
+    if dataclass_type is not None:
+        parameters = _flatten_dataclass_params(parameters)
+    return SignatureInfo(parameters, dataclass_type)
+
+
+def _maybe_get_dataclass_type(
+    parameters: Mapping[str, inspect.Parameter]
+) -> type[object] | None:
+    if len(parameters) not in (1, 2):
+        # only support a single dataclass or a single dataclass followed by a vararg
+        return None
+    params = list(parameters.values())
+    first_param_type = params[0].annotation
+    is_first_param_dataclass = dataclasses.is_dataclass(
+        first_param_type
+    ) and isinstance(first_param_type, type)
+    if not is_first_param_dataclass:
+        return None
+    if len(params) == 1:
+        return first_param_type
+    if len(params) == 2 and params[1].kind == inspect.Parameter.VAR_POSITIONAL:
+        return first_param_type
+    return None
+
+
+def _flatten_dataclass_params(
+    parameters: Mapping[str, inspect.Parameter]
+) -> Mapping[str, inspect.Parameter]:
+    result = {}
+
+    for param_name, param in parameters.items():
+        param_type = param.annotation
+        if not dataclasses.is_dataclass(param_type):
+            result[param_name] = param
+            continue
+        else:
+            result.update(
+                {
+                    f.name: inspect.Parameter(
+                        f.name,
+                        inspect._ParameterKind.KEYWORD_ONLY,
+                        annotation=f.type,
+                        default=f.default,
+                    )
+                    for f in dataclasses.fields(param_type)
+                }
+            )
+
+    return result
 
 
 def _create_args_parser_from_parameters(
@@ -69,7 +133,7 @@ def _create_args_parser_from_parameters(
             )
 
     for param_name, parameter in parameters.items():
-        param_desc = args_desc[parameter.name]
+        param_desc = args_desc.get(parameter.name)
         args: Dict[str, Any] = {
             "help": param_desc,
             "type": get_argparse_param_type(parameter),
@@ -147,10 +211,9 @@ def materialize_appdef(
     config: Optional[Dict[str, Any]] = None,
 ) -> AppDef:
     """
-    Creates an application by running user defined ``app_fn``.
+    Creates an application by running a user-defined component function ``cmpnt_fn``.
 
-    ``app_fn`` has the following restrictions:
-        * Name must be ``app_fn``
+    ``cmpnt_fn`` has the following restrictions:
         * All arguments should be annotated
         * Supported argument types:
             - primitive: int, str, float
@@ -158,7 +221,17 @@ def materialize_appdef(
             - List[primitive]
             - Optional[Dict[primitive, primitive]]
             - Optional[List[primitive]]
-        * ``app_fn`` can define a vararg (*arg) at the end
+
+        The arguments can also be passed as a single dataclass, e.g.
+
+            @dataclass
+            class Args:
+                arg1: str
+                arg2: Dict[str, int]
+
+            def cmpnt_fn(args: Args) -> AppDef: ...
+
+        * ``cmpnt_fn`` can define a vararg (*arg) at the end (this also works if the first argument is a dataclass)
         * There should be a docstring for the function that defines
             All arguments in a google-style format
         * There can be default values for the function arguments.
@@ -180,8 +253,9 @@ def materialize_appdef(
 
     parsed_args = parse_args(cmpnt_fn, cmpnt_args, cmpnt_defaults, config)
 
-    parameters = inspect.signature(cmpnt_fn).parameters
-    for param_name, parameter in parameters.items():
+    signature_info = _get_params_from_component_signature(cmpnt_fn)
+
+    for param_name, parameter in signature_info.parameters.items():
         arg_value = getattr(parsed_args, param_name)
         parameter_type = parameter.annotation
         parameter_type = decode_optional(parameter_type)
@@ -197,6 +271,9 @@ def materialize_appdef(
     if len(var_arg) > 0 and var_arg[0] == "--":
         var_arg = var_arg[1:]
 
+    if signature_info.dataclass_type is not None:
+        function_args = [signature_info.dataclass_type(**kwargs)]
+        kwargs = {}
     appdef = cmpnt_fn(*function_args, *var_arg, **kwargs)
     if not isinstance(appdef, AppDef):
         raise TypeError(
