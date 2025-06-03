@@ -208,9 +208,7 @@ def run_pipeline(build: BuildInfo, pipeline_file: str) -> object:
     return resp
 
 
-def wait_for_pipeline(
-    resp: Any,  # pyre-fixme: KFP doesn't have a response type
-) -> None:
+def wait_for_pipeline(resp: Any) -> None:  # pyre-ignore[2]
     print(f"{resp.run_id} - waiting for completion")
     result = resp.wait_for_run_completion(
         timeout=1 * 60 * 60,
