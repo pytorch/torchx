@@ -18,5 +18,6 @@
     "stubs"
   ],
   "strict": true,
-  "version": "0.0.101732536891"
+  "enable_strict_any_check": true,
+  "version": "0.0.101749035478"
 }
