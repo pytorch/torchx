@@ -274,12 +274,23 @@ class CustomComponentsFinder(ComponentsFinder):
         linter_errors = validate(path, function_name, validators)
         return [linter_error.description for linter_error in linter_errors]
 
+    def _get_path_to_function_decl(
+        self, function: Callable[..., Any]  # pyre-ignore[2]
+    ) -> str:
+        """
+        Attempts to return the path to the file where the function is implemented.
+        This can be different from the path where the function is looked up, for example if we have:
+        my_component defined in some_file.py, imported in other_file.py
+        and the component is invoked as other_file.py:my_component
+        """
+        path_to_function_decl = inspect.getabsfile(function)
+        if path_to_function_decl is None or not os.path.isfile(path_to_function_decl):
+            return self._filepath
+        return path_to_function_decl
+
     def find(
         self, validators: Optional[List[TorchxFunctionValidator]]
     ) -> List[_Component]:
-        validation_errors = self._get_validation_errors(
-            self._filepath, self._function_name, validators
-        )
 
         file_source = read_conf_file(self._filepath)
         namespace = copy.copy(globals())
@@ -292,6 +303,12 @@ class CustomComponentsFinder(ComponentsFinder):
             )
         app_fn = namespace[self._function_name]
         fn_desc, _ = get_fn_docstring(app_fn)
+
+        func_path = self._get_path_to_function_decl(app_fn)
+        validation_errors = self._get_validation_errors(
+            func_path, self._function_name, validators
+        )
+
         return [
             _Component(
                 name=f"{self._filepath}:{self._function_name}",
