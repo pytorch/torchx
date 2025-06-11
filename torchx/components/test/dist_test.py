@@ -41,8 +41,10 @@ class DDPTest(ComponentTestCase):
             self.assertEqual(env[k], v)
 
     def test_ddp_rdzv_backend_static(self) -> None:
-        app = ddp(script="foo.py", rdzv_backend="static")
+        rdzv_conf = "join_timeout=600,close_timeout=600,timeout=600"
+        app = ddp(script="foo.py", rdzv_backend="static", rdzv_conf=rdzv_conf)
         cmd = app.roles[0].args[1]
+        self.assertTrue(f"--rdzv_conf {rdzv_conf}" in cmd)
         self.assertTrue("--rdzv_backend static" in cmd)
         self.assertTrue("--node_rank" in cmd)
 
