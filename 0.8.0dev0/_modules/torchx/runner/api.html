@@ -500,6 +500,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">torchx.util.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">none_throws</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">torchx.workspace.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">PkgInfo</span><span class="p">,</span> <span class="n">WorkspaceBuilder</span><span class="p">,</span> <span class="n">WorkspaceMixin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Self</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_config</span><span class="p">,</span> <span class="n">get_configs</span>
 
@@ -577,7 +578,7 @@
                 <span class="n">scheduler_params</span><span class="p">[</span><span class="n">lower_case_key</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;torchx_&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">return</span> <span class="n">scheduler_params</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Runner&quot;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__exit__</span><span class="p">(</span>
