@@ -6,8 +6,11 @@ on:
       - main
   pull_request:
 
+
 env:
-  SLURM_VERSION: 21.08.6
+  # slurm tag should be one of https://github.com/SchedMD/slurm/tags
+  SLURM_TAG: slurm-23-11-11-1
+  SLURM_VERSION: 23.11.11
 
 jobs:
   slurm:
