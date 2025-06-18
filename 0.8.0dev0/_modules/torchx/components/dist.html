@@ -589,9 +589,6 @@
 <span class="sd">        j: {nnodes}x{nproc_per_node}. For GPU hosts omitting nproc_per_node will infer it from the GPU count on the host</span>
 <span class="sd">        env: environment variables to be passed to the run (e.g. ENV1=v1,ENV2=v2,ENV3=v3)</span>
 <span class="sd">        max_retries: the number of scheduler retries allowed</span>
-<span class="sd">        rdzv_port: the port on rank0&#39;s host to use for hosting the c10d store used for rendezvous.</span>
-<span class="sd">                   Only takes effect when running multi-node. When running single node, this parameter</span>
-<span class="sd">                   is ignored and a random free port is chosen.</span>
 <span class="sd">        mounts: (for docker based runs only) mounts to mount into the worker environment/container</span>
 <span class="sd">                (ex. type=&lt;bind/volume&gt;,src=/host,dst=/job[,readonly]).</span>
 <span class="sd">        debug: whether to run with preset debug flags enabled</span>
@@ -631,6 +628,7 @@
     <span class="n">max_retries</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">rdzv_port</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">29500</span><span class="p">,</span>
     <span class="n">rdzv_backend</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;c10d&quot;</span><span class="p">,</span>
+    <span class="n">rdzv_conf</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">mounts</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">tee</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
@@ -665,6 +663,7 @@
 <span class="sd">                   Only takes effect when running multi-node. When running single node, this parameter</span>
 <span class="sd">                   is ignored and a random free port is chosen.</span>
 <span class="sd">        rdzv_backend: the rendezvous backend to use. Only takes effect when running multi-node.</span>
+<span class="sd">        rdzv_conf: the additional rendezvous configuration to use (ex. join_timeout=600,close_timeout=600,timeout=600).</span>
 <span class="sd">        mounts: mounts to mount into the worker environment/container (ex. type=&lt;bind/volume&gt;,src=/host,dst=/job[,readonly]).</span>
 <span class="sd">                See scheduler documentation for more info.</span>
 <span class="sd">        debug: whether to run with preset debug flags enabled</span>
@@ -715,6 +714,7 @@
         <span class="s2">&quot;torchrun&quot;</span><span class="p">,</span>
         <span class="s2">&quot;--rdzv_backend&quot;</span><span class="p">,</span>
         <span class="n">rdzv_backend</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">([</span><span class="s2">&quot;--rdzv_conf&quot;</span><span class="p">,</span> <span class="n">rdzv_conf</span><span class="p">]</span> <span class="k">if</span> <span class="n">rdzv_conf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]),</span>
         <span class="s2">&quot;--rdzv_endpoint&quot;</span><span class="p">,</span>
         <span class="n">rdzv_endpoint</span><span class="p">,</span>
         <span class="s2">&quot;--rdzv_id&quot;</span><span class="p">,</span>
