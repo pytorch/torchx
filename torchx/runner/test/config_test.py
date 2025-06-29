@@ -470,20 +470,17 @@ image = foobar_custom
         sfile = StringIO()
         dump(sfile)
 
-        scheduler_factories = {
-            **get_scheduler_factories(),
-            **(
-                get_scheduler_factories(
-                    group="torchx.schedulers.orchestrator", skip_defaults=True
-                )
-                or {}
-            ),
-        }
+        scheduler_factories = get_scheduler_factories()
 
         for sched_name, sched in scheduler_factories.items():
             sfile.seek(0)  # reset the file pos
             cfg = {}
-            load(scheduler=sched_name, f=sfile, cfg=cfg)
+            try:
+                load(scheduler=sched_name, f=sfile, cfg=cfg)
+            except ModuleNotFoundError:
+                # just test the ones that have been installed
+                continue
+
             for opt_name, _ in sched("test").run_opts():
                 self.assertTrue(
                     opt_name in cfg,
