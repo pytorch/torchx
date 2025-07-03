@@ -8,11 +8,10 @@
 # pyre-strict
 
 import importlib
-from typing import Dict, Mapping
+from typing import Mapping, Protocol
 
 from torchx.schedulers.api import Scheduler
 from torchx.util.entrypoints import load_group
-from typing_extensions import Protocol
 
 DEFAULT_SCHEDULER_MODULES: Mapping[str, str] = {
     "local_docker": "torchx.schedulers.docker_scheduler",
@@ -44,7 +43,7 @@ def _defer_load_scheduler(path: str) -> SchedulerFactory:
 
 def get_scheduler_factories(
     group: str = "torchx.schedulers", skip_defaults: bool = False
-) -> Dict[str, SchedulerFactory]:
+) -> dict[str, SchedulerFactory]:
     """
     get_scheduler_factories returns all the available schedulers names under `group` and the
     method to instantiate them.
@@ -52,7 +51,7 @@ def get_scheduler_factories(
     The first scheduler in the dictionary is used as the default scheduler.
     """
 
-    default_schedulers: Dict[str, SchedulerFactory] = {}
+    default_schedulers: dict[str, SchedulerFactory] = {}
     for scheduler, path in DEFAULT_SCHEDULER_MODULES.items():
         default_schedulers[scheduler] = _defer_load_scheduler(path)
 

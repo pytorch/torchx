@@ -21,11 +21,10 @@ import tempfile
 from dataclasses import dataclass
 from datetime import datetime
 from subprocess import CalledProcessError, PIPE
-from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple, TypedDict
 
 import torchx
 from torchx.schedulers.api import (
-    AppDryRunInfo,
     DescribeAppResponse,
     filter_regex,
     ListAppResponse,
@@ -36,6 +35,7 @@ from torchx.schedulers.api import (
 from torchx.schedulers.local_scheduler import LogIterator
 from torchx.specs import (
     AppDef,
+    AppDryRunInfo,
     AppState,
     macros,
     NONE,
@@ -46,7 +46,6 @@ from torchx.specs import (
     runopts,
 )
 from torchx.workspace.dir_workspace import DirWorkspaceMixin
-from typing_extensions import TypedDict
 
 SLURM_JOB_DIRS = ".torchxslurmjobdirs"
 

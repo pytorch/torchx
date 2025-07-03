@@ -53,13 +53,13 @@ from typing import (
     Optional,
     Tuple,
     TYPE_CHECKING,
+    TypedDict,
     TypeVar,
 )
 
 import torchx
 import yaml
 from torchx.schedulers.api import (
-    AppDryRunInfo,
     DescribeAppResponse,
     filter_regex,
     ListAppResponse,
@@ -71,6 +71,7 @@ from torchx.schedulers.devices import get_device_mounts
 from torchx.schedulers.ids import make_unique
 from torchx.specs.api import (
     AppDef,
+    AppDryRunInfo,
     AppState,
     BindMount,
     CfgVal,
@@ -86,7 +87,6 @@ from torchx.specs.api import (
 from torchx.specs.named_resources_aws import instance_type_from_resource
 from torchx.util.types import none_throws
 from torchx.workspace.docker_workspace import DockerWorkspaceMixin
-from typing_extensions import TypedDict
 
 ENV_TORCHX_ROLE_IDX = "TORCHX_ROLE_IDX"
 
