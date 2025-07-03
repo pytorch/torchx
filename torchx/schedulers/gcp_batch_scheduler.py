@@ -24,22 +24,28 @@ See https://cloud.google.com/batch/docs/get-started#prerequisites
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, Iterable, List, Optional, TYPE_CHECKING
+from typing import Any, Dict, Iterable, List, Optional, TYPE_CHECKING, TypedDict
 
 import torchx
 import yaml
 
 from torchx.schedulers.api import (
-    AppDryRunInfo,
     DescribeAppResponse,
     ListAppResponse,
     Scheduler,
     Stream,
 )
 from torchx.schedulers.ids import make_unique
-from torchx.specs.api import AppDef, AppState, macros, Resource, Role, runopts
+from torchx.specs.api import (
+    AppDef,
+    AppDryRunInfo,
+    AppState,
+    macros,
+    Resource,
+    Role,
+    runopts,
+)
 from torchx.util.strings import normalize_str
-from typing_extensions import TypedDict
 
 
 if TYPE_CHECKING:

@@ -14,7 +14,17 @@ import time
 from dataclasses import dataclass, field
 from datetime import datetime
 from shutil import copy2, rmtree
-from typing import Any, cast, Dict, Final, Iterable, List, Optional, Tuple  # noqa
+from typing import (  # noqa
+    Any,
+    cast,
+    Dict,
+    Final,
+    Iterable,
+    List,
+    Optional,
+    Tuple,
+    TypedDict,
+)
 
 import urllib3
 
@@ -23,7 +33,6 @@ from ray.dashboard.modules.job.common import JobStatus
 from ray.dashboard.modules.job.sdk import JobSubmissionClient
 
 from torchx.schedulers.api import (
-    AppDryRunInfo,
     AppState,
     DescribeAppResponse,
     filter_regex,
@@ -34,9 +43,17 @@ from torchx.schedulers.api import (
 )
 from torchx.schedulers.ids import make_unique
 from torchx.schedulers.ray.ray_common import RayActor, TORCHX_RANK0_HOST
-from torchx.specs import AppDef, macros, NONE, ReplicaStatus, Role, RoleStatus, runopts
+from torchx.specs import (
+    AppDef,
+    AppDryRunInfo,
+    macros,
+    NONE,
+    ReplicaStatus,
+    Role,
+    RoleStatus,
+    runopts,
+)
 from torchx.workspace.dir_workspace import TmpDirWorkspaceMixin
-from typing_extensions import TypedDict
 
 
 class RayOpts(TypedDict, total=False):

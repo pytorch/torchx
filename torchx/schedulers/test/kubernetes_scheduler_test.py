@@ -19,7 +19,7 @@ from torchx import schedulers, specs
 
 # @manual=//torchx/schedulers:kubernetes_scheduler
 from torchx.schedulers import kubernetes_scheduler
-from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, ListAppResponse
+from torchx.schedulers.api import DescribeAppResponse, ListAppResponse
 from torchx.schedulers.docker_scheduler import has_docker
 from torchx.schedulers.kubernetes_scheduler import (
     app_to_resource,
@@ -31,7 +31,7 @@ from torchx.schedulers.kubernetes_scheduler import (
     PLACEHOLDER_FIELD_PATH,
     role_to_pod,
 )
-from torchx.specs import AppState
+from torchx.specs import AppDryRunInfo, AppState
 
 SKIP_DOCKER: bool = not has_docker()
 
