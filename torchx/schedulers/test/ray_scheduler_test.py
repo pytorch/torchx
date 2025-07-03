@@ -19,7 +19,7 @@ from ray.dashboard.modules.job.sdk import JobSubmissionClient
 from ray.util.placement_group import remove_placement_group
 
 from torchx.schedulers import get_scheduler_factories
-from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, ListAppResponse
+from torchx.schedulers.api import DescribeAppResponse, ListAppResponse
 from torchx.schedulers.ray import ray_driver
 from torchx.schedulers.ray.ray_common import RayActor
 from torchx.schedulers.ray_scheduler import (
@@ -29,7 +29,7 @@ from torchx.schedulers.ray_scheduler import (
     RayScheduler,
     serialize,
 )
-from torchx.specs import AppDef, Resource, Role, runopts
+from torchx.specs import AppDef, AppDryRunInfo, Resource, Role, runopts
 
 
 class RaySchedulerRegistryTest(TestCase):

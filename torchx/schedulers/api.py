@@ -16,7 +16,6 @@ from typing import Generic, Iterable, List, Optional, TypeVar
 
 from torchx.specs import (
     AppDef,
-    AppDryRunInfo,
     AppState,
     NONE,
     NULL_RESOURCE,

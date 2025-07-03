@@ -30,6 +30,7 @@ torchmetrics==1.6.3
 torchserve>=0.10.0
 torchtext==0.18.0
 torchvision==0.22.0
+typing-extensions
 ts==0.5.1
 ray[default]
 wheel

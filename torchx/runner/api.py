@@ -14,7 +14,18 @@ import time
 import warnings
 from datetime import datetime
 from types import TracebackType
-from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple, Type, TypeVar
+from typing import (
+    Any,
+    Dict,
+    Iterable,
+    List,
+    Mapping,
+    Optional,
+    Tuple,
+    Type,
+    TYPE_CHECKING,
+    TypeVar,
+)
 
 from torchx.runner.events import log_event
 from torchx.schedulers import get_scheduler_factories, SchedulerFactory
@@ -43,7 +54,9 @@ from torchx.util.session import get_session_id_or_create_new, TORCHX_INTERNAL_SE
 
 from torchx.util.types import none_throws
 from torchx.workspace.api import PkgInfo, WorkspaceBuilder, WorkspaceMixin
-from typing_extensions import Self
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 from .config import get_config, get_configs
 
@@ -121,7 +134,7 @@ class Runner:
                 scheduler_params[lower_case_key.strip("torchx_")] = value
         return scheduler_params
 
-    def __enter__(self) -> Self:
+    def __enter__(self) -> "Self":
         return self
 
     def __exit__(
