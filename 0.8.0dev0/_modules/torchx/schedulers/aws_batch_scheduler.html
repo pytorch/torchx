@@ -512,13 +512,13 @@
     <span class="n">Optional</span><span class="p">,</span>
     <span class="n">Tuple</span><span class="p">,</span>
     <span class="n">TYPE_CHECKING</span><span class="p">,</span>
+    <span class="n">TypedDict</span><span class="p">,</span>
     <span class="n">TypeVar</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">torchx</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">torchx.schedulers.api</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">AppDryRunInfo</span><span class="p">,</span>
     <span class="n">DescribeAppResponse</span><span class="p">,</span>
     <span class="n">filter_regex</span><span class="p">,</span>
     <span class="n">ListAppResponse</span><span class="p">,</span>
@@ -530,6 +530,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">torchx.schedulers.ids</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_unique</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">torchx.specs.api</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">AppDef</span><span class="p">,</span>
+    <span class="n">AppDryRunInfo</span><span class="p">,</span>
     <span class="n">AppState</span><span class="p">,</span>
     <span class="n">BindMount</span><span class="p">,</span>
     <span class="n">CfgVal</span><span class="p">,</span>
@@ -545,7 +546,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">torchx.specs.named_resources_aws</span><span class="w"> </span><span class="kn">import</span> <span class="n">instance_type_from_resource</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">torchx.util.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">none_throws</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">torchx.workspace.docker_workspace</span><span class="w"> </span><span class="kn">import</span> <span class="n">DockerWorkspaceMixin</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TypedDict</span>
 
 <span class="n">ENV_TORCHX_ROLE_IDX</span> <span class="o">=</span> <span class="s2">&quot;TORCHX_ROLE_IDX&quot;</span>
 
