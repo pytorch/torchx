@@ -7,6 +7,7 @@
 # pyre-strict
 
 import datetime
+import importlib
 import os
 import subprocess
 import tempfile
@@ -28,6 +29,15 @@ from torchx.schedulers.slurm_scheduler import (
     SlurmScheduler,
 )
 from torchx.specs import AppState
+
+DESCRIBE_SQUEUE = "torchx.schedulers.slurm_scheduler.SlurmScheduler._describe_squeue"
+DESCRIBE_SACCT = "torchx.schedulers.slurm_scheduler.SlurmScheduler._describe_sacct"
+
+CALLED_PROCESS_ERROR = subprocess.CalledProcessError(
+    returncode=1,
+    cmd="__ignored__",
+    stderr="slurm_load_jobs error: Invalid job id specified",
+)
 
 
 @contextmanager
@@ -299,9 +309,12 @@ fi
         self.assertEqual(run.call_count, 1)
         self.assertEqual(run.call_args, call(["scancel", "1234"], check=True))
 
-    @patch("subprocess.run")
-    def test_describe_completed(self, run: MagicMock) -> None:
-        run.return_value.stdout = b"""
+    @patch(DESCRIBE_SQUEUE, side_effect=CALLED_PROCESS_ERROR)
+    @patch("subprocess.check_output")
+    def test_describe_sacct_completed(
+        self, check_output: MagicMock, _: MagicMock
+    ) -> None:
+        check_output.return_value = """
 JobID|JobName|Partition|Account|AllocCPUS|State|ExitCode
 1853+0|echo-0|compute||1|COMPLETED|0:0
 1853+0.batch|batch|||1|COMPLETED|0:0
@@ -315,13 +328,13 @@ JobID|JobName|Partition|Account|AllocCPUS|State|ExitCode
         scheduler = create_scheduler("foo")
         out = scheduler.describe(app_id="1853")
 
-        self.assertEqual(run.call_count, 1)
+        self.assertEqual(check_output.call_count, 1)
         self.assertEqual(
-            run.call_args,
+            check_output.call_args,
             call(
                 ["sacct", "--parsable2", "-j", "1853"],
-                stdout=subprocess.PIPE,
-                check=True,
+                stderr=subprocess.PIPE,
+                encoding="utf-8",
             ),
         )
 
@@ -340,9 +353,12 @@ JobID|JobName|Partition|Account|AllocCPUS|State|ExitCode
             ],
         )
 
-    @patch("subprocess.run")
-    def test_describe_single_replica(self, run: MagicMock) -> None:
-        run.return_value.stdout = b"""
+    @patch(DESCRIBE_SQUEUE, side_effect=CALLED_PROCESS_ERROR)
+    @patch("subprocess.check_output")
+    def test_describe_sacct_single_replica(
+        self, check_output: MagicMock, _: MagicMock
+    ) -> None:
+        check_output.return_value = """
 JobID|JobName|Partition|Account|AllocCPUS|State|ExitCode
 1902|sh-0|compute||1|FAILED|2:0
 1902.batch|batch|||1|FAILED|2:0
@@ -352,13 +368,13 @@ JobID|JobName|Partition|Account|AllocCPUS|State|ExitCode
         scheduler = create_scheduler("foo")
         out = scheduler.describe(app_id="1902")
 
-        self.assertEqual(run.call_count, 1)
+        self.assertEqual(check_output.call_count, 1)
         self.assertEqual(
-            run.call_args,
+            check_output.call_args,
             call(
                 ["sacct", "--parsable2", "-j", "1902"],
-                stdout=subprocess.PIPE,
-                check=True,
+                stderr=subprocess.PIPE,
+                encoding="utf-8",
             ),
         )
 
@@ -377,19 +393,26 @@ JobID|JobName|Partition|Account|AllocCPUS|State|ExitCode
             ],
         )
 
-    @patch("subprocess.run")
-    def test_describe_running(self, run: MagicMock) -> None:
-        run.return_value.stdout = b"""JobID|JobName|Partition|Account|AllocCPUS|State|ExitCode
-54|echo-echo-0|compute||1|RUNNING|0:0"""
+    @patch(DESCRIBE_SQUEUE, side_effect=CALLED_PROCESS_ERROR)
+    @patch("subprocess.check_output")
+    def test_describe_sacct_running(
+        self, check_output: MagicMock, _: MagicMock
+    ) -> None:
+        check_output.return_value = """
+JobID|JobName|Partition|Account|AllocCPUS|State|ExitCode
+54|echo-echo-0|compute||1|RUNNING|0:0
+""".strip()
 
         scheduler = create_scheduler("foo")
         out = scheduler.describe("54")
 
-        self.assertEqual(run.call_count, 1)
+        self.assertEqual(check_output.call_count, 1)
         self.assertEqual(
-            run.call_args,
+            check_output.call_args,
             call(
-                ["sacct", "--parsable2", "-j", "54"], stdout=subprocess.PIPE, check=True
+                ["sacct", "--parsable2", "-j", "54"],
+                stderr=subprocess.PIPE,
+                encoding="utf-8",
             ),
         )
 
@@ -398,46 +421,78 @@ JobID|JobName|Partition|Account|AllocCPUS|State|ExitCode
         self.assertEqual(out.msg, "RUNNING")
         self.assertEqual(out.state, specs.AppState.RUNNING)
 
-    @patch("subprocess.run")
-    def test_describe_squeue(self, run: MagicMock) -> None:
-        run.return_value.stdout = b"""{
-  "jobs": [
-    {
-        "job_id": 1236,
-        "name": "foo-0",
-        "job_state": ["RUNNING"],
-        "het_job_id": {
-            "set": true,
-            "infinite": false,
-            "number": 1236
-        }
-    },
-    {
-        "job_id": 1237,
-        "name": "foo-1",
-        "job_state": ["RUNNING"],
-        "het_job_id": {
-            "set": true,
-            "infinite": false,
-            "number": 1236
-        }
-    }
-  ]
-}"""
+    def test_describe_squeue(self) -> None:
+        with importlib.resources.path(
+            __package__, "slurm-squeue-output.json"
+        ) as path, open(path) as fp:
+            mock_output = fp.read()
 
-        scheduler = create_scheduler("foo")
-        out = scheduler._describe_squeue("54")
+        with patch("subprocess.check_output", return_value=mock_output):
+            scheduler = create_scheduler("__ignored__")
+            desc = scheduler.describe(app_id="204")
 
-        self.assertEqual(run.call_count, 1)
-        self.assertEqual(
-            run.call_args,
-            call(["squeue", "--json", "-j", "54"], stdout=subprocess.PIPE, check=True),
-        )
+            self.assertIsNotNone(desc)
+            self.assertEqual(desc.app_id, "204")
+            self.assertEqual(desc.state, AppState.RUNNING)
 
-        self.assertIsNotNone(out)
-        self.assertEqual(out.app_id, "54")
-        self.assertEqual(out.msg, "RUNNING")
-        self.assertEqual(out.state, specs.AppState.RUNNING)
+            self.assertListEqual(
+                desc.roles,
+                [
+                    specs.Role(
+                        name="trainer",
+                        num_replicas=2,
+                        image="/home/foo",
+                        entrypoint="/tmp/tmpa4u7gedr/torchx-sbatch.sh",
+                        resource=specs.Resource(cpu=1, memMB=16, gpu=-1),
+                    ),
+                    specs.Role(
+                        name="generator",
+                        num_replicas=2,
+                        image="/home/foo",
+                        entrypoint="/tmp/tmpa4u7gedr/torchx-sbatch.sh",
+                        resource=specs.Resource(cpu=1, memMB=16, gpu=-1),
+                    ),
+                ],
+            )
+            self.assertListEqual(
+                desc.roles_statuses,
+                [
+                    specs.RoleStatus(
+                        role="trainer",
+                        replicas=[
+                            specs.ReplicaStatus(
+                                id=0,
+                                role="trainer",
+                                state=AppState.RUNNING,
+                                hostname="slurm-compute-node-234",
+                            ),
+                            specs.ReplicaStatus(
+                                id=1,
+                                role="trainer",
+                                state=AppState.RUNNING,
+                                hostname="slurm-compute-node-231",
+                            ),
+                        ],
+                    ),
+                    specs.RoleStatus(
+                        role="generator",
+                        replicas=[
+                            specs.ReplicaStatus(
+                                id=0,
+                                role="generator",
+                                state=AppState.RUNNING,
+                                hostname="slurm-compute-node-235",
+                            ),
+                            specs.ReplicaStatus(
+                                id=1,
+                                role="generator",
+                                state=AppState.RUNNING,
+                                hostname="slurm-compute-node-233",
+                            ),
+                        ],
+                    ),
+                ],
+            )
 
     @patch("subprocess.run")
     def test_list_sacct(self, run: MagicMock) -> None:
@@ -508,8 +563,9 @@ JobID|JobName|Partition|Account|AllocCPUS|State|ExitCode
         self.assertIsNotNone(apps)
         self.assertEqual(apps, expected_apps)
 
-    @patch("subprocess.run")
-    def test_log_iter(self, run: MagicMock) -> None:
+    @patch(DESCRIBE_SQUEUE, return_value=None)
+    @patch(DESCRIBE_SACCT, return_value=None)
+    def test_log_iter(self, _1: MagicMock, _2: MagicMock) -> None:
         scheduler = create_scheduler("foo")
 
         for job_dir in ["", "dir"]:
