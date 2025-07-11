@@ -16,7 +16,6 @@ from typing import Generic, Iterable, List, Optional, TypeVar
 
 from torchx.specs import (
     AppDef,
-    AppDryRunInfo,
     AppState,
     NONE,
     NULL_RESOURCE,
@@ -86,6 +85,7 @@ class ListAppResponse:
     app_id: str
     state: AppState
     app_handle: str = "<NOT_SET>"
+    name: str = ""
 
     # Implementing __hash__() makes ListAppResponse hashable which makes
     # it easier to check if a ListAppResponse object exists in a list of
