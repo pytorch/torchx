@@ -566,6 +566,41 @@ class RunConfigTest(unittest.TestCase):
             {"E": {"f": "b", "F": "B"}}, opts.cfg_from_str("E=f:b,F:B")
         )
 
+    def test_cfg_from_str_builtin_generic_types(self) -> None:
+        # basically a repeat of "test_cfg_from_str()" but with
+        # list[str] and dict[str, str] instead of List[str] and Dict[str, str]
+        opts = runopts()
+        opts.add("K", type_=list[str], help="a list opt", default=[])
+        opts.add("J", type_=str, help="a str opt", required=True)
+        opts.add("E", type_=dict[str, str], help="a dict opt", default=[])
+
+        self.assertDictEqual({}, opts.cfg_from_str(""))
+        self.assertDictEqual({}, opts.cfg_from_str("UNKWN=b"))
+        self.assertDictEqual({"K": ["a"], "J": "b"}, opts.cfg_from_str("K=a,J=b"))
+        self.assertDictEqual({"K": ["a"]}, opts.cfg_from_str("K=a,UNKWN=b"))
+        self.assertDictEqual({"K": ["a", "b"]}, opts.cfg_from_str("K=a,b"))
+        self.assertDictEqual({"K": ["a", "b"]}, opts.cfg_from_str("K=a;b"))
+        self.assertDictEqual({"K": ["a", "b"]}, opts.cfg_from_str("K=a,b"))
+        self.assertDictEqual({"K": ["a", "b"]}, opts.cfg_from_str("K=a,b;"))
+        self.assertDictEqual(
+            {"K": ["a", "b"], "J": "d"}, opts.cfg_from_str("K=a,b,J=d")
+        )
+        self.assertDictEqual(
+            {"K": ["a", "b"], "J": "d"}, opts.cfg_from_str("K=a,b;J=d")
+        )
+        self.assertDictEqual(
+            {"K": ["a", "b"], "J": "d"}, opts.cfg_from_str("K=a;b,J=d")
+        )
+        self.assertDictEqual(
+            {"K": ["a", "b"], "J": "d"}, opts.cfg_from_str("K=a;b;J=d")
+        )
+        self.assertDictEqual(
+            {"K": ["a"], "J": "d"}, opts.cfg_from_str("J=d,K=a,UNKWN=e")
+        )
+        self.assertDictEqual(
+            {"E": {"f": "b", "F": "B"}}, opts.cfg_from_str("E=f:b,F:B")
+        )
+
     def test_resolve_from_str(self) -> None:
         opts = runopts()
         opts.add("foo", type_=str, default="", help="")
