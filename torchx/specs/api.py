@@ -951,11 +951,11 @@ class runopts:
         def _cast_to_type(value: str, opt_type: Type[CfgVal]) -> CfgVal:
             if opt_type == bool:
                 return value.lower() == "true"
-            elif opt_type == List[str]:
+            elif opt_type in (List[str], list[str]):
                 # lists may be ; or , delimited
                 # also deal with trailing "," by removing empty strings
                 return [v for v in value.replace(";", ",").split(",") if v]
-            elif opt_type == Dict[str, str]:
+            elif opt_type in (Dict[str, str], dict[str, str]):
                 return {
                     s.split(":", 1)[0]: s.split(":", 1)[1]
                     for s in value.replace(";", ",").split(",")
