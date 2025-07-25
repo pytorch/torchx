@@ -38,6 +38,7 @@ from torchx.specs.api import (
     RetryPolicy,
     Role,
     RoleStatus,
+    runopt,
     runopts,
 )
 
@@ -436,6 +437,16 @@ class RunConfigTest(unittest.TestCase):
         self.assertEqual(0.5, cfg.get("priority"))
         self.assertTrue(cfg.get("preemptible"))
         self.assertIsNone(cfg.get("unknown"))
+
+    def test_runopt_cast_to_type_typing_list(self) -> None:
+        opt = runopt(default="", opt_type=List[str], is_required=False, help="help")
+        self.assertEqual(["a", "b", "c"], opt.cast_to_type("a,b,c"))
+        self.assertEqual(["abc", "def", "ghi"], opt.cast_to_type("abc;def;ghi"))
+
+    def test_runopt_cast_to_type_builtin_list(self) -> None:
+        opt = runopt(default="", opt_type=list[str], is_required=False, help="help")
+        self.assertEqual(["a", "b", "c"], opt.cast_to_type("a,b,c"))
+        self.assertEqual(["abc", "def", "ghi"], opt.cast_to_type("abc;def;ghi"))
 
     def test_runopts_add(self) -> None:
         """
