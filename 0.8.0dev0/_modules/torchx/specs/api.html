@@ -1248,6 +1248,60 @@
     <span class="n">is_required</span><span class="p">:</span> <span class="nb">bool</span>
     <span class="n">help</span><span class="p">:</span> <span class="nb">str</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_type_list_of_str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if the option type is a list of strings.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if the option type is either List[str] or list[str], False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">opt_type</span> <span class="ow">in</span> <span class="p">(</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_type_dict_of_str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if the option type is a dict of string keys to string values.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if the option type is either Dict[str, str] or dict[str, str], False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">opt_type</span> <span class="ow">in</span> <span class="p">(</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">cast_to_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CfgVal</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Casts the given `value` (in its string representation) to the type of this run option.</span>
+<span class="sd">        Below are the cast rules for each option type and value literal:</span>
+
+<span class="sd">        1. opt_type=str, value=&quot;foo&quot; -&gt; &quot;foo&quot;</span>
+<span class="sd">        1. opt_type=bool, value=&quot;True&quot;/&quot;False&quot; -&gt; True/False</span>
+<span class="sd">        1. opt_type=int, value=&quot;1&quot; -&gt; 1</span>
+<span class="sd">        1. opt_type=float, value=&quot;1.1&quot; -&gt; 1.1</span>
+<span class="sd">        1. opt_type=list[str]/List[str], value=&quot;a,b,c&quot; or value=&quot;a;b;c&quot; -&gt; [&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]</span>
+<span class="sd">        1. opt_type=dict[str,str]/Dict[str,str],</span>
+<span class="sd">           value=&quot;key1:val1,key2:val2&quot; or value=&quot;key1:val1;key2:val2&quot; -&gt; {&quot;key1&quot;: &quot;val1&quot;, &quot;key2&quot;: &quot;val2&quot;}</span>
+
+<span class="sd">        NOTE: dict parsing uses &quot;:&quot; as the kv separator (rather than the standard &quot;=&quot;) because &quot;=&quot; is used</span>
+<span class="sd">        at the top-level cfg to parse runopts (notice the plural) from the CLI. Originally torchx only supported</span>
+<span class="sd">        primitives and list[str] as CfgVal but dict[str,str] was added in https://github.com/pytorch/torchx/pull/855</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">opt_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;runopt&#39;s opt_type cannot be `None`&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">opt_type</span> <span class="o">==</span> <span class="nb">bool</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">opt_type</span> <span class="ow">in</span> <span class="p">(</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+            <span class="c1"># lists may be ; or , delimited</span>
+            <span class="c1"># also deal with trailing &quot;,&quot; by removing empty strings</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">,</span> <span class="s2">&quot;,&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">v</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">opt_type</span> <span class="ow">in</span> <span class="p">(</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]):</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">,</span> <span class="s2">&quot;,&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+            <span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">opt_type</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">opt_type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
 
 <div class="viewcode-block" id="runopts"><a class="viewcode-back" href="../../../specs.html#torchx.specs.runopts">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">runopts</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1407,27 +1461,11 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">def</span><span class="w"> </span><span class="nf">_cast_to_type</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">opt_type</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">CfgVal</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">CfgVal</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">opt_type</span> <span class="o">==</span> <span class="nb">bool</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span>
-            <span class="k">elif</span> <span class="n">opt_type</span> <span class="ow">in</span> <span class="p">(</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
-                <span class="c1"># lists may be ; or , delimited</span>
-                <span class="c1"># also deal with trailing &quot;,&quot; by removing empty strings</span>
-                <span class="k">return</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">,</span> <span class="s2">&quot;,&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">v</span><span class="p">]</span>
-            <span class="k">elif</span> <span class="n">opt_type</span> <span class="ow">in</span> <span class="p">(</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]):</span>
-                <span class="k">return</span> <span class="p">{</span>
-                    <span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
-                    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">,</span> <span class="s2">&quot;,&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
-                <span class="p">}</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="c1"># pyre-ignore[19, 6] type won&#39;t be dict here as we handled it above</span>
-                <span class="k">return</span> <span class="n">opt_type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-
         <span class="n">cfg</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">to_dict</span><span class="p">(</span><span class="n">cfg_str</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">runopt_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">runopt_</span><span class="p">:</span>
-                <span class="n">cfg</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">_cast_to_type</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">runopt_</span><span class="o">.</span><span class="n">opt_type</span><span class="p">)</span>
+            <span class="n">opt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">opt</span><span class="p">:</span>
+                <span class="n">cfg</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">opt</span><span class="o">.</span><span class="n">cast_to_type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">YELLOW_BOLD</span><span class="si">}</span><span class="s2">Unknown run option passed to scheduler: </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">val</span><span class="si">}{</span><span class="n">RESET</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -1441,16 +1479,16 @@
         <span class="n">cfg</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">cfg_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json_repr</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">cfg_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">runopt_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">runopt_</span><span class="p">:</span>
+            <span class="n">opt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">opt</span><span class="p">:</span>
                 <span class="c1"># Optional runopt cfg values default their value to None,</span>
                 <span class="c1"># but use `_type` to specify their type when provided.</span>
                 <span class="c1"># Make sure not to treat None&#39;s as lists/dictionaries</span>
                 <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">cfg</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
-                <span class="k">elif</span> <span class="n">runopt_</span><span class="o">.</span><span class="n">opt_type</span> <span class="o">==</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+                <span class="k">elif</span> <span class="n">opt</span><span class="o">.</span><span class="n">is_type_list_of_str</span><span class="p">:</span>
                     <span class="n">cfg</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">val</span><span class="p">]</span>
-                <span class="k">elif</span> <span class="n">runopt_</span><span class="o">.</span><span class="n">opt_type</span> <span class="o">==</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+                <span class="k">elif</span> <span class="n">opt</span><span class="o">.</span><span class="n">is_type_dict_of_str</span><span class="p">:</span>
                     <span class="n">cfg</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">val</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">cfg</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>

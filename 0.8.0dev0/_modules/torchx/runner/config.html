@@ -735,14 +735,14 @@
                     <span class="k">continue</span>
 
                 <span class="c1"># serialize list elements with `;` delimiter (consistent with torchx cli)</span>
-                <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">opt_type</span> <span class="o">==</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">is_type_list_of_str</span><span class="p">:</span>
                     <span class="c1"># deal with empty or None default lists</span>
                     <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">default</span><span class="p">:</span>
                         <span class="c1"># pyre-ignore[6] opt.default type checked already as List[str]</span>
                         <span class="n">val</span> <span class="o">=</span> <span class="s2">&quot;;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">default</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">val</span> <span class="o">=</span> <span class="n">_NONE</span>
-                <span class="k">elif</span> <span class="n">opt</span><span class="o">.</span><span class="n">opt_type</span> <span class="o">==</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+                <span class="k">elif</span> <span class="n">opt</span><span class="o">.</span><span class="n">is_type_dict_of_str</span><span class="p">:</span>
                     <span class="c1"># deal with empty or None default lists</span>
                     <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">default</span><span class="p">:</span>
                         <span class="c1"># pyre-ignore[16] opt.default type checked already as Dict[str, str]</span>
@@ -993,29 +993,29 @@
                 <span class="c1"># this also handles empty or None lists</span>
                 <span class="n">cfg</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">runopt</span> <span class="o">=</span> <span class="n">runopts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+                <span class="n">opt</span> <span class="o">=</span> <span class="n">runopts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 
-                <span class="k">if</span> <span class="n">runopt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">opt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                         <span class="sa">f</span><span class="s2">&quot;`</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">` was declared in the [</span><span class="si">{</span><span class="n">section</span><span class="si">}</span><span class="s2">] section &quot;</span>
                         <span class="sa">f</span><span class="s2">&quot; of the config file but is not a runopt of `</span><span class="si">{</span><span class="n">scheduler</span><span class="si">}</span><span class="s2">` scheduler.&quot;</span>
                         <span class="sa">f</span><span class="s2">&quot; Remove the entry from the config file to no longer see this warning&quot;</span>
                     <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">runopt</span><span class="o">.</span><span class="n">opt_type</span> <span class="ow">is</span> <span class="nb">bool</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">opt_type</span> <span class="ow">is</span> <span class="nb">bool</span><span class="p">:</span>
                         <span class="c1"># need to handle bool specially since str -&gt; bool is based on</span>
                         <span class="c1"># str emptiness not value (e.g. bool(&quot;False&quot;) == True)</span>
                         <span class="n">cfg</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-                    <span class="k">elif</span> <span class="n">runopt</span><span class="o">.</span><span class="n">opt_type</span> <span class="ow">is</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+                    <span class="k">elif</span> <span class="n">opt</span><span class="o">.</span><span class="n">is_type_list_of_str</span><span class="p">:</span>
                         <span class="n">cfg</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">)</span>
-                    <span class="k">elif</span> <span class="n">runopt</span><span class="o">.</span><span class="n">opt_type</span> <span class="ow">is</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+                    <span class="k">elif</span> <span class="n">opt</span><span class="o">.</span><span class="n">is_type_dict_of_str</span><span class="p">:</span>
                         <span class="n">cfg</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
                             <span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
                             <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="s2">&quot;;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">)</span>
                         <span class="p">}</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="c1"># pyre-ignore[29]</span>
-                        <span class="n">cfg</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">runopt</span><span class="o">.</span><span class="n">opt_type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+                        <span class="n">cfg</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">opt</span><span class="o">.</span><span class="n">opt_type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
 </pre></div>
 
      </article>
