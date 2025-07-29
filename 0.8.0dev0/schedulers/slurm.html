@@ -498,7 +498,7 @@ $<span class="w"> </span>less<span class="w"> </span>slurm-1234.out
 </div>
 <p><strong>Config Options</strong></p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    usage:
-        [partition=PARTITION],[time=TIME],[comment=COMMENT],[constraint=CONSTRAINT],[mail-user=MAIL-USER],[mail-type=MAIL-TYPE],[job_dir=JOB_DIR]
+        [partition=PARTITION],[time=TIME],[comment=COMMENT],[constraint=CONSTRAINT],[mail-user=MAIL-USER],[mail-type=MAIL-TYPE],[job_dir=JOB_DIR],[qos=QOS]
 
     optional arguments:
         partition=PARTITION (str, None)
@@ -518,6 +518,8 @@ $<span class="w"> </span>less<span class="w"> </span>slurm-1234.out
             directory must not exist and will be created. To enable log
             iteration, jobs will be tracked in ``.torchxslurmjobdirs``.
             
+        qos=QOS (str, None)
+            Quality of Service (QoS) to assign to the job.
 </pre></div>
 </div>
 <p><strong>Compatibility</strong></p>

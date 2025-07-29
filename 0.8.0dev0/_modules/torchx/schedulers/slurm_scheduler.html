@@ -477,6 +477,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">shlex</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">subprocess</span><span class="w"> </span><span class="kn">import</span> <span class="n">CalledProcessError</span><span class="p">,</span> <span class="n">PIPE</span>
@@ -531,6 +532,55 @@
     <span class="k">return</span> <span class="n">SLURM_STATES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">slurm_state</span><span class="p">,</span> <span class="n">AppState</span><span class="o">.</span><span class="n">UNKNOWN</span><span class="p">)</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">version</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Uses ``sinfo --version`` to get the slurm version. If the command fails, it</span>
+<span class="sd">    assumes the version is ``slurm 24.05.8``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    -------</span>
+<span class="sd">        Tuple[int, int] slurm version as a tuple of ints (major, minor).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;sinfo&quot;</span><span class="p">,</span> <span class="s2">&quot;--version&quot;</span><span class="p">]</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="n">CalledProcessError</span><span class="p">,</span> <span class="ne">FileNotFoundError</span><span class="p">):</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="s2">&quot;slurm 24.05.8&quot;</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;Error running: `</span><span class="si">{sinfo_cmd}</span><span class="s2">` to get SLURM version. Are you running outside the &quot;</span>
+            <span class="s2">&quot;cluster&#39;s login or head node? This typically happens when running in `--dryrun`&quot;</span>
+            <span class="s2">&quot; mode. Assuming version is `slurm 24.05.8`.&quot;</span><span class="p">,</span>
+            <span class="ne">RuntimeWarning</span><span class="p">,</span>
+            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="c1"># sinfo --version returns in the form &quot;slurm 24.1.0&quot;</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">version_literal</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">maxsplit</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">major</span><span class="p">,</span> <span class="n">minor</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">version_literal</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)][:</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">major</span><span class="p">,</span> <span class="n">minor</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_should_use_gpus_per_node_from_version</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Determine whether to use gpus-per-node based on automatically detected slurm version.</span>
+
+<span class="sd">    Change Reference: https://fburl.com/sqwqzxn6</span>
+<span class="sd">    &gt; select/linear - Reject jobs asking for GRES per job|socket|task or cpus|mem per GRES.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ``True`` in slurm ``version&gt;=24.11.0``, ``False`` otherwise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">slurm_24_11_0</span> <span class="o">=</span> <span class="p">(</span><span class="mi">24</span><span class="p">,</span> <span class="mi">11</span><span class="p">)</span>
+    <span class="n">slurm_version</span> <span class="o">=</span> <span class="n">version</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">slurm_version</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">slurm_24_11_0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span> <span class="p">(</span>  <span class="c1"># Major version is greater</span>
+        <span class="n">slurm_version</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">slurm_24_11_0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="n">slurm_version</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">slurm_24_11_0</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="p">)</span>  <span class="c1"># Major version is equal and minor version is greater or equal</span>
+
+
 <span class="n">SBATCH_JOB_OPTIONS</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;comment&quot;</span><span class="p">,</span>
     <span class="s2">&quot;mail-user&quot;</span><span class="p">,</span>
@@ -540,6 +590,7 @@
     <span class="s2">&quot;partition&quot;</span><span class="p">,</span>
     <span class="s2">&quot;time&quot;</span><span class="p">,</span>
     <span class="s2">&quot;constraint&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;qos&quot;</span><span class="p">,</span>
 <span class="p">}</span>
 
 <span class="n">log</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -565,6 +616,7 @@
         <span class="s2">&quot;mail-user&quot;</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="s2">&quot;mail-type&quot;</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="s2">&quot;job_dir&quot;</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="s2">&quot;qos&quot;</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="p">},</span>
     <span class="n">total</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span>
@@ -585,7 +637,11 @@
 
 <div class="viewcode-block" id="SlurmReplicaRequest.from_role"><a class="viewcode-back" href="../../../schedulers/slurm.html#torchx.schedulers.slurm_scheduler.SlurmReplicaRequest.from_role">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">from_role</span><span class="p">(</span>
-        <span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">SlurmOpts</span><span class="p">,</span> <span class="n">nomem</span><span class="p">:</span> <span class="nb">bool</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">,</span>
+        <span class="n">cfg</span><span class="p">:</span> <span class="n">SlurmOpts</span><span class="p">,</span>
+        <span class="n">nomem</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;SlurmReplicaRequest&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        ``from_role`` creates a SlurmReplicaRequest for the specific role and</span>
@@ -608,7 +664,11 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="n">nomem</span> <span class="ow">and</span> <span class="n">resource</span><span class="o">.</span><span class="n">memMB</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">sbatch_opts</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;mem&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">memMB</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">resource</span><span class="o">.</span><span class="n">gpu</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">sbatch_opts</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;gpus-per-task&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">gpu</span><span class="p">))</span>
+                <span class="c1"># Use smart GPU allocation based on automatically detected Slurm version</span>
+                <span class="k">if</span> <span class="n">_should_use_gpus_per_node_from_version</span><span class="p">():</span>
+                    <span class="n">sbatch_opts</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;gpus-per-node&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">gpu</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">sbatch_opts</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;gpus-per-task&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">gpu</span><span class="p">))</span>
 
         <span class="n">srun_opts</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;output&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;slurm-</span><span class="si">{</span><span class="n">macros</span><span class="o">.</span><span class="n">app_id</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.out&quot;</span><span class="p">,</span>
@@ -836,6 +896,11 @@
 <span class="s2">            directory must not exist and will be created. To enable log</span>
 <span class="s2">            iteration, jobs will be tracked in ``.torchxslurmjobdirs``.</span>
 <span class="s2">            &quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+            <span class="s2">&quot;qos&quot;</span><span class="p">,</span>
+            <span class="n">type_</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Quality of Service (QoS) to assign to the job.&quot;</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">opts</span>
 
