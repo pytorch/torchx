@@ -18,6 +18,7 @@ import os.path
 import shlex
 import subprocess
 import tempfile
+import warnings
 from dataclasses import dataclass
 from datetime import datetime
 from subprocess import CalledProcessError, PIPE
@@ -72,6 +73,55 @@ def appstate_from_slurm_state(slurm_state: str) -> AppState:
     return SLURM_STATES.get(slurm_state, AppState.UNKNOWN)
 
 
+def version() -> Tuple[int, int]:
+    """
+    Uses ``sinfo --version`` to get the slurm version. If the command fails, it
+    assumes the version is ``slurm 24.05.8``.
+
+    Returns:
+    -------
+        Tuple[int, int] slurm version as a tuple of ints (major, minor).
+    """
+
+    cmd = ["sinfo", "--version"]
+    try:
+        out = subprocess.check_output(cmd, stderr=PIPE, encoding="utf-8")
+    except (CalledProcessError, FileNotFoundError):
+        out = "slurm 24.05.8"
+        warnings.warn(
+            "Error running: `{sinfo_cmd}` to get SLURM version. Are you running outside the "
+            "cluster's login or head node? This typically happens when running in `--dryrun`"
+            " mode. Assuming version is `slurm 24.05.8`.",
+            RuntimeWarning,
+            stacklevel=2,
+        )
+
+    # sinfo --version returns in the form "slurm 24.1.0"
+    _, version_literal = out.split(" ", maxsplit=2)
+    major, minor = [int(v) for v in version_literal.split(".")][:2]
+
+    return (major, minor)
+
+
+def _should_use_gpus_per_node_from_version() -> bool:
+    """
+    Determine whether to use gpus-per-node based on automatically detected slurm version.
+
+    Change Reference: https://fburl.com/sqwqzxn6
+    > select/linear - Reject jobs asking for GRES per job|socket|task or cpus|mem per GRES.
+
+    Returns:
+        ``True`` in slurm ``version>=24.11.0``, ``False`` otherwise.
+    """
+
+    slurm_24_11_0 = (24, 11)
+    slurm_version = version()
+
+    return slurm_version[0] > slurm_24_11_0[0] or (  # Major version is greater
+        slurm_version[0] == slurm_24_11_0[0] and slurm_version[1] >= slurm_24_11_0[1]
+    )  # Major version is equal and minor version is greater or equal
+
+
 SBATCH_JOB_OPTIONS = {
     "comment",
     "mail-user",
@@ -81,6 +131,7 @@ SBATCH_GROUP_OPTIONS = {
     "partition",
     "time",
     "constraint",
+    "qos",
 }
 
 log: logging.Logger = logging.getLogger(__name__)
@@ -106,6 +157,7 @@ SlurmOpts = TypedDict(
         "mail-user": Optional[str],
         "mail-type": Optional[str],
         "job_dir": Optional[str],
+        "qos": Optional[str],
     },
     total=False,
 )
@@ -126,7 +178,11 @@ class SlurmReplicaRequest:
 
     @classmethod
     def from_role(
-        cls, name: str, role: Role, cfg: SlurmOpts, nomem: bool
+        cls,
+        name: str,
+        role: Role,
+        cfg: SlurmOpts,
+        nomem: bool,
     ) -> "SlurmReplicaRequest":
         """
         ``from_role`` creates a SlurmReplicaRequest for the specific role and
@@ -149,7 +205,11 @@ class SlurmReplicaRequest:
             if not nomem and resource.memMB > 0:
                 sbatch_opts.setdefault("mem", str(resource.memMB))
             if resource.gpu > 0:
-                sbatch_opts.setdefault("gpus-per-task", str(resource.gpu))
+                # Use smart GPU allocation based on automatically detected Slurm version
+                if _should_use_gpus_per_node_from_version():
+                    sbatch_opts.setdefault("gpus-per-node", str(resource.gpu))
+                else:
+                    sbatch_opts.setdefault("gpus-per-task", str(resource.gpu))
 
         srun_opts = {
             "output": f"slurm-{macros.app_id}-{name}.out",
@@ -377,6 +437,11 @@ class SlurmScheduler(
             directory must not exist and will be created. To enable log
             iteration, jobs will be tracked in ``.torchxslurmjobdirs``.
             """,
+        )
+        opts.add(
+            "qos",
+            type_=str,
+            help="Quality of Service (QoS) to assign to the job.",
         )
         return opts
 
