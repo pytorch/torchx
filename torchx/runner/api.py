@@ -129,9 +129,9 @@ class Runner:
     def _get_scheduler_params_from_env(self) -> Dict[str, str]:
         scheduler_params = {}
         for key, value in os.environ.items():
-            lower_case_key = key.lower()
-            if lower_case_key.startswith("torchx_"):
-                scheduler_params[lower_case_key.strip("torchx_")] = value
+            key = key.lower()
+            if key.startswith("torchx_"):
+                scheduler_params[key.removeprefix("torchx_")] = value
         return scheduler_params
 
     def __enter__(self) -> "Self":
