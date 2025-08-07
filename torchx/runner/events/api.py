@@ -19,6 +19,11 @@ class SourceType(str, Enum):
     EXTERNAL = "EXTERNAL"
 
 
+class JobDefType(str, Enum):
+    AppDef = "AppDef"
+    PipeDef = "PipeDef"
+
+
 @dataclass
 class TorchxEvent:
     """
@@ -37,6 +42,7 @@ class TorchxEvent:
         wall_time_usec: Wall time spent in usec
         start_epoch_time_usec: Epoch time in usec when runner event starts
         Workspace: Track how different workspaces/no workspace affects build and scheduler
+        job_def_type: Type of the job definition (i.e AppDef)
     """
 
     session: str
@@ -55,6 +61,7 @@ class TorchxEvent:
     exception_type: Optional[str] = None
     exception_message: Optional[str] = None
     exception_source_location: Optional[str] = None
+    job_def_type: JobDefType = JobDefType.AppDef
 
     def __str__(self) -> str:
         return self.serialize()
