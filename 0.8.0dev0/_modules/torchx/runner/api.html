@@ -586,9 +586,9 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_scheduler_params_from_env</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
         <span class="n">scheduler_params</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">lower_case_key</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">lower_case_key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;torchx_&quot;</span><span class="p">):</span>
-                <span class="n">scheduler_params</span><span class="p">[</span><span class="n">lower_case_key</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;torchx_&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;torchx_&quot;</span><span class="p">):</span>
+                <span class="n">scheduler_params</span><span class="p">[</span><span class="n">key</span><span class="o">.</span><span class="n">removeprefix</span><span class="p">(</span><span class="s2">&quot;torchx_&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">return</span> <span class="n">scheduler_params</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Self&quot;</span><span class="p">:</span>
@@ -942,6 +942,27 @@
 <span class="sd">            The ``runopts`` for the specified scheduler type.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scheduler</span><span class="p">(</span><span class="n">scheduler</span><span class="p">)</span><span class="o">.</span><span class="n">run_opts</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Runner.cfg_from_str"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.cfg_from_str">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">cfg_from_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">cfg_literal</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convenience function around the scheduler&#39;s ``runopts.cfg_from_str()`` method.</span>
+
+<span class="sd">        Usage:</span>
+
+<span class="sd">        .. doctest::</span>
+
+<span class="sd">            from torchx.runner import get_runner</span>
+
+<span class="sd">            runner = get_runner()</span>
+<span class="sd">            cfg = runner.cfg_from_str(&quot;local_cwd&quot;, &quot;log_dir=/tmp/foobar&quot;, &quot;prepend_cwd=True&quot;)</span>
+<span class="sd">            assert cfg == {&quot;log_dir&quot;: &quot;/tmp/foobar&quot;, &quot;prepend_cwd&quot;: True, &quot;auto_set_cuda_visible_devices&quot;: False}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">opts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scheduler</span><span class="p">(</span><span class="n">scheduler</span><span class="p">)</span><span class="o">.</span><span class="n">run_opts</span><span class="p">()</span>
+        <span class="n">cfg</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">cfg_str</span> <span class="ow">in</span> <span class="n">cfg_literal</span><span class="p">:</span>
+            <span class="n">cfg</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">cfg_from_str</span><span class="p">(</span><span class="n">cfg_str</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">cfg</span></div>
 
 <div class="viewcode-block" id="Runner.scheduler_backends"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.scheduler_backends">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">scheduler_backends</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
