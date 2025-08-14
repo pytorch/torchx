@@ -486,6 +486,27 @@ class Runner:
         """
         return self._scheduler(scheduler).run_opts()
 
+    def cfg_from_str(self, scheduler: str, *cfg_literal: str) -> Mapping[str, CfgVal]:
+        """
+        Convenience function around the scheduler's ``runopts.cfg_from_str()`` method.
+
+        Usage:
+
+        .. doctest::
+
+            from torchx.runner import get_runner
+
+            runner = get_runner()
+            cfg = runner.cfg_from_str("local_cwd", "log_dir=/tmp/foobar", "prepend_cwd=True")
+            assert cfg == {"log_dir": "/tmp/foobar", "prepend_cwd": True, "auto_set_cuda_visible_devices": False}
+        """
+
+        opts = self._scheduler(scheduler).run_opts()
+        cfg = {}
+        for cfg_str in cfg_literal:
+            cfg.update(opts.cfg_from_str(cfg_str))
+        return cfg
+
     def scheduler_backends(self) -> List[str]:
         """
         Returns a list of all supported scheduler backends.
