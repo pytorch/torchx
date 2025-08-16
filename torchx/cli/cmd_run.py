@@ -207,8 +207,7 @@ class CmdRun(SubCommand):
                 " (e.g. `local_cwd`)"
             )
 
-        scheduler_opts = runner.scheduler_run_opts(args.scheduler)
-        cfg = scheduler_opts.cfg_from_str(args.scheduler_args)
+        cfg = dict(runner.cfg_from_str(args.scheduler, args.scheduler_args))
         config.apply(scheduler=args.scheduler, cfg=cfg)
 
         component, component_args = _parse_component_name_and_args(
@@ -263,12 +262,14 @@ class CmdRun(SubCommand):
             sys.exit(1)
         except specs.InvalidRunConfigException as e:
             error_msg = (
-                f"Scheduler arg is incorrect or missing required option: `{e.cfg_key}`\n"
-                f"Run `torchx runopts` to check configuration for `{args.scheduler}` scheduler\n"
-                f"Use `-cfg` to specify run cfg as `key1=value1,key2=value2` pair\n"
-                "of setup `.torchxconfig` file, see: https://pytorch.org/torchx/main/experimental/runner.config.html"
+                "Invalid scheduler configuration: %s\n"
+                "To configure scheduler options, either:\n"
+                "  1. Use the `-cfg` command-line argument, e.g., `-cfg key1=value1,key2=value2`\n"
+                "  2. Set up a `.torchxconfig` file. For more details, visit: https://pytorch.org/torchx/main/runner.config.html\n"
+                "Run `torchx runopts %s` to check all available configuration options for the "
+                "`%s` scheduler."
             )
-            logger.error(error_msg)
+            print(error_msg % (e, args.scheduler, args.scheduler), file=sys.stderr)
             sys.exit(1)
 
     def run(self, args: argparse.Namespace) -> None:

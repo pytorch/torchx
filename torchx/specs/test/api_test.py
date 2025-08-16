@@ -38,6 +38,7 @@ from torchx.specs.api import (
     RetryPolicy,
     Role,
     RoleStatus,
+    runopt,
     runopts,
 )
 
@@ -437,6 +438,16 @@ class RunConfigTest(unittest.TestCase):
         self.assertTrue(cfg.get("preemptible"))
         self.assertIsNone(cfg.get("unknown"))
 
+    def test_runopt_cast_to_type_typing_list(self) -> None:
+        opt = runopt(default="", opt_type=List[str], is_required=False, help="help")
+        self.assertEqual(["a", "b", "c"], opt.cast_to_type("a,b,c"))
+        self.assertEqual(["abc", "def", "ghi"], opt.cast_to_type("abc;def;ghi"))
+
+    def test_runopt_cast_to_type_builtin_list(self) -> None:
+        opt = runopt(default="", opt_type=list[str], is_required=False, help="help")
+        self.assertEqual(["a", "b", "c"], opt.cast_to_type("a,b,c"))
+        self.assertEqual(["abc", "def", "ghi"], opt.cast_to_type("abc;def;ghi"))
+
     def test_runopts_add(self) -> None:
         """
         tests for various add option variations
@@ -538,6 +549,41 @@ class RunConfigTest(unittest.TestCase):
         opts.add("K", type_=List[str], help="a list opt", default=[])
         opts.add("J", type_=str, help="a str opt", required=True)
         opts.add("E", type_=Dict[str, str], help="a dict opt", default=[])
+
+        self.assertDictEqual({}, opts.cfg_from_str(""))
+        self.assertDictEqual({}, opts.cfg_from_str("UNKWN=b"))
+        self.assertDictEqual({"K": ["a"], "J": "b"}, opts.cfg_from_str("K=a,J=b"))
+        self.assertDictEqual({"K": ["a"]}, opts.cfg_from_str("K=a,UNKWN=b"))
+        self.assertDictEqual({"K": ["a", "b"]}, opts.cfg_from_str("K=a,b"))
+        self.assertDictEqual({"K": ["a", "b"]}, opts.cfg_from_str("K=a;b"))
+        self.assertDictEqual({"K": ["a", "b"]}, opts.cfg_from_str("K=a,b"))
+        self.assertDictEqual({"K": ["a", "b"]}, opts.cfg_from_str("K=a,b;"))
+        self.assertDictEqual(
+            {"K": ["a", "b"], "J": "d"}, opts.cfg_from_str("K=a,b,J=d")
+        )
+        self.assertDictEqual(
+            {"K": ["a", "b"], "J": "d"}, opts.cfg_from_str("K=a,b;J=d")
+        )
+        self.assertDictEqual(
+            {"K": ["a", "b"], "J": "d"}, opts.cfg_from_str("K=a;b,J=d")
+        )
+        self.assertDictEqual(
+            {"K": ["a", "b"], "J": "d"}, opts.cfg_from_str("K=a;b;J=d")
+        )
+        self.assertDictEqual(
+            {"K": ["a"], "J": "d"}, opts.cfg_from_str("J=d,K=a,UNKWN=e")
+        )
+        self.assertDictEqual(
+            {"E": {"f": "b", "F": "B"}}, opts.cfg_from_str("E=f:b,F:B")
+        )
+
+    def test_cfg_from_str_builtin_generic_types(self) -> None:
+        # basically a repeat of "test_cfg_from_str()" but with
+        # list[str] and dict[str, str] instead of List[str] and Dict[str, str]
+        opts = runopts()
+        opts.add("K", type_=list[str], help="a list opt", default=[])
+        opts.add("J", type_=str, help="a str opt", required=True)
+        opts.add("E", type_=dict[str, str], help="a dict opt", default=[])
 
         self.assertDictEqual({}, opts.cfg_from_str(""))
         self.assertDictEqual({}, opts.cfg_from_str("UNKWN=b"))
