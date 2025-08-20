@@ -18,6 +18,8 @@ from torchx.specs.api import AppDef, Resource, Role
 from torchx.specs.builders import (
     _create_args_parser,
     BindMount,
+    component_args_from_str,
+    ComponentArgs,
     DeviceMount,
     make_app_handle,
     materialize_appdef,
@@ -280,6 +282,36 @@ class AppDefLoadTest(unittest.TestCase):
             "--",
             *role_args,
         ], defaults
+
+    def test_component_args_from_str(self) -> None:
+        component_fn_args = [
+            "--foo",
+            "fooval",
+            "--bar",
+            "barval",
+            "arg1",
+            "arg2",
+        ]
+        parsed_args: ComponentArgs = component_args_from_str(
+            example_var_args, component_fn_args
+        )
+        self.assertEqual(parsed_args.positional_args, {"foo": "fooval"})
+        self.assertEqual(parsed_args.var_args, ["arg1", "arg2"])
+        self.assertEqual(parsed_args.kwargs, {"bar": "barval"})
+
+    def test_component_args_from_str_equals_separated(self) -> None:
+        component_fn_args = [
+            "--foo=fooval",
+            "--bar=barval",
+            "arg1",
+            "arg2",
+        ]
+        parsed_args: ComponentArgs = component_args_from_str(
+            example_var_args, component_fn_args
+        )
+        self.assertEqual(parsed_args.positional_args, {"foo": "fooval"})
+        self.assertEqual(parsed_args.var_args, ["arg1", "arg2"])
+        self.assertEqual(parsed_args.kwargs, {"bar": "barval"})
 
     def test_load_from_fn_empty(self) -> None:
         actual_app = materialize_appdef(example_empty_fn, [])
