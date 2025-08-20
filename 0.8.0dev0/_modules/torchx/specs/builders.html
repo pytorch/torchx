@@ -469,13 +469,21 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">argparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">Namespace</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">NamedTuple</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">torchx.specs.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">BindMount</span><span class="p">,</span> <span class="n">MountType</span><span class="p">,</span> <span class="n">VolumeMount</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">torchx.specs.file_linter</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_fn_docstring</span><span class="p">,</span> <span class="n">TorchXArgumentHelpFormatter</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">torchx.util.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">decode</span><span class="p">,</span> <span class="n">decode_optional</span><span class="p">,</span> <span class="n">get_argparse_param_type</span><span class="p">,</span> <span class="n">is_bool</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">DeviceMount</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ComponentArgs</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parsed component function arguments&quot;&quot;&quot;</span>
+
+    <span class="n">positional_args</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+    <span class="n">var_args</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_create_args_parser</span><span class="p">(</span>
@@ -599,6 +607,91 @@
     <span class="k">return</span> <span class="n">parsed_args</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">component_args_from_str</span><span class="p">(</span>
+    <span class="n">cmpnt_fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>  <span class="c1"># pyre-fixme[2]: Enforce AppDef type</span>
+    <span class="n">cmpnt_args</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">cmpnt_args_defaults</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ComponentArgs</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parses and decodes command-line arguments for a component function.</span>
+
+<span class="sd">    This function takes a component function and its arguments, parses them using argparse,</span>
+<span class="sd">    and decodes the arguments into their expected types based on the function&#39;s signature.</span>
+<span class="sd">    It separates positional arguments, variable positional arguments (*args), and keyword-only arguments.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        cmpnt_fn: The component function whose arguments are to be parsed and decoded.</span>
+<span class="sd">        cmpnt_args: List of command-line arguments to be parsed. Supports both space separated and &#39;=&#39; separated arguments.</span>
+<span class="sd">        cmpnt_args_defaults: Optional dictionary of default values for the component function&#39;s parameters.</span>
+<span class="sd">        config: Optional dictionary containing additional configuration values.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ComponentArgs representing the input args to a component function containing:</span>
+<span class="sd">            - positional_args: Dictionary of positional and positional-or-keyword arguments.</span>
+<span class="sd">            - var_args: List of variable positional arguments (*args).</span>
+<span class="sd">            - kwargs: Dictionary of keyword-only arguments.</span>
+
+<span class="sd">        Usage:</span>
+
+<span class="sd">        .. doctest::</span>
+<span class="sd">            from torchx.specs.api import AppDef</span>
+<span class="sd">            from torchx.specs.builders import component_args_from_str</span>
+
+<span class="sd">            def example_component_fn(foo: str, *args: str, bar: str = &quot;asdf&quot;) -&gt; AppDef:</span>
+<span class="sd">                return AppDef(name=&quot;example&quot;)</span>
+
+<span class="sd">            # Supports space separated arguments</span>
+<span class="sd">            args = [&quot;--foo&quot;, &quot;fooval&quot;, &quot;--bar&quot;, &quot;barval&quot;, &quot;arg1&quot;, &quot;arg2&quot;]</span>
+<span class="sd">            parsed_args = component_args_from_str(example_component_fn, args)</span>
+
+<span class="sd">            assert parsed_args.positional_args == {&quot;foo&quot;: &quot;fooval&quot;}</span>
+<span class="sd">            assert parsed_args.var_args == [&quot;arg1&quot;, &quot;arg2&quot;]</span>
+<span class="sd">            assert parsed_args.kwargs == {&quot;bar&quot;: &quot;barval&quot;}</span>
+
+<span class="sd">            # Supports &#39;=&#39; separated arguments</span>
+<span class="sd">            args = [&quot;--foo=fooval&quot;, &quot;--bar=barval&quot;, &quot;arg1&quot;, &quot;arg2&quot;]</span>
+<span class="sd">            parsed_args = component_args_from_str(example_component_fn, args)</span>
+
+<span class="sd">            assert parsed_args.positional_args == {&quot;foo&quot;: &quot;fooval&quot;}</span>
+<span class="sd">            assert parsed_args.var_args == [&quot;arg1&quot;, &quot;arg2&quot;]</span>
+<span class="sd">            assert parsed_args.kwargs == {&quot;bar&quot;: &quot;barval&quot;}</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">parsed_args</span><span class="p">:</span> <span class="n">Namespace</span> <span class="o">=</span> <span class="n">parse_args</span><span class="p">(</span>
+        <span class="n">cmpnt_fn</span><span class="p">,</span> <span class="n">cmpnt_args</span><span class="p">,</span> <span class="n">cmpnt_args_defaults</span><span class="p">,</span> <span class="n">config</span>
+    <span class="p">)</span>
+
+    <span class="n">positional_args</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">var_args</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">parameters</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">cmpnt_fn</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span>
+    <span class="k">for</span> <span class="n">param_name</span><span class="p">,</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">parameters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">arg_value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">parsed_args</span><span class="p">,</span> <span class="n">param_name</span><span class="p">)</span>
+        <span class="n">parameter_type</span> <span class="o">=</span> <span class="n">parameter</span><span class="o">.</span><span class="n">annotation</span>
+        <span class="n">parameter_type</span> <span class="o">=</span> <span class="n">decode_optional</span><span class="p">(</span><span class="n">parameter_type</span><span class="p">)</span>
+        <span class="n">arg_value</span> <span class="o">=</span> <span class="n">decode</span><span class="p">(</span><span class="n">arg_value</span><span class="p">,</span> <span class="n">parameter_type</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">parameter</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">VAR_POSITIONAL</span><span class="p">:</span>
+            <span class="n">var_args</span> <span class="o">=</span> <span class="n">arg_value</span>
+        <span class="k">elif</span> <span class="n">parameter</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">KEYWORD_ONLY</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="n">param_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">arg_value</span>
+        <span class="k">elif</span> <span class="n">parameter</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">VAR_KEYWORD</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;component fn param `</span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s2">` is a &#39;**kwargs&#39; which is not supported; consider changing the &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;type to a dict or explicitly declare the params&quot;</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># POSITIONAL or POSITIONAL_OR_KEYWORD</span>
+            <span class="n">positional_args</span><span class="p">[</span><span class="n">param_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">arg_value</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">var_args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">var_args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;--&quot;</span><span class="p">:</span>
+        <span class="n">var_args</span> <span class="o">=</span> <span class="n">var_args</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+
+    <span class="k">return</span> <span class="n">ComponentArgs</span><span class="p">(</span><span class="n">positional_args</span><span class="p">,</span> <span class="n">var_args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">materialize_appdef</span><span class="p">(</span>
     <span class="n">cmpnt_fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>  <span class="c1"># pyre-ignore[2]</span>
     <span class="n">cmpnt_args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
@@ -633,30 +726,14 @@
 <span class="sd">        An application spec</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">function_args</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">var_arg</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">component_args</span><span class="p">:</span> <span class="n">ComponentArgs</span> <span class="o">=</span> <span class="n">component_args_from_str</span><span class="p">(</span>
+        <span class="n">cmpnt_fn</span><span class="p">,</span> <span class="n">cmpnt_args</span><span class="p">,</span> <span class="n">cmpnt_defaults</span><span class="p">,</span> <span class="n">config</span>
+    <span class="p">)</span>
+    <span class="n">positional_arg_values</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">component_args</span><span class="o">.</span><span class="n">positional_args</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    <span class="n">appdef</span> <span class="o">=</span> <span class="n">cmpnt_fn</span><span class="p">(</span>
+        <span class="o">*</span><span class="n">positional_arg_values</span><span class="p">,</span> <span class="o">*</span><span class="n">component_args</span><span class="o">.</span><span class="n">var_args</span><span class="p">,</span> <span class="o">**</span><span class="n">component_args</span><span class="o">.</span><span class="n">kwargs</span>
+    <span class="p">)</span>
 
-    <span class="n">parsed_args</span> <span class="o">=</span> <span class="n">parse_args</span><span class="p">(</span><span class="n">cmpnt_fn</span><span class="p">,</span> <span class="n">cmpnt_args</span><span class="p">,</span> <span class="n">cmpnt_defaults</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
-
-    <span class="n">parameters</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">cmpnt_fn</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span>
-    <span class="k">for</span> <span class="n">param_name</span><span class="p">,</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">parameters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">arg_value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">parsed_args</span><span class="p">,</span> <span class="n">param_name</span><span class="p">)</span>
-        <span class="n">parameter_type</span> <span class="o">=</span> <span class="n">parameter</span><span class="o">.</span><span class="n">annotation</span>
-        <span class="n">parameter_type</span> <span class="o">=</span> <span class="n">decode_optional</span><span class="p">(</span><span class="n">parameter_type</span><span class="p">)</span>
-        <span class="n">arg_value</span> <span class="o">=</span> <span class="n">decode</span><span class="p">(</span><span class="n">arg_value</span><span class="p">,</span> <span class="n">parameter_type</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">parameter</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">VAR_POSITIONAL</span><span class="p">:</span>
-            <span class="n">var_arg</span> <span class="o">=</span> <span class="n">arg_value</span>
-        <span class="k">elif</span> <span class="n">parameter</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">KEYWORD_ONLY</span><span class="p">:</span>
-            <span class="n">kwargs</span><span class="p">[</span><span class="n">param_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">arg_value</span>
-        <span class="k">elif</span> <span class="n">parameter</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">VAR_KEYWORD</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;**kwargs are not supported for component definitions&quot;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">function_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg_value</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">var_arg</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">var_arg</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;--&quot;</span><span class="p">:</span>
-        <span class="n">var_arg</span> <span class="o">=</span> <span class="n">var_arg</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
-
-    <span class="n">appdef</span> <span class="o">=</span> <span class="n">cmpnt_fn</span><span class="p">(</span><span class="o">*</span><span class="n">function_args</span><span class="p">,</span> <span class="o">*</span><span class="n">var_arg</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">appdef</span><span class="p">,</span> <span class="n">AppDef</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;Expected a component that returns `AppDef`, but got `</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">appdef</span><span class="p">)</span><span class="si">}</span><span class="s2">`&quot;</span>
