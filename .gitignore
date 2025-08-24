@@ -141,3 +141,7 @@ wordlist.dic
 pipeline.yaml
 
 /codecov
+.python-version
+enhanced_distributed_pipeline.yaml
+task_configs_pipeline.yaml
+local_outputs

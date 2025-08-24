@@ -44,3 +44,17 @@ class KFPPipelineTest(unittest.TestCase):
         from torchx.examples.pipelines.kfp import dist_pipeline  # noqa: F401
 
         self.assertTrue(os.path.exists("pipeline.yaml"))
+
+    def test_task_configs_pipeline(self) -> None:
+        sys.argv = ["task_configs_pipeline.py"]
+        from torchx.examples.pipelines.kfp import task_configs_pipeline  # noqa: F401
+
+        self.assertTrue(os.path.exists("task_configs_pipeline.yaml"))
+
+    def test_dist_pipeline_v2_enhanced(self) -> None:
+        sys.argv = ["dist_pipeline_v2_enhanced.py"]
+        from torchx.examples.pipelines.kfp import (  # noqa: F401
+            dist_pipeline_v2_enhanced,
+        )
+
+        self.assertTrue(os.path.exists("enhanced_distributed_pipeline.yaml"))
