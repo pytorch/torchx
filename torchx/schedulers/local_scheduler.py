@@ -1159,6 +1159,7 @@ class LogIterator:
             self._check_finished()  # check to see if app has finished running
 
             if os.path.isfile(self._log_file):
+                time.sleep(0.1)  # fix timing issue
                 self._log_fp = open(
                     self._log_file,
                     mode="rt",
