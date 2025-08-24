@@ -1109,10 +1109,6 @@ Reduce requested GPU resources or use a host with more GPUs
         local_app.state = AppState.CANCELLED
 
     def close(self) -> None:
-        # terminate all apps
-        for app_id, app in self._apps.items():
-            log.debug(f"Terminating app: {app_id}")
-            app.kill()
         # delete logdir if torchx created a log dir
         if self._base_log_dir and self._created_tmp_log_dir:
             shutil.rmtree(self._base_log_dir, ignore_errors=True)
