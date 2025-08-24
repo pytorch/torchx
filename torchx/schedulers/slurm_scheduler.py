@@ -210,6 +210,7 @@ class SlurmReplicaRequest:
                     sbatch_opts.setdefault("gpus-per-node", str(resource.gpu))
                 else:
                     sbatch_opts.setdefault("gpus-per-task", str(resource.gpu))
+                    sbatch_opts.setdefault("ntasks", "1")
 
         srun_opts = {
             "output": f"slurm-{macros.app_id}-{name}.out",
