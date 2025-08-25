@@ -128,6 +128,7 @@ class SlurmSchedulerTest(unittest.TestCase):
                 "--cpus-per-task=2",
                 "--mem=10",
                 "--gpus-per-task=3",
+                "--ntasks=1",
             ],
         )
         self.assertEqual(
@@ -163,6 +164,7 @@ class SlurmSchedulerTest(unittest.TestCase):
                 "--ntasks-per-node=1",
                 "--cpus-per-task=2",
                 "--gpus-per-task=3",
+                "--ntasks=1",
             ],
         )
 
