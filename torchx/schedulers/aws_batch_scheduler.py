@@ -255,7 +255,7 @@ def _role_to_node_properties(
         container["jobRoleArn"] = job_role_arn
     if execution_role_arn:
         container["executionRoleArn"] = execution_role_arn
-    if role.num_replicas > 1:
+    if role.num_replicas > 0:
         instance_type = instance_type_from_resource(role.resource)
         if instance_type is not None:
             container["instanceType"] = instance_type
