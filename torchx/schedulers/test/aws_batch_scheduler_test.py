@@ -195,7 +195,7 @@ class AWSBatchSchedulerTest(unittest.TestCase):
             node_groups[0]["container"]["instanceType"],
         )
 
-    def test_submit_dryrun_no_instance_type_singlenode(self) -> None:
+    def test_submit_dryrun_instance_type_singlenode(self) -> None:
         cfg = AWSBatchOpts({"queue": "ignored_in_test", "privileged": True})
         resource = specs.named_resources_aws.aws_p3dn_24xlarge()
         app = _test_app(num_replicas=1, resource=resource)
@@ -203,7 +203,7 @@ class AWSBatchSchedulerTest(unittest.TestCase):
         # pyre-ignore[16]
         node_groups = info.request.job_def["nodeProperties"]["nodeRangeProperties"]
         self.assertEqual(1, len(node_groups))
-        self.assertTrue("instanceType" not in node_groups[0]["container"])
+        self.assertTrue("instanceType" in node_groups[0]["container"])
 
     def test_submit_dryrun_no_instance_type_non_aws(self) -> None:
         cfg = AWSBatchOpts({"queue": "ignored_in_test", "privileged": True})
