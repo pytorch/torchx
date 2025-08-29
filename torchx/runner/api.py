@@ -164,18 +164,6 @@ class Runner:
         for scheduler in self._scheduler_instances.values():
             scheduler.close()
 
-    def build_standalone_workspace(
-        self,
-        workspace_builder: WorkspaceBuilder[S, T],
-        sync: bool = True,
-    ) -> PkgInfo[S]:
-        """
-        Build a standalone workspace for the given role.
-        This method is used to build a workspace for a role independent of the scheduler and
-        also enables asynchronous workspace building using the Role overrides.
-        """
-        return workspace_builder.build_workspace(sync)
-
     def run_component(
         self,
         component: str,
