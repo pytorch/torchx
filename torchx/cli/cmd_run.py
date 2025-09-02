@@ -12,11 +12,11 @@ import os
 import sys
 import threading
 from collections import Counter
-from dataclasses import asdict
+from dataclasses import asdict, dataclass, field, fields, MISSING as DATACLASS_MISSING
 from itertools import groupby
 from pathlib import Path
 from pprint import pformat
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import torchx.specs as specs
 from torchx.cli.argparse_util import ArgOnceAction, torchxconfig_run
@@ -25,6 +25,7 @@ from torchx.cli.cmd_log import get_logs
 from torchx.runner import config, get_runner, Runner
 from torchx.runner.config import load_sections
 from torchx.schedulers import get_default_scheduler_name, get_scheduler_factories
+from torchx.specs import CfgVal
 from torchx.specs.finder import (
     _Component,
     ComponentNotFoundException,
@@ -42,6 +43,68 @@ MISSING_COMPONENT_ERROR_MSG = (
 
 
 logger: logging.Logger = logging.getLogger(__name__)
+
+
+@dataclass
+class TorchXRunArgs:
+    component_name: str
+    scheduler: str
+    scheduler_args: Dict[str, Any]
+    scheduler_cfg: Dict[str, CfgVal] = field(default_factory=dict)
+    dryrun: bool = False
+    wait: bool = False
+    log: bool = False
+    workspace: str = f"file://{Path.cwd()}"
+    parent_run_id: Optional[str] = None
+    tee_logs: bool = False
+    component_args: Dict[str, Any] = field(default_factory=dict)
+    component_args_str: List[str] = field(default_factory=list)
+
+
+def torchx_run_args_from_json(json_data: Dict[str, Any]) -> TorchXRunArgs:
+    all_fields = [f.name for f in fields(TorchXRunArgs)]
+    required_fields = {
+        f.name
+        for f in fields(TorchXRunArgs)
+        if f.default is DATACLASS_MISSING and f.default_factory is DATACLASS_MISSING
+    }
+    missing_fields = required_fields - json_data.keys()
+    if missing_fields:
+        raise ValueError(
+            f"The following required fields are missing: {', '.join(missing_fields)}"
+        )
+
+    # Fail if there are fields that aren't part of the run command
+    filtered_json_data = {k: v for k, v in json_data.items() if k in all_fields}
+    extra_fields = set(json_data.keys()) - set(all_fields)
+    if extra_fields:
+        raise ValueError(
+            f"The following fields are not part of the run command: {', '.join(extra_fields)}.",
+            "Please check your JSON and try launching again.",
+        )
+
+    return TorchXRunArgs(**filtered_json_data)
+
+
+def torchx_run_args_from_argparse(
+    args: argparse.Namespace,
+    component_name: str,
+    component_args: List[str],
+    scheduler_cfg: Dict[str, CfgVal],
+) -> TorchXRunArgs:
+    return TorchXRunArgs(
+        component_name=component_name,
+        scheduler=args.scheduler,
+        scheduler_args={},
+        scheduler_cfg=scheduler_cfg,
+        dryrun=args.dryrun,
+        wait=args.wait,
+        log=args.log,
+        workspace=args.workspace,
+        parent_run_id=args.parent_run_id,
+        tee_logs=args.tee_logs,
+        component_args_str=component_args,
+    )
 
 
 def _parse_component_name_and_args(
