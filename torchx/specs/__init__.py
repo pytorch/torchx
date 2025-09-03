@@ -225,5 +225,8 @@ __all__ = [
     "make_app_handle",
     "materialize_appdef",
     "parse_mounts",
+    "torchx_run_args_from_argparse",
+    "torchx_run_args_from_json",
+    "TorchXRunArgs",
     "ALL",
 ]

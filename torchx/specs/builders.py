@@ -213,7 +213,11 @@ def component_args_from_str(
         arg_value = getattr(parsed_args, param_name)
         parameter_type = parameter.annotation
         parameter_type = decode_optional(parameter_type)
-        arg_value = decode(arg_value, parameter_type)
+        if (
+            parameter_type != arg_value.__class__
+            and parameter.kind != inspect.Parameter.VAR_POSITIONAL
+        ):
+            arg_value = decode(arg_value, parameter_type)
         if parameter.kind == inspect.Parameter.VAR_POSITIONAL:
             var_args = arg_value
         elif parameter.kind == inspect.Parameter.KEYWORD_ONLY:

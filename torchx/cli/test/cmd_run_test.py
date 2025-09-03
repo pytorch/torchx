@@ -10,7 +10,6 @@
 import argparse
 import dataclasses
 import io
-
 import os
 import shutil
 import signal
@@ -67,14 +66,12 @@ class CmdRunTest(unittest.TestCase):
         torchxconfig.called_args = set()
 
     def test_run_with_multiple_scheduler_args(self) -> None:
-
         args = ["--scheduler_args", "first_args", "--scheduler_args", "second_args"]
         with self.assertRaises(SystemExit) as cm:
             self.parser.parse_args(args)
         self.assertEqual(cm.exception.code, 1)
 
     def test_run_with_multiple_schedule_args(self) -> None:
-
         args = [
             "--scheduler",
             "local_cwd",
@@ -179,13 +176,13 @@ class CmdRunTest(unittest.TestCase):
         with patch(
             "torchx.runner.config.DEFAULT_CONFIG_DIRS", return_value=[self.tmpdir]
         ):
+            args = self.parser.parse_args(
+                [
+                    "--scheduler",
+                    "local_cwd",
+                ]
+            )
             with self.assertRaises(SystemExit):
-                args = self.parser.parse_args(
-                    [
-                        "--scheduler",
-                        "local_cwd",
-                    ]
-                )
                 self.cmd_run.run(args)
 
     @patch("torchx.runner.Runner.run")
@@ -363,6 +360,96 @@ component = custom.echo
             ("custom.echo", ["-m", "hello"]),
             _parse_component_name_and_args(["-m", "hello"], sp, dirs),
         )
+
+    def test_verify_no_extra_args_stdin_only(self) -> None:
+        """Test that only --stdin is allowed when using stdin mode."""
+        args = self.parser.parse_args(["--stdin"])
+        # Should not raise any exception
+        self.cmd_run.verify_no_extra_args(args)
+
+    def test_verify_no_extra_args_no_stdin(self) -> None:
+        """Test that verification is skipped when not using stdin."""
+        args = self.parser.parse_args(["--scheduler", "local_cwd", "utils.echo"])
+        # Should not raise any exception
+        self.cmd_run.verify_no_extra_args(args)
+
+    def test_verify_no_extra_args_stdin_with_component_name(self) -> None:
+        """Test that component name conflicts with stdin."""
+        args = self.parser.parse_args(["--stdin", "utils.echo"])
+        with self.assertRaises(SystemExit):
+            self.cmd_run.verify_no_extra_args(args)
+
+    def test_verify_no_extra_args_stdin_with_scheduler_args(self) -> None:
+        """Test that scheduler_args conflicts with stdin."""
+        args = self.parser.parse_args(["--stdin", "--scheduler_args", "cluster=test"])
+        with self.assertRaises(SystemExit):
+            self.cmd_run.verify_no_extra_args(args)
+
+    def test_verify_no_extra_args_stdin_with_scheduler(self) -> None:
+        """Test that non-default scheduler conflicts with stdin."""
+        args = self.parser.parse_args(["--stdin", "--scheduler", "kubernetes"])
+        with self.assertRaises(SystemExit):
+            self.cmd_run.verify_no_extra_args(args)
+
+    def test_verify_no_extra_args_stdin_with_boolean_flags(self) -> None:
+        """Test that boolean flags conflict with stdin."""
+        boolean_flags = ["--dryrun", "--wait", "--log", "--tee_logs"]
+        for flag in boolean_flags:
+            args = self.parser.parse_args(["--stdin", flag])
+            with self.assertRaises(SystemExit):
+                self.cmd_run.verify_no_extra_args(args)
+
+    def test_verify_no_extra_args_stdin_with_value_args(self) -> None:
+        """Test that arguments with values conflict with stdin."""
+        args = self.parser.parse_args(["--stdin", "--workspace", "file:///custom/path"])
+        with self.assertRaises(SystemExit):
+            self.cmd_run.verify_no_extra_args(args)
+
+        args = self.parser.parse_args(["--stdin", "--parent_run_id", "experiment_123"])
+        with self.assertRaises(SystemExit):
+            self.cmd_run.verify_no_extra_args(args)
+
+    def test_verify_no_extra_args_stdin_with_multiple_conflicts(self) -> None:
+        """Test that multiple conflicting arguments with stdin are detected."""
+        args = self.parser.parse_args(
+            ["--stdin", "--dryrun", "--wait", "--scheduler_args", "cluster=test"]
+        )
+        with self.assertRaises(SystemExit):
+            self.cmd_run.verify_no_extra_args(args)
+
+    def test_verify_no_extra_args_stdin_with_default_scheduler(self) -> None:
+        """Test that using default scheduler with stdin doesn't conflict."""
+        # Get the default scheduler and use it explicitly - should not conflict
+        from torchx.schedulers import get_default_scheduler_name
+
+        default_scheduler = get_default_scheduler_name()
+
+        args = self.parser.parse_args(["--stdin", "--scheduler", default_scheduler])
+        # Should not raise any exception since it's the same as default
+        self.cmd_run.verify_no_extra_args(args)
+
+    def test_verify_no_extra_args_stdin_with_default_workspace(self) -> None:
+        """Test that using default workspace with stdin doesn't conflict."""
+        # Get the actual default workspace from a fresh parser
+        fresh_parser = argparse.ArgumentParser()
+        fresh_cmd_run = CmdRun()
+        fresh_cmd_run.add_arguments(fresh_parser)
+
+        # Find the workspace argument's default value
+        workspace_default = None
+        for action in fresh_parser._actions:
+            if action.dest == "workspace":
+                workspace_default = action.default
+                break
+
+        self.assertIsNotNone(
+            workspace_default, "workspace argument should have a default"
+        )
+
+        # Use the actual default - this should not conflict with stdin
+        args = fresh_parser.parse_args(["--stdin", "--workspace", workspace_default])
+        # Should not raise any exception since it's the same as default
+        fresh_cmd_run.verify_no_extra_args(args)
 
 
 class CmdBuiltinTest(unittest.TestCase):
