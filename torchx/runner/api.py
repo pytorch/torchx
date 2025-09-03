@@ -25,6 +25,7 @@ from typing import (
     Type,
     TYPE_CHECKING,
     TypeVar,
+    Union,
 )
 
 from torchx.runner.events import log_event
@@ -167,7 +168,7 @@ class Runner:
     def run_component(
         self,
         component: str,
-        component_args: List[str],
+        component_args: Union[list[str], dict[str, Any]],
         scheduler: str,
         cfg: Optional[Mapping[str, CfgVal]] = None,
         workspace: Optional[str] = None,
@@ -226,7 +227,7 @@ class Runner:
     def dryrun_component(
         self,
         component: str,
-        component_args: List[str],
+        component_args: Union[list[str], dict[str, Any]],
         scheduler: str,
         cfg: Optional[Mapping[str, CfgVal]] = None,
         workspace: Optional[str] = None,
@@ -237,10 +238,13 @@ class Runner:
         component, but just returns what "would" have run.
         """
         component_def = get_component(component)
+        args_from_cli = component_args if isinstance(component_args, list) else []
+        args_from_json = component_args if isinstance(component_args, dict) else {}
         app = materialize_appdef(
             component_def.fn,
-            component_args,
+            args_from_cli,
             self._component_defaults.get(component, None),
+            args_from_json,
         )
         return self.dryrun(
             app,
