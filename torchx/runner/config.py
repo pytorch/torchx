@@ -73,7 +73,7 @@ CLI Usage
 
 #. In addition, it is possible to specify a different config other than .torchxconfig to
    load at runtime. Requirements are that the config path is specified by enviornment
-   variable TORCHX_CONFIG. It also disables hierarchy loading configs from multiple
+   variable TORCHXCONFIG. It also disables hierarchy loading configs from multiple
    directories as the cases otherwise.
 
 #. User level .torchxconfig
