@@ -670,7 +670,16 @@ class SlurmScheduler(
             if state == AppState.PENDING:
                 # NOTE: torchx launched jobs points to exactly one host
                 #  otherwise, scheduled_nodes could be a node list expression (eg. 'slurm-compute-node[0-20,21,45-47]')
-                hostname = job_resources.get("scheduled_nodes", "")
+                if job_resources is not None:
+                    hostname = job_resources.get("scheduled_nodes", "")
+                    # If scheduled_nodes not found in job_resources, try nodes.list
+                    if not hostname and "nodes" in job_resources:
+                        nodes_info = job_resources.get("nodes", {})
+                        if isinstance(nodes_info, dict):
+                            hostname = nodes_info.get("list", "")
+                else:
+                    # For pending jobs where job_resources is None, check top-level fields
+                    hostname = job.get("nodes", "") or job.get("scheduled_nodes", "")
 
                 role.num_replicas += 1
                 role_status.replicas.append(
