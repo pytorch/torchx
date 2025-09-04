@@ -12,9 +12,10 @@ google-cloud-logging==3.10.0
 google-cloud-runtimeconfig==0.34.0
 hydra-core
 ipython
-kfp==1.8.22
-# pin protobuf to the version that is required by kfp
-protobuf==3.20.3
+kfp>=2.8.0
+kfp-kubernetes>=1.4.0  # For Kubernetes-specific features in KFP v2
+# kfp v2 is compatible with protobuf 4+
+protobuf>=4.21.0
 mlflow-skinny
 moto~=5.0.8
 pyre-extensions
@@ -41,8 +42,7 @@ lintrunner-adapters
 
 
 # reduce backtracking
-grpcio==1.62.1
-grpcio-status==1.48.1
-googleapis-common-protos==1.63.0
-google-api-core==2.18.0
-protobuf==3.20.3 # kfp==1.8.22 needs protobuf < 4
+grpcio>=1.62.1
+grpcio-status>=1.48.1
+googleapis-common-protos>=1.63.0
+google-api-core>=2.18.0

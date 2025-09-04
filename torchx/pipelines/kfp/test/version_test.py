@@ -9,6 +9,7 @@
 
 import importlib
 import unittest
+import warnings
 from unittest.mock import patch
 
 
@@ -21,9 +22,18 @@ class VersionTest(unittest.TestCase):
     def test_kfp_1x(self) -> None:
         import torchx.pipelines.kfp
 
+        # KFP 2.x should not trigger any warnings
         with patch("kfp.__version__", "2.0.1"):
-            with self.assertRaisesRegex(ImportError, "Only kfp version"):
+            with warnings.catch_warnings(record=True) as w:
+                warnings.simplefilter("always")
                 importlib.reload(torchx.pipelines.kfp)
+                self.assertEqual(len(w), 0)
 
+        # KFP 1.x should trigger a DeprecationWarning
         with patch("kfp.__version__", "1.5.0"):
-            importlib.reload(torchx.pipelines.kfp)
+            with warnings.catch_warnings(record=True) as w:
+                warnings.simplefilter("always")
+                importlib.reload(torchx.pipelines.kfp)
+                self.assertEqual(len(w), 1)
+                self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
+                self.assertIn("KFP version 1.x.x is deprecated", str(w[-1].message))
