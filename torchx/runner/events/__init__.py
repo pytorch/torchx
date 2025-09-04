@@ -31,7 +31,7 @@ from typing import Dict, Optional, Type
 from torchx.runner.events.handlers import get_logging_handler
 from torchx.util.session import get_session_id_or_create_new
 
-from .api import SourceType, TorchxEvent  # noqa F401
+from .api import JobDefType, SourceType, TorchxEvent  # noqa F401
 
 # pyre-fixme[9]: _events_logger is a global variable
 _events_logger: logging.Logger = None
@@ -88,6 +88,7 @@ class log_event:
         app_id: Optional[str] = None,
         app_image: Optional[str] = None,
         app_metadata: Optional[Dict[str, str]] = None,
+        job_def_type: JobDefType = JobDefType.AppDef,
         runcfg: Optional[str] = None,
         workspace: Optional[str] = None,
     ) -> None:
@@ -97,6 +98,7 @@ class log_event:
             app_id,
             app_image=app_image,
             app_metadata=app_metadata,
+            job_def_type=job_def_type,
             runcfg=runcfg,
             workspace=workspace,
         )
@@ -148,6 +150,7 @@ class log_event:
         app_id: Optional[str] = None,
         app_image: Optional[str] = None,
         app_metadata: Optional[Dict[str, str]] = None,
+        job_def_type: JobDefType = JobDefType.AppDef,
         runcfg: Optional[str] = None,
         source: SourceType = SourceType.UNKNOWN,
         workspace: Optional[str] = None,
@@ -159,6 +162,7 @@ class log_event:
             app_id=app_id,
             app_image=app_image,
             app_metadata=app_metadata,
+            job_def_type=job_def_type,
             runcfg=runcfg,
             source=source,
             workspace=workspace,
