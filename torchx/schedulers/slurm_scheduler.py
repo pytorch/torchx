@@ -594,15 +594,26 @@ class SlurmScheduler(
         msg = ""
         app_state = AppState.UNKNOWN
         for row in reader:
-            job_id, *parts = row["JobID"].split("+")
+            # Handle both "+" (heterogeneous) and "." (regular) job ID formats
+            job_id_full = row["JobID"]
+            
+            # Split on both "+" and "." to handle different SLURM configurations
+            if "+" in job_id_full:
+                job_id, *parts = job_id_full.split("+")
+                is_subjob = len(parts) > 0 and "." in parts[0]
+            else:
+                job_id, *parts = job_id_full.split(".")
+                is_subjob = len(parts) > 0
+            
             if job_id != app_id:
                 continue
-            if len(parts) > 0 and "." in parts[0]:
-                # we only care about the worker not the child jobs
+                
+            if is_subjob:
+                # we only care about the main job not the child jobs (.batch, .0, etc.)
                 continue
 
-            state = row["State"]
-            msg = state
+            msg = row["State"]
+            state = msg.split()[0].rstrip()
             app_state = appstate_from_slurm_state(state)
 
             role, _, replica_id = row["JobName"].rpartition("-")
@@ -695,24 +706,28 @@ class SlurmScheduler(
                 # where each replica is a "sub-job" so `allocated_nodes` will always be 1
                 # but we deal with jobs that have not been launched with torchx
                 # which can have multiple hosts per sub-job (count them as replicas)
-                node_infos = job_resources.get("allocated_nodes", [])
+                nodes_data = job_resources.get("nodes", {})
 
-                if not isinstance(node_infos, list):
-                    # NOTE: in some versions of slurm jobs[].job_resources.allocated_nodes
-                    #  is not a list of individual nodes, but a map of the nodelist specs
-                    #  in this case just use jobs[].job_resources.nodes
-                    hostname = job_resources.get("nodes")
-                    role.num_replicas += 1
-                    role_status.replicas.append(
-                        ReplicaStatus(
-                            id=int(replica_id),
-                            role=role_name,
-                            state=state,
-                            hostname=hostname,
+                if "allocation" in nodes_data and isinstance(nodes_data["allocation"], list):
+                    # SLURM 24.11+ format: nodes.allocation is a list
+                    for node_info in nodes_data["allocation"]:
+                        hostname = node_info["name"]
+                        cpu = int(node_info["cpus"]["used"])
+                        memMB = int(node_info["memory"]["allocated"]) // 1024  # Convert to MB
+                        
+                        role.resource = Resource(cpu=cpu, memMB=memMB, gpu=-1)
+                        role.num_replicas += 1
+                        role_status.replicas.append(
+                            ReplicaStatus(
+                                id=int(replica_id),
+                                role=role_name,
+                                state=state,
+                                hostname=hostname,
+                            )
                         )
-                    )
-                else:
-                    for node_info in node_infos:
+                elif "allocated_nodes" in job_resources and isinstance(job_resources["allocated_nodes"], list):
+                    # Legacy format: allocated_nodes is a list
+                    for node_info in job_resources["allocated_nodes"]:
                         # NOTE: we expect resource specs for all the nodes to be the same
                         # NOTE: use allocated (not used/requested) memory since
                         #  users may only specify --cpu, in which case slurm
@@ -735,6 +750,19 @@ class SlurmScheduler(
                                 hostname=hostname,
                             )
                         )
+                else:
+                    # Fallback: use hostname from nodes.list
+                    hostname = nodes_data.get("list", "")
+                    role.num_replicas += 1
+                    role_status.replicas.append(
+                        ReplicaStatus(
+                            id=int(replica_id),
+                            role=role_name,
+                            state=state,
+                            hostname=hostname,
+                        )
+                    )
+
 
         return DescribeAppResponse(
             app_id=app_id,
