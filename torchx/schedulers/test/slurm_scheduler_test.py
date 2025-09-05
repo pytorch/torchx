@@ -7,13 +7,13 @@
 # pyre-strict
 
 import datetime
-from importlib import resources
 import json
 import os
 import subprocess
 import tempfile
 import unittest
 from contextlib import contextmanager
+from importlib import resources
 from typing import Generator
 from unittest.mock import call, MagicMock, patch
 
@@ -1052,31 +1052,32 @@ source sbatch.sh
 
     def test_describe_squeue_handles_none_job_resources(self):
         """Test that describe handles job_resources=None without crashing (i.e. for SLURM 24.11.5)."""
-        
+
         # Mock SLURM 24.11.5 response with job_resources=None
         mock_job_data = {
-            "jobs": [{
-                "name": "test-job-0",
-                "job_state": ["PENDING"],
-                "job_resources": None,  # This was causing the crash
-                "nodes": "",
-                "scheduled_nodes": "",
-                "command": "/bin/echo",
-                "current_working_directory": "/tmp"
-            }]
+            "jobs": [
+                {
+                    "name": "test-job-0",
+                    "job_state": ["PENDING"],
+                    "job_resources": None,  # This was causing the crash
+                    "nodes": "",
+                    "scheduled_nodes": "",
+                    "command": "/bin/echo",
+                    "current_working_directory": "/tmp",
+                }
+            ]
         }
-        
-        with patch('subprocess.check_output') as mock_subprocess:
+
+        with patch("subprocess.check_output") as mock_subprocess:
             mock_subprocess.return_value = json.dumps(mock_job_data)
-            
+
             scheduler = SlurmScheduler("test")
             result = scheduler._describe_squeue("123")
-            
+
             # Should not crash and should return a valid response
             assert result is not None
             assert result.app_id == "123"
             assert result.state == AppState.PENDING
-
 
     def test_describe_sacct_handles_dot_separated_job_ids(self):
         """Test that _describe_sacct handles job IDs with '.' separators (not just '+')."""
@@ -1085,20 +1086,20 @@ source sbatch.sh
 89.batch|batch||root|8|CANCELLED|0:15
 89.0|process_allocator||root|8|CANCELLED|0:15
     """
-        
-        with patch('subprocess.check_output') as mock_subprocess:
+
+        with patch("subprocess.check_output") as mock_subprocess:
             mock_subprocess.return_value = sacct_output
-            
+
             scheduler = SlurmScheduler("test")
             result = scheduler._describe_sacct("89")
             print("result: ", result)
-            
+
             # Should process only the main job "89", not the sub-jobs
             assert result is not None
             assert result.app_id == "89"
             assert result.state == AppState.CANCELLED
             assert result.msg == "CANCELLED by 2166"
-            
+
             # Should have one role "mesh0" with one replica "0"
             assert len(result.roles) == 1
             assert result.roles[0].name == "mesh0"
