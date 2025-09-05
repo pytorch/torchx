@@ -245,7 +245,6 @@ class SlurmSchedulerTest(unittest.TestCase):
         )
 
         script = req.materialize()
-        print(script)
         self.assertEqual(
             script,
             f"""#!/bin/bash
@@ -1050,7 +1049,7 @@ source sbatch.sh
             self.assertNotIn("--gpus-per-node", " ".join(sbatch))
             self.assertNotIn("--gpus-per-task", " ".join(sbatch))
 
-    def test_describe_squeue_handles_none_job_resources(self):
+    def test_describe_squeue_handles_none_job_resources(self) -> None:
         """Test that describe handles job_resources=None without crashing (i.e. for SLURM 24.11.5)."""
 
         # Mock SLURM 24.11.5 response with job_resources=None
@@ -1079,7 +1078,7 @@ source sbatch.sh
             assert result.app_id == "123"
             assert result.state == AppState.PENDING
 
-    def test_describe_sacct_handles_dot_separated_job_ids(self):
+    def test_describe_sacct_handles_dot_separated_job_ids(self) -> None:
         """Test that _describe_sacct handles job IDs with '.' separators (not just '+')."""
         sacct_output = """JobID|JobName|Partition|Account|AllocCPUS|State|ExitCode
 89|mesh0-0|all|root|8|CANCELLED by 2166|0:0
@@ -1092,7 +1091,6 @@ source sbatch.sh
 
             scheduler = SlurmScheduler("test")
             result = scheduler._describe_sacct("89")
-            print("result: ", result)
 
             # Should process only the main job "89", not the sub-jobs
             assert result is not None
