@@ -613,7 +613,8 @@ class SlurmScheduler(
                 continue
 
             msg = row["State"]
-            state = msg.split()[0].rstrip()
+            # Remove truncation indicator (CANCELLED+) and extract base state from verbose formats
+            state = msg.split()[0].rstrip("+")
             app_state = appstate_from_slurm_state(state)
 
             role, _, replica_id = row["JobName"].rpartition("-")
@@ -681,6 +682,8 @@ class SlurmScheduler(
             if state == AppState.PENDING:
                 # NOTE: torchx launched jobs points to exactly one host
                 #  otherwise, scheduled_nodes could be a node list expression (eg. 'slurm-compute-node[0-20,21,45-47]')
+
+                # SLURM 24.11.5+ returns job_resources=None for pending jobs (issue #1101)
                 if job_resources is not None:
                     hostname = job_resources.get("scheduled_nodes", "")
                     # If scheduled_nodes not found in job_resources, try nodes.list
@@ -708,6 +711,7 @@ class SlurmScheduler(
                 # which can have multiple hosts per sub-job (count them as replicas)
                 nodes_data = job_resources.get("nodes", {})
 
+                # SLURM 24.11+ changed from allocated_nodes to nodes.allocation structure
                 if "allocation" in nodes_data and isinstance(nodes_data["allocation"], list):
                     # SLURM 24.11+ format: nodes.allocation is a list
                     for node_info in nodes_data["allocation"]:
