@@ -767,7 +767,15 @@ class SlurmScheduler(
                         )
                 else:
                     # Fallback: use hostname from nodes.list
-                    hostname = nodes_data.get("list", "")
+                    if isinstance(nodes_data, str):
+                        hostname = nodes_data
+                    else:
+                        hostname = (
+                            nodes_data.get("list", "")
+                            if isinstance(nodes_data, dict)
+                            else ""
+                        )
+
                     role.num_replicas += 1
                     role_status.replicas.append(
                         ReplicaStatus(

@@ -1102,3 +1102,29 @@ source sbatch.sh
             assert len(result.roles) == 1
             assert result.roles[0].name == "mesh0"
             assert result.roles[0].num_replicas == 1
+
+    def test_describe_squeue_nodes_as_string(self) -> None:
+        """Test when job_resources.nodes is a string (hostname) not a dict."""
+        mock_job_data = {
+            "jobs": [
+                {
+                    "name": "test-job-0",
+                    "job_state": ["RUNNING"],
+                    "job_resources": {
+                        "nodes": "compute-node-123"  # String, not dict
+                        # No allocated_nodes field
+                    },
+                    "command": "/bin/echo",
+                    "current_working_directory": "/tmp",
+                }
+            ]
+        }
+
+        with patch("subprocess.check_output") as mock_subprocess:
+            mock_subprocess.return_value = json.dumps(mock_job_data)
+
+            scheduler = SlurmScheduler("test")
+            result = scheduler._describe_squeue("123")
+
+            assert result is not None
+            assert result.roles_statuses[0].replicas[0].hostname == "compute-node-123"
