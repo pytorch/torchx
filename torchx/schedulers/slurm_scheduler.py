@@ -598,7 +598,7 @@ class SlurmScheduler(
         for row in reader:
             # Handle both "+" (heterogeneous) and "." (regular) job ID formats
             job_id_full = row["JobID"]
-            
+
             # Split on both "+" and "." to handle different SLURM configurations
             if "+" in job_id_full:
                 job_id, *parts = job_id_full.split("+")
@@ -606,10 +606,10 @@ class SlurmScheduler(
             else:
                 job_id, *parts = job_id_full.split(".")
                 is_subjob = len(parts) > 0
-            
+
             if job_id != app_id:
                 continue
-                
+
             if is_subjob:
                 # we only care about the main job not the child jobs (.batch, .0, etc.)
                 continue
@@ -717,13 +717,17 @@ class SlurmScheduler(
                 nodes_data = job_resources.get("nodes", {})
 
                 # SLURM 24.11+ changed from allocated_nodes to nodes.allocation structure
-                if "allocation" in nodes_data and isinstance(nodes_data["allocation"], list):
+                if "allocation" in nodes_data and isinstance(
+                    nodes_data["allocation"], list
+                ):
                     # SLURM 24.11+ format: nodes.allocation is a list
                     for node_info in nodes_data["allocation"]:
                         hostname = node_info["name"]
                         cpu = int(node_info["cpus"]["used"])
-                        memMB = int(node_info["memory"]["allocated"]) // 1024  # Convert to MB
-                        
+                        memMB = (
+                            int(node_info["memory"]["allocated"]) // 1024
+                        )  # Convert to MB
+
                         role.resource = Resource(cpu=cpu, memMB=memMB, gpu=-1)
                         role.num_replicas += 1
                         role_status.replicas.append(
@@ -734,7 +738,9 @@ class SlurmScheduler(
                                 hostname=hostname,
                             )
                         )
-                elif "allocated_nodes" in job_resources and isinstance(job_resources["allocated_nodes"], list):
+                elif "allocated_nodes" in job_resources and isinstance(
+                    job_resources["allocated_nodes"], list
+                ):
                     # Legacy format: allocated_nodes is a list
                     for node_info in job_resources["allocated_nodes"]:
                         # NOTE: we expect resource specs for all the nodes to be the same
@@ -771,7 +777,6 @@ class SlurmScheduler(
                             hostname=hostname,
                         )
                     )
-
 
         return DescribeAppResponse(
             app_id=app_id,
