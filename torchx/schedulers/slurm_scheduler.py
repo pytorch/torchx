@@ -570,6 +570,8 @@ class SlurmScheduler(
         return self._describe_sacct(app_id)
 
     def _describe_sacct(self, app_id: str) -> Optional[DescribeAppResponse]:
+        # NOTE: Handles multiple job ID formats due to SLURM version differences.
+        # Different clusters use heterogeneous (+) vs regular (.) job ID formats.
         try:
             output = subprocess.check_output(
                 ["sacct", "--parsable2", "-j", app_id],
@@ -641,6 +643,9 @@ class SlurmScheduler(
         )
 
     def _describe_squeue(self, app_id: str) -> Optional[DescribeAppResponse]:
+        # NOTE: This method contains multiple compatibility checks for different SLURM versions
+        # due to API format changes across versions (20.02, 23.02, 24.05, 24.11+).
+
         # squeue errors out with 'slurm_load_jobs error: Invalid job id specified'
         # if the job does not exist or is finished (e.g. not in PENDING or RUNNING state)
         output = subprocess.check_output(
