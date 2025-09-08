@@ -1029,6 +1029,8 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_describe_sacct</span><span class="p">(</span><span class="n">app_id</span><span class="p">)</span></div>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_describe_sacct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DescribeAppResponse</span><span class="p">]:</span>
+        <span class="c1"># NOTE: Handles multiple job ID formats due to SLURM version differences.</span>
+        <span class="c1"># Different clusters use heterogeneous (+) vs regular (.) job ID formats.</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">output</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span>
                 <span class="p">[</span><span class="s2">&quot;sacct&quot;</span><span class="p">,</span> <span class="s2">&quot;--parsable2&quot;</span><span class="p">,</span> <span class="s2">&quot;-j&quot;</span><span class="p">,</span> <span class="n">app_id</span><span class="p">],</span>
@@ -1053,15 +1055,27 @@
         <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="n">app_state</span> <span class="o">=</span> <span class="n">AppState</span><span class="o">.</span><span class="n">UNKNOWN</span>
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">:</span>
-            <span class="n">job_id</span><span class="p">,</span> <span class="o">*</span><span class="n">parts</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;JobID&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;+&quot;</span><span class="p">)</span>
+            <span class="c1"># Handle both &quot;+&quot; (heterogeneous) and &quot;.&quot; (regular) job ID formats</span>
+            <span class="n">job_id_full</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;JobID&quot;</span><span class="p">]</span>
+
+            <span class="c1"># Split on both &quot;+&quot; and &quot;.&quot; to handle different SLURM configurations</span>
+            <span class="k">if</span> <span class="s2">&quot;+&quot;</span> <span class="ow">in</span> <span class="n">job_id_full</span><span class="p">:</span>
+                <span class="n">job_id</span><span class="p">,</span> <span class="o">*</span><span class="n">parts</span> <span class="o">=</span> <span class="n">job_id_full</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;+&quot;</span><span class="p">)</span>
+                <span class="n">is_subjob</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="s2">&quot;.&quot;</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">job_id</span><span class="p">,</span> <span class="o">*</span><span class="n">parts</span> <span class="o">=</span> <span class="n">job_id_full</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+                <span class="n">is_subjob</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
             <span class="k">if</span> <span class="n">job_id</span> <span class="o">!=</span> <span class="n">app_id</span><span class="p">:</span>
                 <span class="k">continue</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="s2">&quot;.&quot;</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
-                <span class="c1"># we only care about the worker not the child jobs</span>
+
+            <span class="k">if</span> <span class="n">is_subjob</span><span class="p">:</span>
+                <span class="c1"># we only care about the main job not the child jobs (.batch, .0, etc.)</span>
                 <span class="k">continue</span>
 
-            <span class="n">state</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;State&quot;</span><span class="p">]</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="n">state</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;State&quot;</span><span class="p">]</span>
+            <span class="c1"># Remove truncation indicator (CANCELLED+) and extract base state from verbose formats</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">&quot;+&quot;</span><span class="p">)</span>
             <span class="n">app_state</span> <span class="o">=</span> <span class="n">appstate_from_slurm_state</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
 
             <span class="n">role</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">replica_id</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;JobName&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">rpartition</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>
@@ -1088,6 +1102,9 @@
         <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_describe_squeue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DescribeAppResponse</span><span class="p">]:</span>
+        <span class="c1"># NOTE: This method contains multiple compatibility checks for different SLURM versions</span>
+        <span class="c1"># due to API format changes across versions (20.02, 23.02, 24.05, 24.11+).</span>
+
         <span class="c1"># squeue errors out with &#39;slurm_load_jobs error: Invalid job id specified&#39;</span>
         <span class="c1"># if the job does not exist or is finished (e.g. not in PENDING or RUNNING state)</span>
         <span class="n">output</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span>
@@ -1129,7 +1146,18 @@
             <span class="k">if</span> <span class="n">state</span> <span class="o">==</span> <span class="n">AppState</span><span class="o">.</span><span class="n">PENDING</span><span class="p">:</span>
                 <span class="c1"># NOTE: torchx launched jobs points to exactly one host</span>
                 <span class="c1">#  otherwise, scheduled_nodes could be a node list expression (eg. &#39;slurm-compute-node[0-20,21,45-47]&#39;)</span>
-                <span class="n">hostname</span> <span class="o">=</span> <span class="n">job_resources</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;scheduled_nodes&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+                <span class="c1"># SLURM 24.11.5+ returns job_resources=None for pending jobs (issue #1101)</span>
+                <span class="k">if</span> <span class="n">job_resources</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">hostname</span> <span class="o">=</span> <span class="n">job_resources</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;scheduled_nodes&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                    <span class="c1"># If scheduled_nodes not found in job_resources, try nodes.list</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">hostname</span> <span class="ow">and</span> <span class="s2">&quot;nodes&quot;</span> <span class="ow">in</span> <span class="n">job_resources</span><span class="p">:</span>
+                        <span class="n">nodes_info</span> <span class="o">=</span> <span class="n">job_resources</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;nodes&quot;</span><span class="p">,</span> <span class="p">{})</span>
+                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nodes_info</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                            <span class="n">hostname</span> <span class="o">=</span> <span class="n">nodes_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;list&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># For pending jobs where job_resources is None, check top-level fields</span>
+                    <span class="n">hostname</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;nodes&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">job</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;scheduled_nodes&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
 
                 <span class="n">role</span><span class="o">.</span><span class="n">num_replicas</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="n">role_status</span><span class="o">.</span><span class="n">replicas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
@@ -1145,24 +1173,35 @@
                 <span class="c1"># where each replica is a &quot;sub-job&quot; so `allocated_nodes` will always be 1</span>
                 <span class="c1"># but we deal with jobs that have not been launched with torchx</span>
                 <span class="c1"># which can have multiple hosts per sub-job (count them as replicas)</span>
-                <span class="n">node_infos</span> <span class="o">=</span> <span class="n">job_resources</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;allocated_nodes&quot;</span><span class="p">,</span> <span class="p">[])</span>
+                <span class="n">nodes_data</span> <span class="o">=</span> <span class="n">job_resources</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;nodes&quot;</span><span class="p">,</span> <span class="p">{})</span>
 
-                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node_infos</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-                    <span class="c1"># NOTE: in some versions of slurm jobs[].job_resources.allocated_nodes</span>
-                    <span class="c1">#  is not a list of individual nodes, but a map of the nodelist specs</span>
-                    <span class="c1">#  in this case just use jobs[].job_resources.nodes</span>
-                    <span class="n">hostname</span> <span class="o">=</span> <span class="n">job_resources</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;nodes&quot;</span><span class="p">)</span>
-                    <span class="n">role</span><span class="o">.</span><span class="n">num_replicas</span> <span class="o">+=</span> <span class="mi">1</span>
-                    <span class="n">role_status</span><span class="o">.</span><span class="n">replicas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                        <span class="n">ReplicaStatus</span><span class="p">(</span>
-                            <span class="nb">id</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">replica_id</span><span class="p">),</span>
-                            <span class="n">role</span><span class="o">=</span><span class="n">role_name</span><span class="p">,</span>
-                            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
-                            <span class="n">hostname</span><span class="o">=</span><span class="n">hostname</span><span class="p">,</span>
+                <span class="c1"># SLURM 24.11+ changed from allocated_nodes to nodes.allocation structure</span>
+                <span class="k">if</span> <span class="s2">&quot;allocation&quot;</span> <span class="ow">in</span> <span class="n">nodes_data</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span>
+                    <span class="n">nodes_data</span><span class="p">[</span><span class="s2">&quot;allocation&quot;</span><span class="p">],</span> <span class="nb">list</span>
+                <span class="p">):</span>
+                    <span class="c1"># SLURM 24.11+ format: nodes.allocation is a list</span>
+                    <span class="k">for</span> <span class="n">node_info</span> <span class="ow">in</span> <span class="n">nodes_data</span><span class="p">[</span><span class="s2">&quot;allocation&quot;</span><span class="p">]:</span>
+                        <span class="n">hostname</span> <span class="o">=</span> <span class="n">node_info</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+                        <span class="n">cpu</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">node_info</span><span class="p">[</span><span class="s2">&quot;cpus&quot;</span><span class="p">][</span><span class="s2">&quot;used&quot;</span><span class="p">])</span>
+                        <span class="n">memMB</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="nb">int</span><span class="p">(</span><span class="n">node_info</span><span class="p">[</span><span class="s2">&quot;memory&quot;</span><span class="p">][</span><span class="s2">&quot;allocated&quot;</span><span class="p">])</span> <span class="o">//</span> <span class="mi">1024</span>
+                        <span class="p">)</span>  <span class="c1"># Convert to MB</span>
+
+                        <span class="n">role</span><span class="o">.</span><span class="n">resource</span> <span class="o">=</span> <span class="n">Resource</span><span class="p">(</span><span class="n">cpu</span><span class="o">=</span><span class="n">cpu</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="n">memMB</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+                        <span class="n">role</span><span class="o">.</span><span class="n">num_replicas</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="n">role_status</span><span class="o">.</span><span class="n">replicas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="n">ReplicaStatus</span><span class="p">(</span>
+                                <span class="nb">id</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">replica_id</span><span class="p">),</span>
+                                <span class="n">role</span><span class="o">=</span><span class="n">role_name</span><span class="p">,</span>
+                                <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+                                <span class="n">hostname</span><span class="o">=</span><span class="n">hostname</span><span class="p">,</span>
+                            <span class="p">)</span>
                         <span class="p">)</span>
-                    <span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">for</span> <span class="n">node_info</span> <span class="ow">in</span> <span class="n">node_infos</span><span class="p">:</span>
+                <span class="k">elif</span> <span class="s2">&quot;allocated_nodes&quot;</span> <span class="ow">in</span> <span class="n">job_resources</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span>
+                    <span class="n">job_resources</span><span class="p">[</span><span class="s2">&quot;allocated_nodes&quot;</span><span class="p">],</span> <span class="nb">list</span>
+                <span class="p">):</span>
+                    <span class="c1"># Legacy format: allocated_nodes is a list</span>
+                    <span class="k">for</span> <span class="n">node_info</span> <span class="ow">in</span> <span class="n">job_resources</span><span class="p">[</span><span class="s2">&quot;allocated_nodes&quot;</span><span class="p">]:</span>
                         <span class="c1"># NOTE: we expect resource specs for all the nodes to be the same</span>
                         <span class="c1"># NOTE: use allocated (not used/requested) memory since</span>
                         <span class="c1">#  users may only specify --cpu, in which case slurm</span>
@@ -1185,6 +1224,26 @@
                                 <span class="n">hostname</span><span class="o">=</span><span class="n">hostname</span><span class="p">,</span>
                             <span class="p">)</span>
                         <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Fallback: use hostname from nodes.list</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nodes_data</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                        <span class="n">hostname</span> <span class="o">=</span> <span class="n">nodes_data</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">hostname</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="n">nodes_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;list&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nodes_data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
+                            <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+                        <span class="p">)</span>
+
+                    <span class="n">role</span><span class="o">.</span><span class="n">num_replicas</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">role_status</span><span class="o">.</span><span class="n">replicas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">ReplicaStatus</span><span class="p">(</span>
+                            <span class="nb">id</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">replica_id</span><span class="p">),</span>
+                            <span class="n">role</span><span class="o">=</span><span class="n">role_name</span><span class="p">,</span>
+                            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+                            <span class="n">hostname</span><span class="o">=</span><span class="n">hostname</span><span class="p">,</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">DescribeAppResponse</span><span class="p">(</span>
             <span class="n">app_id</span><span class="o">=</span><span class="n">app_id</span><span class="p">,</span>
