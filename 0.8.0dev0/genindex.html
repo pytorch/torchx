@@ -510,9 +510,11 @@
 </li>
       <li><a href="specs.html#torchx.specs.AppState">AppState (class in torchx.specs)</a>
 </li>
+      <li><a href="specs.html#torchx.specs.AppStatus">AppStatus (class in torchx.specs)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="specs.html#torchx.specs.AppStatus">AppStatus (class in torchx.specs)</a>
+      <li><a href="specs.html#torchx.specs.file_linter.ArgTypeValidator">ArgTypeValidator (class in torchx.specs.file_linter)</a>
 </li>
       <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.LocalScheduler.auto_set_CUDA_VISIBLE_DEVICES">auto_set_CUDA_VISIBLE_DEVICES() (torchx.schedulers.local_scheduler.LocalScheduler method)</a>
 </li>
@@ -588,12 +590,16 @@
 </li>
       <li><a href="pipelines/kfp.html#torchx.pipelines.kfp.adapter.component_spec_from_app">component_spec_from_app() (in module torchx.pipelines.kfp.adapter)</a>
 </li>
-      <li><a href="component_best_practices.html#torchx.components.component_test_base.ComponentTestCase">ComponentTestCase (class in torchx.components.component_test_base)</a>
+      <li><a href="specs.html#torchx.specs.file_linter.ComponentFnVisitor">ComponentFnVisitor (class in torchx.specs.file_linter)</a>
 </li>
-      <li><a href="pipelines/kfp.html#torchx.pipelines.kfp.adapter.container_from_app">container_from_app() (in module torchx.pipelines.kfp.adapter)</a>
+      <li><a href="specs.html#torchx.specs.file_linter.ComponentFunctionValidator">ComponentFunctionValidator (class in torchx.specs.file_linter)</a>
+</li>
+      <li><a href="component_best_practices.html#torchx.components.component_test_base.ComponentTestCase">ComponentTestCase (class in torchx.components.component_test_base)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pipelines/kfp.html#torchx.pipelines.kfp.adapter.container_from_app">container_from_app() (in module torchx.pipelines.kfp.adapter)</a>
+</li>
       <li><a href="pipelines/kfp.html#torchx.pipelines.kfp.adapter.ContainerFactory">ContainerFactory (class in torchx.pipelines.kfp.adapter)</a>
 </li>
       <li><a href="components/utils.html#torchx.components.utils.copy">copy() (in module torchx.components.utils)</a>
@@ -1043,6 +1049,8 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="specs.html#torchx.specs.file_linter.ReturnTypeValidator">ReturnTypeValidator (class in torchx.specs.file_linter)</a>
+</li>
       <li><a href="specs.html#torchx.specs.Role">Role (class in torchx.specs)</a>
 </li>
       <li><a href="schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.role_to_pod">role_to_pod() (in module torchx.schedulers.kubernetes_mcad_scheduler)</a>
@@ -1154,8 +1162,6 @@
       <li><a href="components/metrics.html#torchx.components.metrics.tensorboard">tensorboard() (in module torchx.components.metrics)</a>
 </li>
       <li><a href="specs.html#torchx.specs.AppStatus.to_json">to_json() (torchx.specs.AppStatus method)</a>
-</li>
-      <li><a href="specs.html#torchx.specs.file_linter.TorchFunctionVisitor">TorchFunctionVisitor (class in torchx.specs.file_linter)</a>
 </li>
       <li><a href="components/serve.html#torchx.components.serve.torchserve">torchserve() (in module torchx.components.serve)</a>
 </li>
@@ -1271,6 +1277,8 @@
         <li><a href="schedulers.html#module-torchx.schedulers">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     torchx.schedulers.aws_batch_scheduler
 
@@ -1278,8 +1286,6 @@
         <li><a href="schedulers/aws_batch.html#module-torchx.schedulers.aws_batch_scheduler">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     torchx.schedulers.aws_sagemaker_scheduler
 
@@ -1394,12 +1400,6 @@
       </ul></li>
       <li><a href="specs.html#torchx.specs.file_linter.TorchXArgumentHelpFormatter">TorchXArgumentHelpFormatter (class in torchx.specs.file_linter)</a>
 </li>
-      <li><a href="specs.html#torchx.specs.file_linter.TorchxFunctionArgsValidator">TorchxFunctionArgsValidator (class in torchx.specs.file_linter)</a>
-</li>
-      <li><a href="specs.html#torchx.specs.file_linter.TorchxFunctionValidator">TorchxFunctionValidator (class in torchx.specs.file_linter)</a>
-</li>
-      <li><a href="specs.html#torchx.specs.file_linter.TorchxReturnValidator">TorchxReturnValidator (class in torchx.specs.file_linter)</a>
-</li>
       <li><a href="components/utils.html#torchx.components.utils.touch">touch() (in module torchx.components.utils)</a>
 </li>
       <li><a href="tracker.html#torchx.tracker.api.TrackerBase">TrackerBase (class in torchx.tracker.api)</a>
@@ -1415,16 +1415,16 @@
       <ul>
         <li><a href="component_best_practices.html#torchx.components.component_test_base.ComponentTestCase.validate">(torchx.components.component_test_base.ComponentTestCase method)</a>
 </li>
-        <li><a href="specs.html#torchx.specs.file_linter.TorchxFunctionArgsValidator.validate">(torchx.specs.file_linter.TorchxFunctionArgsValidator method)</a>
+        <li><a href="specs.html#torchx.specs.file_linter.ArgTypeValidator.validate">(torchx.specs.file_linter.ArgTypeValidator method)</a>
 </li>
-        <li><a href="specs.html#torchx.specs.file_linter.TorchxFunctionValidator.validate">(torchx.specs.file_linter.TorchxFunctionValidator method)</a>
+        <li><a href="specs.html#torchx.specs.file_linter.ComponentFunctionValidator.validate">(torchx.specs.file_linter.ComponentFunctionValidator method)</a>
 </li>
-        <li><a href="specs.html#torchx.specs.file_linter.TorchxReturnValidator.validate">(torchx.specs.file_linter.TorchxReturnValidator method)</a>
+        <li><a href="specs.html#torchx.specs.file_linter.ReturnTypeValidator.validate">(torchx.specs.file_linter.ReturnTypeValidator method)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="specs.html#torchx.specs.file_linter.TorchFunctionVisitor.visit_FunctionDef">visit_FunctionDef() (torchx.specs.file_linter.TorchFunctionVisitor method)</a>
+      <li><a href="specs.html#torchx.specs.file_linter.ComponentFnVisitor.visit_FunctionDef">visit_FunctionDef() (torchx.specs.file_linter.ComponentFnVisitor method)</a>
 </li>
       <li><a href="specs.html#torchx.specs.VolumeMount">VolumeMount (class in torchx.specs)</a>
 </li>
