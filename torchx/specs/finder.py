@@ -287,7 +287,9 @@ class CustomComponentsFinder(ComponentsFinder):
         my_component defined in some_file.py, imported in other_file.py
         and the component is invoked as other_file.py:my_component
         """
-        path_to_function_decl = inspect.getabsfile(function)
+        # Unwrap decorated functions to get the original function
+        unwrapped_function = inspect.unwrap(function)
+        path_to_function_decl = inspect.getabsfile(unwrapped_function)
         if path_to_function_decl is None or not os.path.isfile(path_to_function_decl):
             return self._filepath
         return path_to_function_decl
