@@ -419,12 +419,7 @@ class Runner:
             sched = self._scheduler(scheduler)
             resolved_cfg = sched.run_opts().resolve(cfg)
 
-            # early validation before build workspace
-            with log_event(
-                "pre_build_validate",
-                scheduler,
-            ):
-                sched._pre_build_validate(app, scheduler, resolved_cfg)
+            sched._pre_build_validate(app, scheduler, resolved_cfg)
 
             if workspace and isinstance(sched, WorkspaceMixin):
                 role = app.roles[0]
@@ -434,13 +429,7 @@ class Runner:
                 logger.info(
                     'To disable workspaces pass: --workspace="" from CLI or workspace=None programmatically.'
                 )
-                with log_event(
-                    "build_workspace_and_update_role",
-                    scheduler,
-                ) as ctx:
-                    sched.build_workspace_and_update_role(role, workspace, resolved_cfg)
-                    ctx._torchx_event.app_image = role.image
-                    ctx._torchx_event.workspace = workspace
+                sched.build_workspace_and_update_role(role, workspace, resolved_cfg)
 
                 if old_img != role.image:
                     logger.info(
@@ -453,11 +442,7 @@ class Runner:
                         " Either a patch was built or no changes to workspace was detected."
                     )
 
-            with log_event(
-                "validate",
-                scheduler,
-            ):
-                sched._validate(app, scheduler, resolved_cfg)
+            sched._validate(app, scheduler, resolved_cfg)
             dryrun_info = sched.submit_dryrun(app, resolved_cfg)
             dryrun_info._scheduler = scheduler
             return dryrun_info
