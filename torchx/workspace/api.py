@@ -9,6 +9,7 @@
 import abc
 import fnmatch
 import posixpath
+import warnings
 from dataclasses import dataclass
 from typing import Any, Dict, Generic, Iterable, Mapping, Tuple, TYPE_CHECKING, TypeVar
 
@@ -35,10 +36,32 @@ class PkgInfo(Generic[PackageType]):
     lazy_overrides: Dict[str, Any]
     metadata: PackageType
 
+    def __post_init__(self) -> None:
+        msg = (
+            f"{self.__class__.__name__} is deprecated and will be removed in the future."
+            " Consider forking this class if your project depends on it."
+        )
+        warnings.warn(
+            msg,
+            FutureWarning,
+            stacklevel=2,
+        )
+
 
 @dataclass
 class WorkspaceBuilder(Generic[PackageType, WorkspaceConfigType]):
     cfg: WorkspaceConfigType
+
+    def __post_init__(self) -> None:
+        msg = (
+            f"{self.__class__.__name__} is deprecated and will be removed in the future."
+            " Consider forking this class if your project depends on it."
+        )
+        warnings.warn(
+            msg,
+            FutureWarning,
+            stacklevel=2,
+        )
 
     @abc.abstractmethod
     def build_workspace(self, sync: bool = True) -> PkgInfo[PackageType]:
