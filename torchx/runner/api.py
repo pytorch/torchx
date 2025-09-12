@@ -54,7 +54,7 @@ from torchx.tracker.api import (
 from torchx.util.session import get_session_id_or_create_new, TORCHX_INTERNAL_SESSION_ID
 
 from torchx.util.types import none_throws
-from torchx.workspace.api import PkgInfo, WorkspaceBuilder, WorkspaceMixin
+from torchx.workspace.api import WorkspaceMixin
 
 if TYPE_CHECKING:
     from typing_extensions import Self
