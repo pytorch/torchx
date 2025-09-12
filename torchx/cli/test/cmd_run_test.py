@@ -401,7 +401,7 @@ component = custom.echo
 
     def test_verify_no_extra_args_stdin_with_value_args(self) -> None:
         """Test that arguments with values conflict with stdin."""
-        args = self.parser.parse_args(["--stdin", "--workspace", "file:///custom/path"])
+        args = self.parser.parse_args(["--stdin", "--workspace", "/custom/path"])
         with self.assertRaises(SystemExit):
             self.cmd_run.verify_no_extra_args(args)
 
@@ -499,7 +499,7 @@ class TorchXRunArgsTest(unittest.TestCase):
         self.assertEqual(result.dryrun, False)
         self.assertEqual(result.wait, False)
         self.assertEqual(result.log, False)
-        self.assertEqual(result.workspace, f"file://{Path.cwd()}")
+        self.assertEqual(result.workspace, f"{Path.cwd()}")
         self.assertEqual(result.parent_run_id, None)
         self.assertEqual(result.tee_logs, False)
         self.assertEqual(result.component_args, {})
@@ -515,7 +515,7 @@ class TorchXRunArgsTest(unittest.TestCase):
             "dryrun": True,
             "wait": True,
             "log": True,
-            "workspace": "file:///custom/path",
+            "workspace": "/custom/path",
             "parent_run_id": "parent123",
             "tee_logs": True,
         }
@@ -529,7 +529,7 @@ class TorchXRunArgsTest(unittest.TestCase):
         self.assertEqual(result2.dryrun, True)
         self.assertEqual(result2.wait, True)
         self.assertEqual(result2.log, True)
-        self.assertEqual(result2.workspace, "file:///custom/path")
+        self.assertEqual(result2.workspace, "/custom/path")
         self.assertEqual(result2.parent_run_id, "parent123")
         self.assertEqual(result2.tee_logs, True)
 
@@ -626,7 +626,7 @@ class TorchXRunArgsTest(unittest.TestCase):
         args.dryrun = True
         args.wait = False
         args.log = True
-        args.workspace = "file:///custom/workspace"
+        args.workspace = "/custom/workspace"
         args.parent_run_id = "parent_123"
         args.tee_logs = False
 
@@ -654,7 +654,7 @@ class TorchXRunArgsTest(unittest.TestCase):
         self.assertEqual(result.dryrun, True)
         self.assertEqual(result.wait, False)
         self.assertEqual(result.log, True)
-        self.assertEqual(result.workspace, "file:///custom/workspace")
+        self.assertEqual(result.workspace, "/custom/workspace")
         self.assertEqual(result.parent_run_id, "parent_123")
         self.assertEqual(result.tee_logs, False)
         self.assertEqual(result.component_args, {})

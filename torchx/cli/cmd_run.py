@@ -36,6 +36,7 @@ from torchx.specs.finder import (
 )
 from torchx.util.log_tee_helpers import tee_logs
 from torchx.util.types import none_throws
+from torchx.workspace import Workspace
 
 
 MISSING_COMPONENT_ERROR_MSG = (
@@ -92,7 +93,7 @@ def torchx_run_args_from_json(json_data: Dict[str, Any]) -> TorchXRunArgs:
 
     torchx_args = TorchXRunArgs(**filtered_json_data)
     if torchx_args.workspace == "":
-        torchx_args.workspace = f"file://{Path.cwd()}"
+        torchx_args.workspace = f"{Path.cwd()}"
     return torchx_args
 
 
@@ -250,7 +251,7 @@ class CmdRun(SubCommand):
         subparser.add_argument(
             "--workspace",
             "--buck-target",
-            default=f"file://{Path.cwd()}",
+            default=f"{Path.cwd()}",
             action=torchxconfig_run,
             help="local workspace to build/patch (buck-target of main binary if using buck)",
         )
@@ -289,12 +290,14 @@ class CmdRun(SubCommand):
             else args.component_args
         )
         try:
+            workspace = Workspace.from_str(args.workspace) if args.workspace else None
+
             if args.dryrun:
                 dryrun_info = runner.dryrun_component(
                     args.component_name,
                     component_args,
                     args.scheduler,
-                    workspace=args.workspace,
+                    workspace=workspace,
                     cfg=args.scheduler_cfg,
                     parent_run_id=args.parent_run_id,
                 )
