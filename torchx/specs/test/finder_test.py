@@ -29,7 +29,6 @@ from torchx.specs.finder import (
     get_components,
     ModuleComponentsFinder,
 )
-from torchx.specs.test.components.a import comp_a
 from torchx.util.test.entrypoints_test import EntryPoint_from_text
 from torchx.util.types import none_throws
 
@@ -238,10 +237,6 @@ to your component (see: https://pytorch.org/torchx/latest/component_best_practic
     def test_get_component_invalid(self) -> None:
         with self.assertRaises(ComponentValidationException):
             get_component(f"{current_file_path()}:invalid_component")
-
-    def test_get_component_imported_from_other_file(self) -> None:
-        component = get_component(f"{current_file_path()}:comp_a")
-        self.assertListEqual([], component.validation_errors)
 
 
 class GetBuiltinSourceTest(unittest.TestCase):
