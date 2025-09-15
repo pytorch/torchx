@@ -7,6 +7,7 @@
 # pyre-strict
 
 import abc
+import ast
 import copy
 import importlib
 import inspect
@@ -278,6 +279,22 @@ class CustomComponentsFinder(ComponentsFinder):
         linter_errors = validate(path, function_name, validators)
         return [linter_error.description for linter_error in linter_errors]
 
+    def _get_function_decorators_count(
+        self, function: Callable[..., Any]  # pyre-ignore[2]
+    ) -> int:
+        """
+        Returns the count of decorators for the given function.
+        """
+        try:
+            source = inspect.getsource(function)
+            tree = ast.parse(source)
+            for node in ast.walk(tree):
+                if isinstance(node, ast.FunctionDef):
+                    return len(node.decorator_list)
+        except (OSError, TypeError):
+            return 0
+        return 0
+
     def _get_path_to_function_decl(
         self, function: Callable[..., Any]  # pyre-ignore[2]
     ) -> str:
@@ -287,9 +304,10 @@ class CustomComponentsFinder(ComponentsFinder):
         my_component defined in some_file.py, imported in other_file.py
         and the component is invoked as other_file.py:my_component
         """
-        # Unwrap decorated functions to get the original function
-        unwrapped_function = inspect.unwrap(function)
-        path_to_function_decl = inspect.getabsfile(unwrapped_function)
+        # unwrap the function if it has decorators
+        if self._get_function_decorators_count(function) > 0:
+            function = inspect.unwrap(function)
+        path_to_function_decl = inspect.getabsfile(function)
         if path_to_function_decl is None or not os.path.isfile(path_to_function_decl):
             return self._filepath
         return path_to_function_decl

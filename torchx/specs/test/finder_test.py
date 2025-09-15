@@ -30,6 +30,8 @@ from torchx.specs.finder import (
     ModuleComponentsFinder,
 )
 from torchx.specs.test.components.a import comp_a
+from torchx.specs.test.components.f import comp_f
+from torchx.specs.test.components.f.g import comp_g
 from torchx.util.test.entrypoints_test import EntryPoint_from_text
 from torchx.util.types import none_throws
 
@@ -241,6 +243,14 @@ to your component (see: https://pytorch.org/torchx/latest/component_best_practic
 
     def test_get_component_imported_from_other_file(self) -> None:
         component = get_component(f"{current_file_path()}:comp_a")
+        self.assertListEqual([], component.validation_errors)
+
+    def test_get_component_from_dataclass(self) -> None:
+        component = get_component(f"{current_file_path()}:comp_f")
+        self.assertListEqual([], component.validation_errors)
+
+    def test_get_component_from_decorator(self) -> None:
+        component = get_component(f"{current_file_path()}:comp_g")
         self.assertListEqual([], component.validation_errors)
 
 
