@@ -73,7 +73,7 @@ from torchx.schedulers.ids import make_unique
 
 with DAG(
     dag_id=make_unique('example_python_operator'),
-    schedule_interval=None,
+    schedule=None,
     start_date=DATA_INTERVAL_START,
     catchup=False,
     tags=['example'],

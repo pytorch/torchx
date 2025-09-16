@@ -29,12 +29,6 @@ jobs:
       - name: Install TorchX
         run: |
           pip install -e .[dev]
-      - name: Start Airflow
-        run: |
-          # start airflow in background
-          airflow standalone &
-          # wait 5 seconds for airflow to start
-          sleep 5
       - name: Doc Test
         run: |
           cd docs
