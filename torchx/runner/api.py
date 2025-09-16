@@ -54,7 +54,7 @@ from torchx.tracker.api import (
 from torchx.util.session import get_session_id_or_create_new, TORCHX_INTERNAL_SESSION_ID
 
 from torchx.util.types import none_throws
-from torchx.workspace.api import WorkspaceMixin
+from torchx.workspace.api import Workspace, WorkspaceMixin
 
 if TYPE_CHECKING:
     from typing_extensions import Self
@@ -171,7 +171,7 @@ class Runner:
         component_args: Union[list[str], dict[str, Any]],
         scheduler: str,
         cfg: Optional[Mapping[str, CfgVal]] = None,
-        workspace: Optional[str] = None,
+        workspace: Optional[Union[Workspace, str]] = None,
         parent_run_id: Optional[str] = None,
     ) -> AppHandle:
         """
@@ -206,7 +206,7 @@ class Runner:
             ComponentNotFoundException: if the ``component_path`` is failed to resolve.
         """
 
-        with log_event("run_component", workspace=workspace) as ctx:
+        with log_event("run_component") as ctx:
             dryrun_info = self.dryrun_component(
                 component,
                 component_args,
@@ -217,7 +217,8 @@ class Runner:
             )
             handle = self.schedule(dryrun_info)
             app = none_throws(dryrun_info._app)
-            ctx._torchx_event.workspace = workspace
+
+            ctx._torchx_event.workspace = str(workspace)
             ctx._torchx_event.scheduler = none_throws(dryrun_info._scheduler)
             ctx._torchx_event.app_image = app.roles[0].image
             ctx._torchx_event.app_id = parse_app_handle(handle)[2]
@@ -230,7 +231,7 @@ class Runner:
         component_args: Union[list[str], dict[str, Any]],
         scheduler: str,
         cfg: Optional[Mapping[str, CfgVal]] = None,
-        workspace: Optional[str] = None,
+        workspace: Optional[Union[Workspace, str]] = None,
         parent_run_id: Optional[str] = None,
     ) -> AppDryRunInfo:
         """
@@ -259,7 +260,7 @@ class Runner:
         app: AppDef,
         scheduler: str,
         cfg: Optional[Mapping[str, CfgVal]] = None,
-        workspace: Optional[str] = None,
+        workspace: Optional[Union[Workspace, str]] = None,
         parent_run_id: Optional[str] = None,
     ) -> AppHandle:
         """
@@ -272,9 +273,7 @@ class Runner:
             An application handle that is used to call other action APIs on the app.
         """
 
-        with log_event(
-            api="run", runcfg=json.dumps(cfg) if cfg else None, workspace=workspace
-        ) as ctx:
+        with log_event(api="run") as ctx:
             dryrun_info = self.dryrun(
                 app,
                 scheduler,
@@ -283,10 +282,15 @@ class Runner:
                 parent_run_id=parent_run_id,
             )
             handle = self.schedule(dryrun_info)
-            ctx._torchx_event.scheduler = none_throws(dryrun_info._scheduler)
-            ctx._torchx_event.app_image = none_throws(dryrun_info._app).roles[0].image
-            ctx._torchx_event.app_id = parse_app_handle(handle)[2]
-            ctx._torchx_event.app_metadata = app.metadata
+
+            event = ctx._torchx_event
+            event.scheduler = scheduler
+            event.runcfg = json.dumps(cfg) if cfg else None
+            event.workspace = str(workspace)
+            event.app_id = parse_app_handle(handle)[2]
+            event.app_image = none_throws(dryrun_info._app).roles[0].image
+            event.app_metadata = app.metadata
+
             return handle
 
     def schedule(self, dryrun_info: AppDryRunInfo) -> AppHandle:
@@ -320,21 +324,22 @@ class Runner:
 
         """
         scheduler = none_throws(dryrun_info._scheduler)
-        app_image = none_throws(dryrun_info._app).roles[0].image
         cfg = dryrun_info._cfg
-        with log_event(
-            "schedule",
-            scheduler,
-            app_image=app_image,
-            runcfg=json.dumps(cfg) if cfg else None,
-        ) as ctx:
+        with log_event("schedule") as ctx:
             sched = self._scheduler(scheduler)
             app_id = sched.schedule(dryrun_info)
             app_handle = make_app_handle(scheduler, self._name, app_id)
+
             app = none_throws(dryrun_info._app)
             self._apps[app_handle] = app
-            _, _, app_id = parse_app_handle(app_handle)
-            ctx._torchx_event.app_id = app_id
+
+            event = ctx._torchx_event
+            event.scheduler = scheduler
+            event.runcfg = json.dumps(cfg) if cfg else None
+            event.app_id = app_id
+            event.app_image = none_throws(dryrun_info._app).roles[0].image
+            event.app_metadata = app.metadata
+
             return app_handle
 
     def name(self) -> str:
@@ -345,7 +350,7 @@ class Runner:
         app: AppDef,
         scheduler: str,
         cfg: Optional[Mapping[str, CfgVal]] = None,
-        workspace: Optional[str] = None,
+        workspace: Optional[Union[Workspace, str]] = None,
         parent_run_id: Optional[str] = None,
     ) -> AppDryRunInfo:
         """
@@ -414,7 +419,7 @@ class Runner:
             "dryrun",
             scheduler,
             runcfg=json.dumps(cfg) if cfg else None,
-            workspace=workspace,
+            workspace=str(workspace),
         ):
             sched = self._scheduler(scheduler)
             resolved_cfg = sched.run_opts().resolve(cfg)
@@ -429,7 +434,7 @@ class Runner:
                 logger.info(
                     'To disable workspaces pass: --workspace="" from CLI or workspace=None programmatically.'
                 )
-                sched.build_workspace_and_update_role(role, workspace, resolved_cfg)
+                sched.build_workspace_and_update_role2(role, workspace, resolved_cfg)
 
                 if old_img != role.image:
                     logger.info(
