@@ -27,6 +27,7 @@ from torchx.schedulers import get_scheduler_factories, Scheduler
 from torchx.schedulers.api import DescribeAppResponse, ListAppResponse, Stream
 from torchx.specs import AppDef, AppDryRunInfo, CfgVal, runopts
 from torchx.test.fixtures import TestWithTmpDir
+from torchx.workspace import Workspace
 
 
 class TestScheduler(Scheduler):
@@ -506,3 +507,31 @@ image = foobar_custom
                     opt_name in cfg,
                     f"missing {opt_name} in {sched} run opts with cfg {cfg}",
                 )
+
+    def test_get_workspace_config(self) -> None:
+        configdir = self.tmpdir
+        self.write(
+            str(configdir / ".torchxconfig"),
+            """#
+[cli:run]
+workspace =
+    /home/foo/third-party/verl: verl
+    /home/foo/bar/scripts/.torchxconfig: verl/.torchxconfig
+    /home/foo/baz:
+""",
+        )
+
+        workspace_config = get_config(
+            prefix="cli", name="run", key="workspace", dirs=[str(configdir)]
+        )
+        self.assertIsNotNone(workspace_config)
+
+        workspace = Workspace.from_str(workspace_config)
+        self.assertDictEqual(
+            {
+                "/home/foo/third-party/verl": "verl",
+                "/home/foo/bar/scripts/.torchxconfig": "verl/.torchxconfig",
+                "/home/foo/baz": "",
+            },
+            workspace.projects,
+        )
