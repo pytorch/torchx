@@ -88,7 +88,6 @@ if __name__ == "__main__":
                 "google-cloud-runtimeconfig>=0.33.2",
             ],
             "kubernetes": ["kubernetes>=11"],
-            "ray": ["ray>=1.12.1"],
             "dev": dev_reqs,
         },
         # PyPI package information.

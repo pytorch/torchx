@@ -19,7 +19,6 @@ TorchX currently supports:
 * AWS Batch
 * Docker
 * Local
-* Ray (prototype)
 * GCP Batch (prototype)
 
 Need a scheduler not listed? [Let us know!](https://github.com/pytorch/torchx/issues?q=is%3Aopen+is%3Aissue+label%3Ascheduler-request)
@@ -57,9 +56,6 @@ pip install "torchx[dev]"
 
 # install torchx Kubernetes / Volcano support
 pip install "torchx[kubernetes]"
-
-# install torchx Ray support
-pip install "torchx[ray]"
 
 # install torchx GCP Batch support
 pip install "torchx[gcp_batch]"

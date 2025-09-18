@@ -174,7 +174,6 @@ run command for local works out of the box on remote.
 $ torchx run --scheduler slurm dist.ddp -j 2x2 --script dist_app.py
 $ torchx run --scheduler kubernetes dist.ddp -j 2x2 --script dist_app.py
 $ torchx run --scheduler aws_batch dist.ddp -j 2x2 --script dist_app.py
-$ torchx run --scheduler ray dist.ddp -j 2x2 --script dist_app.py
 ```
 <!-- #endmd -->
 
