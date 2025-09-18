@@ -29,7 +29,6 @@ torchtext==0.18.0
 torchvision==0.23.0
 typing-extensions
 ts==0.5.1
-ray[default]
 wheel
 
 # lint (linter versions are managed by lintrunner)

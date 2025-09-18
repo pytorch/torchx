@@ -74,7 +74,6 @@ Works With
    schedulers/kubernetes
    schedulers/kubernetes_mcad
    schedulers/slurm
-   schedulers/ray
    schedulers/aws_batch
    schedulers/aws_sagemaker
    schedulers/lsf
