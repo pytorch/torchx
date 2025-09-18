@@ -298,13 +298,6 @@ imagine the component is defined as:
    * ``*args=["--help"]``: ``torchx run comp.py:f -- --help``
    * ``*args=["--i", "2"]``: ``torchx run comp.py:f --i 1 -- --i 2``
 
-Run in a Pipeline
---------------------------------
-
-The :ref:`torchx.pipelines<pipelines:torchx.pipelines>` define adapters that
-convert a torchx component into the object that represents a pipeline "stage" in the
-target pipeline platform (see :ref:`Pipelines` for a list of supported pipeline orchestrators).
-
 Additional Resources
 -----------------------
 
