@@ -344,15 +344,9 @@
 <li class="toctree-l1"><a class="reference internal" href="schedulers/lsf.html">IBM Spectrum LSF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers/gcp_batch.html">GCP Batch</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Pipelines</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="pipelines/kfp.html">Kubeflow Pipelines</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pipelines/airflow.html">Airflow</a></li>
-</ul>
 <p class="caption" role="heading"><span class="caption-text">Examples</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="examples_apps/index.html">Application Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples_pipelines/index.html">Pipelines Examples</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Components</span></p>
 <ul>
@@ -375,7 +369,6 @@
 <li class="toctree-l1"><a class="reference internal" href="runner.html">torchx.runner</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers.html">torchx.schedulers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workspace.html">torchx.workspace</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pipelines.html">torchx.pipelines</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Best Practices</span></p>
 <ul>
@@ -544,10 +537,10 @@
 </li>
       <li><a href="specs.html#torchx.specs.BindMount">BindMount (class in torchx.specs)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="components/utils.html#torchx.components.utils.booth">booth() (in module torchx.components.utils)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="workspace.html#torchx.workspace.dir_workspace.DirWorkspaceMixin.build_workspace_and_update_role">build_workspace_and_update_role() (torchx.workspace.dir_workspace.DirWorkspaceMixin method)</a>
 
       <ul>
@@ -556,6 +549,8 @@
         <li><a href="workspace.html#torchx.workspace.WorkspaceMixin.build_workspace_and_update_role">(torchx.workspace.WorkspaceMixin method)</a>
 </li>
       </ul></li>
+      <li><a href="workspace.html#torchx.workspace.WorkspaceMixin.build_workspace_and_update_role2">build_workspace_and_update_role2() (torchx.workspace.WorkspaceMixin method)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -586,10 +581,6 @@
       </ul></li>
       <li><a href="tracker.html#torchx.cli.cmd_tracker.CmdTracker">CmdTracker (class in torchx.cli.cmd_tracker)</a>
 </li>
-      <li><a href="pipelines/kfp.html#torchx.pipelines.kfp.adapter.component_from_app">component_from_app() (in module torchx.pipelines.kfp.adapter)</a>
-</li>
-      <li><a href="pipelines/kfp.html#torchx.pipelines.kfp.adapter.component_spec_from_app">component_spec_from_app() (in module torchx.pipelines.kfp.adapter)</a>
-</li>
       <li><a href="specs.html#torchx.specs.file_linter.ComponentFnVisitor">ComponentFnVisitor (class in torchx.specs.file_linter)</a>
 </li>
       <li><a href="specs.html#torchx.specs.file_linter.ComponentFunctionValidator">ComponentFunctionValidator (class in torchx.specs.file_linter)</a>
@@ -598,10 +589,6 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pipelines/kfp.html#torchx.pipelines.kfp.adapter.container_from_app">container_from_app() (in module torchx.pipelines.kfp.adapter)</a>
-</li>
-      <li><a href="pipelines/kfp.html#torchx.pipelines.kfp.adapter.ContainerFactory">ContainerFactory (class in torchx.pipelines.kfp.adapter)</a>
-</li>
       <li><a href="components/utils.html#torchx.components.utils.copy">copy() (in module torchx.components.utils)</a>
 
       <ul>
@@ -942,10 +929,6 @@
 </li>
         <li><a href="components/utils.html#module-torchx.components.utils">torchx.components.utils</a>
 </li>
-        <li><a href="pipelines.html#module-torchx.pipelines">torchx.pipelines</a>
-</li>
-        <li><a href="pipelines/kfp.html#module-torchx.pipelines.kfp">torchx.pipelines.kfp</a>
-</li>
         <li><a href="runner.html#module-torchx.runner">torchx.runner</a>
 </li>
         <li><a href="runner.config.html#module-torchx.runner.config">torchx.runner.config</a>
@@ -1041,16 +1024,14 @@
 </li>
       <li><a href="specs.html#torchx.specs.resource">resource() (in module torchx.specs)</a>
 </li>
-      <li><a href="pipelines/kfp.html#torchx.pipelines.kfp.adapter.resource_from_app">resource_from_app() (in module torchx.pipelines.kfp.adapter)</a>
-</li>
       <li><a href="runtime/tracking.html#torchx.runtime.tracking.ResultTracker">ResultTracker (class in torchx.runtime.tracking)</a>
 </li>
       <li><a href="specs.html#torchx.specs.RetryPolicy">RetryPolicy (class in torchx.specs)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="specs.html#torchx.specs.file_linter.ReturnTypeValidator">ReturnTypeValidator (class in torchx.specs.file_linter)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="specs.html#torchx.specs.Role">Role (class in torchx.specs)</a>
 </li>
       <li><a href="schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.role_to_pod">role_to_pod() (in module torchx.schedulers.kubernetes_mcad_scheduler)</a>
@@ -1229,20 +1210,6 @@
 </li>
       </ul></li>
       <li>
-    torchx.pipelines
-
-      <ul>
-        <li><a href="pipelines.html#module-torchx.pipelines">module</a>
-</li>
-      </ul></li>
-      <li>
-    torchx.pipelines.kfp
-
-      <ul>
-        <li><a href="pipelines/kfp.html#module-torchx.pipelines.kfp">module</a>
-</li>
-      </ul></li>
-      <li>
     torchx.runner
 
       <ul>
@@ -1277,8 +1244,6 @@
         <li><a href="schedulers.html#module-torchx.schedulers">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     torchx.schedulers.aws_batch_scheduler
 
@@ -1286,6 +1251,8 @@
         <li><a href="schedulers/aws_batch.html#module-torchx.schedulers.aws_batch_scheduler">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     torchx.schedulers.aws_sagemaker_scheduler
 

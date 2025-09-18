@@ -41,7 +41,7 @@
   <link rel="stylesheet" href="_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="torchx.pipelines" href="pipelines.html" />
+    <link rel="next" title="App Best Practices" href="app_best_practices.html" />
     <link rel="prev" title="torchx.schedulers" href="schedulers.html" />
   <!-- Google Tag Manager -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -347,15 +347,9 @@
 <li class="toctree-l1"><a class="reference internal" href="schedulers/lsf.html">IBM Spectrum LSF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers/gcp_batch.html">GCP Batch</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Pipelines</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="pipelines/kfp.html">Kubeflow Pipelines</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pipelines/airflow.html">Airflow</a></li>
-</ul>
 <p class="caption" role="heading"><span class="caption-text">Examples</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="examples_apps/index.html">Application Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples_pipelines/index.html">Pipelines Examples</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Components</span></p>
 <ul>
@@ -378,7 +372,6 @@
 <li class="toctree-l1"><a class="reference internal" href="runner.html">torchx.runner</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers.html">torchx.schedulers</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">torchx.workspace</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pipelines.html">torchx.pipelines</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Best Practices</span></p>
 <ul>
@@ -496,6 +489,21 @@ In the simplest case, this method builds a new image and updates
 the role’s image. Certain (more efficient) implementations build
 incremental diff patches that overlay on top of the role’s image.</p>
 <p>Note: this method mutates the passed <code class="docutils literal notranslate"><span class="pre">role</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torchx.workspace.WorkspaceMixin.build_workspace_and_update_role2">
+<span class="sig-name descname"><span class="pre">build_workspace_and_update_role2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">role</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="specs.html#torchx.specs.Role" title="torchx.specs.api.Role"><span class="pre">Role</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">workspace</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.13)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Workspace</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Mapping" title="(in Python v3.13)"><span class="pre">Mapping</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.13)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.13)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="_modules/torchx/workspace/api.html#WorkspaceMixin.build_workspace_and_update_role2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.workspace.WorkspaceMixin.build_workspace_and_update_role2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as <a class="reference internal" href="#torchx.workspace.WorkspaceMixin.build_workspace_and_update_role" title="torchx.workspace.WorkspaceMixin.build_workspace_and_update_role"><code class="xref py py-meth docutils literal notranslate"><span class="pre">build_workspace_and_update_role()</span></code></a> but operates
+on <code class="xref py py-class docutils literal notranslate"><span class="pre">Workspace</span></code> (supports multi-project workspaces)
+as well as <code class="docutils literal notranslate"><span class="pre">str</span></code> (for backwards compatibility).</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">workspace</span></code> is a <code class="docutils literal notranslate"><span class="pre">str</span></code> this method simply calls
+<a class="reference internal" href="#torchx.workspace.WorkspaceMixin.build_workspace_and_update_role" title="torchx.workspace.WorkspaceMixin.build_workspace_and_update_role"><code class="xref py py-meth docutils literal notranslate"><span class="pre">build_workspace_and_update_role()</span></code></a>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">workspace</span></code> is <code class="xref py py-class docutils literal notranslate"><span class="pre">Workspace</span></code> then the default
+impl copies all the projects into a tmp directory and passes the tmp dir to
+<a class="reference internal" href="#torchx.workspace.WorkspaceMixin.build_workspace_and_update_role" title="torchx.workspace.WorkspaceMixin.build_workspace_and_update_role"><code class="xref py py-meth docutils literal notranslate"><span class="pre">build_workspace_and_update_role()</span></code></a></p>
+<p>Subclasses can override this method to customize multi-project
+workspace building logic.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -635,7 +643,7 @@ image fields will be set to the <code class="docutils literal notranslate"><span
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="pipelines.html" class="btn btn-neutral float-right" title="torchx.pipelines" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
+        <a href="app_best_practices.html" class="btn btn-neutral float-right" title="App Best Practices" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
         <a href="schedulers.html" class="btn btn-neutral" title="torchx.schedulers" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>

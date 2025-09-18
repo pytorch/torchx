@@ -346,15 +346,9 @@
 <li class="toctree-l1"><a class="reference internal" href="schedulers/lsf.html">IBM Spectrum LSF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers/gcp_batch.html">GCP Batch</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Pipelines</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="pipelines/kfp.html">Kubeflow Pipelines</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pipelines/airflow.html">Airflow</a></li>
-</ul>
 <p class="caption" role="heading"><span class="caption-text">Examples</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="examples_apps/index.html">Application Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples_pipelines/index.html">Pipelines Examples</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Components</span></p>
 <ul>
@@ -377,7 +371,6 @@
 <li class="toctree-l1"><a class="reference internal" href="runner.html">torchx.runner</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers.html">torchx.schedulers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workspace.html">torchx.workspace</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pipelines.html">torchx.pipelines</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Best Practices</span></p>
 <ul>
@@ -465,9 +458,7 @@
       
   <section id="torchx">
 <h1>TorchX<a class="headerlink" href="#torchx" title="Permalink to this heading">¶</a></h1>
-<p>TorchX is a universal job launcher for PyTorch applications.
-TorchX is designed to have fast iteration time for training/research and support
-for E2E production ML pipelines when you’re ready.</p>
+<p>TorchX is a universal job launcher for PyTorch applications.</p>
 <p><strong>GETTING STARTED?</strong> Follow the <a class="reference internal" href="quickstart.html#Quickstart"><span class="std std-ref">quickstart guide</span></a>.</p>
 <section id="in-1-2-3">
 <h2>In 1-2-3<a class="headerlink" href="#in-1-2-3" title="Permalink to this heading">¶</a></h2>
@@ -516,13 +507,6 @@ for E2E production ML pipelines when you’re ready.</p>
 <li class="toctree-l1"><a class="reference internal" href="schedulers/gcp_batch.html">GCP Batch</a></li>
 </ul>
 </div>
-<div class="toctree-wrapper compound" id="pipelines">
-<p class="caption" role="heading"><span class="caption-text">Pipelines</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="pipelines/kfp.html">Kubeflow Pipelines</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pipelines/airflow.html">Airflow</a></li>
-</ul>
-</div>
 </section>
 <section id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this heading">¶</a></h2>
@@ -530,7 +514,6 @@ for E2E production ML pipelines when you’re ready.</p>
 <p class="caption" role="heading"><span class="caption-text">Examples</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="examples_apps/index.html">Application Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples_pipelines/index.html">Pipelines Examples</a></li>
 </ul>
 </div>
 </section>
@@ -568,7 +551,6 @@ for E2E production ML pipelines when you’re ready.</p>
 <li class="toctree-l1"><a class="reference internal" href="runner.html">torchx.runner</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers.html">torchx.schedulers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workspace.html">torchx.workspace</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pipelines.html">torchx.pipelines</a></li>
 </ul>
 </div>
 <div class="toctree-wrapper compound">
@@ -625,9 +607,7 @@ for E2E production ML pipelines when you’re ready.</p>
 <li><a class="reference internal" href="#">TorchX</a><ul>
 <li><a class="reference internal" href="#in-1-2-3">In 1-2-3</a></li>
 <li><a class="reference internal" href="#documentation">Documentation</a></li>
-<li><a class="reference internal" href="#works-with">Works With</a><ul>
-</ul>
-</li>
+<li><a class="reference internal" href="#works-with">Works With</a></li>
 <li><a class="reference internal" href="#examples">Examples</a></li>
 <li><a class="reference internal" href="#components-library">Components Library</a></li>
 <li><a class="reference internal" href="#runtime-library">Runtime Library</a></li>

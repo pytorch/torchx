@@ -347,15 +347,9 @@
 <li class="toctree-l1"><a class="reference internal" href="schedulers/lsf.html">IBM Spectrum LSF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers/gcp_batch.html">GCP Batch</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Pipelines</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="pipelines/kfp.html">Kubeflow Pipelines</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pipelines/airflow.html">Airflow</a></li>
-</ul>
 <p class="caption" role="heading"><span class="caption-text">Examples</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="examples_apps/index.html">Application Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples_pipelines/index.html">Pipelines Examples</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Components</span></p>
 <ul>
@@ -378,7 +372,6 @@
 <li class="toctree-l1"><a class="reference internal" href="runner.html">torchx.runner</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers.html">torchx.schedulers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workspace.html">torchx.workspace</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pipelines.html">torchx.pipelines</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Best Practices</span></p>
 <ul>
@@ -473,7 +466,6 @@ For how to create and run an app check out the <a class="reference internal" hre
 <li><p><a class="reference internal" href="cli.html#module-torchx.cli" title="torchx.cli"><code class="xref py py-mod docutils literal notranslate"><span class="pre">torchx.cli</span></code></a>: CLI tool</p></li>
 <li><p><a class="reference internal" href="runner.html#module-torchx.runner" title="torchx.runner"><code class="xref py py-mod docutils literal notranslate"><span class="pre">torchx.runner</span></code></a>: given an app spec, submits the app as a job on a scheduler</p></li>
 <li><p><a class="reference internal" href="schedulers.html#module-torchx.schedulers" title="torchx.schedulers"><code class="xref py py-mod docutils literal notranslate"><span class="pre">torchx.schedulers</span></code></a>: backend job schedulers that the runner supports</p></li>
-<li><p><a class="reference internal" href="pipelines.html#module-torchx.pipelines" title="torchx.pipelines"><code class="xref py py-mod docutils literal notranslate"><span class="pre">torchx.pipelines</span></code></a>: adapters that convert the given app spec to a “stage” in an ML pipeline platform</p></li>
 <li><p><a class="reference internal" href="runtime/overview.html#module-torchx.runtime" title="torchx.runtime"><code class="xref py py-mod docutils literal notranslate"><span class="pre">torchx.runtime</span></code></a>: util and abstraction libraries you can use in authoring apps (not app spec)</p></li>
 </ol>
 <p>Below is a UML diagram</p>
@@ -488,8 +480,7 @@ the actual application. In scheduler lingo, this is a <code class="docutils lite
 similar concept in Kubernetes is the <code class="docutils literal notranslate"><span class="pre">spec.yaml</span></code>. To disambiguate between the
 application binary (logic) and the spec, we typically refer to a TorchX
 <code class="docutils literal notranslate"><span class="pre">AppDef</span></code> as an “app spec” or <code class="docutils literal notranslate"><span class="pre">specs.AppDef</span></code>. It
-is the common interface understood by <code class="docutils literal notranslate"><span class="pre">torchx.runner</span></code>
-and <code class="docutils literal notranslate"><span class="pre">torchx.pipelines</span></code> allowing you to run your app as a standalone job
+is the common interface understood by <code class="docutils literal notranslate"><span class="pre">torchx.runner</span></code> allowing you to run your app as a standalone job
 or as a stage in an ML pipeline.</p>
 <p>Below is a simple example of an <code class="docutils literal notranslate"><span class="pre">specs.AppDef</span></code> that echos “hello world”</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torchx.specs</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">specs</span>
@@ -565,9 +556,6 @@ create as many as you want based on repetitive use cases.</p>
 can be achieved through python function composition rather than object composition.
 However <strong>we do not recommend component composition</strong> for maintainability
 purposes.</p>
-<p><strong>PROTIP 2:</strong> To define dependencies between components, use a pipelining DSL.
-See <a class="reference internal" href="#pipeline-adapters"><span class="std std-ref">Pipeline Adapters</span></a> section below to understand how TorchX components
-are used in the context of pipelines.</p>
 <p>Before authoring your own component, browse through the library of
 <a class="reference internal" href="index.html#components"><span class="std std-ref">Components</span></a> that are included with TorchX
 to see if one fits your needs.</p>
@@ -584,33 +572,13 @@ launches the application as a job onto a cluster through a job scheduler.</p>
 <p>See <a class="reference internal" href="index.html#schedulers"><span class="std std-ref">Schedulers</span></a> for a list of schedulers that the runner can
 launch apps to.</p>
 </section>
-<section id="pipeline-adapters">
-<h3>Pipeline Adapters<a class="headerlink" href="#pipeline-adapters" title="Permalink to this heading">¶</a></h3>
-<p>While runners launch components as standalone jobs, <code class="docutils literal notranslate"><span class="pre">torchx.pipelines</span></code>
-makes it possible to plug components into an ML pipeline/workflow. For a
-specific target pipeline platform (e.g. kubeflow pipelines), TorchX
-defines an adapter that converts a TorchX app spec to whatever the
-“stage” representation is in the target platform. For instance,
-<code class="docutils literal notranslate"><span class="pre">torchx.pipelines.kfp</span></code> adapter for kubeflow pipelines converts an
-app spec to a <code class="docutils literal notranslate"><span class="pre">kfp.ContainerOp</span></code> (or more accurately, a kfp “component spec” yaml).</p>
-<p>In most cases an app spec would map to a “stage” (or node) in a pipeline.
-However advanced components, especially those that have a mini control flow
-of its own (e.g. HPO), may map to a “sub-pipeline” or an “inline-pipeline”.
-The exact semantics of how these advanced components map to the pipeline
-is dependent on the target pipeline platform. For example, if the
-pipeline DSL allows dynamically adding stages to a pipeline from an upstream
-stage, then TorchX may take advantage of such feature to “inline” the
-sub-pipeline to the main pipeline. TorchX generally tries its best to adapt
-app specs to the <strong>most canonical</strong> representation in the target pipeline platform.</p>
-<p>See <a class="reference internal" href="index.html#pipelines"><span class="std std-ref">Pipelines</span></a> for a list of supported pipeline platforms.</p>
-</section>
 <section id="runtime">
 <h3>Runtime<a class="headerlink" href="#runtime" title="Permalink to this heading">¶</a></h3>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
 <p><code class="docutils literal notranslate"><span class="pre">torchx.runtime</span></code> is by no means is a requirement to use TorchX.
 If your infrastructure is fixed and you don’t need your application
-to be portable across different types of schedulers and pipelines,
+to be portable across different types of schedulers,
 you can skip this section.</p>
 </div>
 <p>Your application (not the app spec, but the actual app binary) has <strong>ZERO</strong> dependencies
@@ -723,7 +691,6 @@ run components.</p>
 <li><a class="reference internal" href="#appdefs">AppDefs</a></li>
 <li><a class="reference internal" href="#components">Components</a></li>
 <li><a class="reference internal" href="#runner-and-schedulers">Runner and Schedulers</a></li>
-<li><a class="reference internal" href="#pipeline-adapters">Pipeline Adapters</a></li>
 <li><a class="reference internal" href="#runtime">Runtime</a></li>
 </ul>
 </li>

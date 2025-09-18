@@ -42,7 +42,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Train" href="train.html" />
-    <link rel="prev" title="Advanced KubeFlow Pipelines Example" href="../examples_pipelines/kfp/advanced_pipeline.html" />
+    <link rel="prev" title="Trainer Datasets Example" href="../examples_apps/lightning/data.html" />
   <!-- Google Tag Manager -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -347,15 +347,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../schedulers/lsf.html">IBM Spectrum LSF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../schedulers/gcp_batch.html">GCP Batch</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Pipelines</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../pipelines/kfp.html">Kubeflow Pipelines</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../pipelines/airflow.html">Airflow</a></li>
-</ul>
 <p class="caption" role="heading"><span class="caption-text">Examples</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../examples_apps/index.html">Application Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples_pipelines/index.html">Pipelines Examples</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Components</span></p>
 <ul class="current">
@@ -378,7 +372,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../runner.html">torchx.runner</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../schedulers.html">torchx.schedulers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../workspace.html">torchx.workspace</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../pipelines.html">torchx.pipelines</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Best Practices</span></p>
 <ul>
@@ -742,12 +735,6 @@ the <code class="docutils literal notranslate"><span class="pre">--help</span></
 * <code class="docutils literal notranslate"><span class="pre">*args=[&quot;--i&quot;,</span> <span class="pre">&quot;2&quot;]</span></code>: <code class="docutils literal notranslate"><span class="pre">torchx</span> <span class="pre">run</span> <span class="pre">comp.py:f</span> <span class="pre">--i</span> <span class="pre">1</span> <span class="pre">--</span> <span class="pre">--i</span> <span class="pre">2</span></code></p></li>
 </ol>
 </section>
-<section id="run-in-a-pipeline">
-<h2>Run in a Pipeline<a class="headerlink" href="#run-in-a-pipeline" title="Permalink to this heading">¶</a></h2>
-<p>The <a class="reference internal" href="../pipelines.html#module-torchx.pipelines"><span class="std std-ref">torchx.pipelines</span></a> define adapters that
-convert a torchx component into the object that represents a pipeline “stage” in the
-target pipeline platform (see <a class="reference internal" href="../index.html#pipelines"><span class="std std-ref">Pipelines</span></a> for a list of supported pipeline orchestrators).</p>
-</section>
 <section id="additional-resources">
 <h2>Additional Resources<a class="headerlink" href="#additional-resources" title="Permalink to this heading">¶</a></h2>
 <p>See:</p>
@@ -771,7 +758,7 @@ target pipeline platform (see <a class="reference internal" href="../index.html#
         <a href="train.html" class="btn btn-neutral float-right" title="Train" accesskey="n" rel="next">Next <img src="../_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
-        <a href="../examples_pipelines/kfp/advanced_pipeline.html" class="btn btn-neutral" title="Advanced KubeFlow Pipelines Example" accesskey="p" rel="prev"><img src="../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+        <a href="../examples_apps/lightning/data.html" class="btn btn-neutral" title="Trainer Datasets Example" accesskey="p" rel="prev"><img src="../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
       
     </div>
   
@@ -814,7 +801,6 @@ target pipeline platform (see <a class="reference internal" href="../index.html#
 </ul>
 </li>
 <li><a class="reference internal" href="#passing-component-params-from-cli">Passing Component Params from CLI</a></li>
-<li><a class="reference internal" href="#run-in-a-pipeline">Run in a Pipeline</a></li>
 <li><a class="reference internal" href="#additional-resources">Additional Resources</a></li>
 </ul>
 </li>

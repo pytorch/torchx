@@ -344,15 +344,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../schedulers/lsf.html">IBM Spectrum LSF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../schedulers/gcp_batch.html">GCP Batch</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Pipelines</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../pipelines/kfp.html">Kubeflow Pipelines</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../pipelines/airflow.html">Airflow</a></li>
-</ul>
 <p class="caption" role="heading"><span class="caption-text">Examples</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../examples_apps/index.html">Application Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../examples_pipelines/index.html">Pipelines Examples</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Components</span></p>
 <ul>
@@ -375,7 +369,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../runner.html">torchx.runner</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../schedulers.html">torchx.schedulers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../workspace.html">torchx.workspace</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../pipelines.html">torchx.pipelines</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Best Practices</span></p>
 <ul>
@@ -466,8 +459,22 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">abc</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">fnmatch</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">posixpath</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">TypeVar</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Any</span><span class="p">,</span>
+    <span class="n">Dict</span><span class="p">,</span>
+    <span class="n">Generic</span><span class="p">,</span>
+    <span class="n">Iterable</span><span class="p">,</span>
+    <span class="n">Mapping</span><span class="p">,</span>
+    <span class="n">Tuple</span><span class="p">,</span>
+    <span class="n">TYPE_CHECKING</span><span class="p">,</span>
+    <span class="n">TypeVar</span><span class="p">,</span>
+    <span class="n">Union</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">torchx.specs</span><span class="w"> </span><span class="kn">import</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">,</span> <span class="n">Role</span><span class="p">,</span> <span class="n">runopts</span>
 
@@ -492,10 +499,32 @@
     <span class="n">lazy_overrides</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
     <span class="n">metadata</span><span class="p">:</span> <span class="n">PackageType</span>
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> is deprecated and will be removed in the future.&quot;</span>
+            <span class="s2">&quot; Consider forking this class if your project depends on it.&quot;</span>
+        <span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="n">msg</span><span class="p">,</span>
+            <span class="ne">FutureWarning</span><span class="p">,</span>
+            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
+
 
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">WorkspaceBuilder</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">PackageType</span><span class="p">,</span> <span class="n">WorkspaceConfigType</span><span class="p">]):</span>
     <span class="n">cfg</span><span class="p">:</span> <span class="n">WorkspaceConfigType</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> is deprecated and will be removed in the future.&quot;</span>
+            <span class="s2">&quot; Consider forking this class if your project depends on it.&quot;</span>
+        <span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="n">msg</span><span class="p">,</span>
+            <span class="ne">FutureWarning</span><span class="p">,</span>
+            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">build_workspace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sync</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PkgInfo</span><span class="p">[</span><span class="n">PackageType</span><span class="p">]:</span>
@@ -507,6 +536,71 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Workspace</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Specifies a local &quot;workspace&quot; (a set of directories). Workspaces are ad-hoc built</span>
+<span class="sd">    into an (usually ephemeral) image. This effectively mirrors the local code changes</span>
+<span class="sd">    at job submission time.</span>
+
+<span class="sd">    For example:</span>
+
+<span class="sd">      1. ``projects={&quot;~/github/torch&quot;: &quot;torch&quot;}`` copies ``~/github/torch/**`` into ``$REMOTE_WORKSPACE_ROOT/torch/**``</span>
+<span class="sd">      2. ``projects={&quot;~/github/torch&quot;: &quot;&quot;}`` copies ``~/github/torch/**`` into ``$REMOTE_WORKSPACE_ROOT/**``</span>
+
+<span class="sd">    The exact location of ``$REMOTE_WORKSPACE_ROOT`` is implementation dependent and varies between</span>
+<span class="sd">    different implementations of :py:class:`~torchx.workspace.api.WorkspaceMixin`.</span>
+<span class="sd">    Check the scheduler documentation for details on which workspace it supports.</span>
+
+<span class="sd">    Note: ``projects`` maps the location of the local project to a sub-directory in the remote workspace root directory.</span>
+<span class="sd">    Typically the local project location is a directory path (e.g. ``/home/foo/github/torch``).</span>
+
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        projects: mapping of local project to the sub-dir in the remote workspace dir.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">projects</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_unmapped_single_project</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns ``True`` if this workspace only has 1 project</span>
+<span class="sd">        and its target mapping is an empty string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">projects</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">projects</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_str</span><span class="p">(</span><span class="n">workspace</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Workspace&quot;</span><span class="p">:</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
+
+        <span class="n">projects</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">workspace</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">projects</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>  <span class="c1"># single project workspace</span>
+            <span class="n">projects</span> <span class="o">=</span> <span class="p">{</span><span class="n">projects</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># multi-project workspace</span>
+            <span class="c1"># Replace None mappings with &quot;&quot; (empty string)</span>
+            <span class="n">projects</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">projects</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+        <span class="k">return</span> <span class="n">Workspace</span><span class="p">(</span><span class="n">projects</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a string representation of the Workspace by concatenating</span>
+<span class="sd">        the project mappings using &#39;;&#39; as a delimiter and &#39;:&#39; between key and value.</span>
+<span class="sd">        If the single-project workspace with no target mapping, then simply</span>
+<span class="sd">        returns the src (local project dir)</span>
+
+<span class="sd">        NOTE: meant to be used for logging purposes not serde.</span>
+<span class="sd">          Therefore not symmetric with :py:func:`Workspace.from_str`.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_unmapped_single_project</span><span class="p">():</span>
+            <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">projects</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="n">k</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">v</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">projects</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="p">)</span>
 
 
 <div class="viewcode-block" id="WorkspaceMixin"><a class="viewcode-back" href="../../../workspace.html#torchx.workspace.WorkspaceMixin">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">WorkspaceMixin</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
@@ -534,9 +628,50 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">runopts</span><span class="p">()</span></div>
 
+<div class="viewcode-block" id="WorkspaceMixin.build_workspace_and_update_role2"><a class="viewcode-back" href="../../../workspace.html#torchx.workspace.WorkspaceMixin.build_workspace_and_update_role2">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">build_workspace_and_update_role2</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">,</span>
+        <span class="n">workspace</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Workspace</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+        <span class="n">cfg</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Same as :py:meth:`build_workspace_and_update_role` but operates</span>
+<span class="sd">        on :py:class:`Workspace` (supports multi-project workspaces)</span>
+<span class="sd">        as well as ``str`` (for backwards compatibility).</span>
+
+<span class="sd">        If ``workspace`` is a ``str`` this method simply calls</span>
+<span class="sd">        :py:meth:`build_workspace_and_update_role`.</span>
+
+<span class="sd">        If ``workspace`` is :py:class:`Workspace` then the default</span>
+<span class="sd">        impl copies all the projects into a tmp directory and passes the tmp dir to</span>
+<span class="sd">        :py:meth:`build_workspace_and_update_role`</span>
+
+<span class="sd">        Subclasses can override this method to customize multi-project</span>
+<span class="sd">        workspace building logic.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">workspace</span><span class="p">,</span> <span class="n">Workspace</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">workspace</span><span class="o">.</span><span class="n">is_unmapped_single_project</span><span class="p">():</span>
+                <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">(</span><span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;torchx_workspace_&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outdir</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">src</span><span class="p">,</span> <span class="n">dst</span> <span class="ow">in</span> <span class="n">workspace</span><span class="o">.</span><span class="n">projects</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="n">dst_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">outdir</span><span class="p">)</span> <span class="o">/</span> <span class="n">dst</span>
+                        <span class="k">if</span> <span class="n">Path</span><span class="p">(</span><span class="n">src</span><span class="p">)</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+                            <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dst_path</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>  <span class="c1"># src is dir</span>
+                            <span class="n">shutil</span><span class="o">.</span><span class="n">copytree</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dst_path</span><span class="p">,</span> <span class="n">dirs_exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">build_workspace_and_update_role</span><span class="p">(</span><span class="n">role</span><span class="p">,</span> <span class="n">outdir</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
+                    <span class="k">return</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># single project workspace with no target mapping (treat like a str workspace)</span>
+                <span class="n">workspace</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">workspace</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">build_workspace_and_update_role</span><span class="p">(</span><span class="n">role</span><span class="p">,</span> <span class="n">workspace</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="WorkspaceMixin.build_workspace_and_update_role"><a class="viewcode-back" href="../../../workspace.html#torchx.workspace.WorkspaceMixin.build_workspace_and_update_role">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">build_workspace_and_update_role</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">,</span> <span class="n">workspace</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">]</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">,</span>
+        <span class="n">workspace</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">cfg</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Builds the specified ``workspace`` with respect to ``img``</span>
