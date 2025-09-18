@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # Copyright (c) Meta Platforms, Inc. and affiliates.
 # All rights reserved.
 #
@@ -52,14 +51,19 @@ from torchx.util.entrypoints import load_group
 
 from torchx.util.modules import import_attr
 
-AWS_NAMED_RESOURCES: Mapping[str, Callable[[], Resource]] = import_attr(
+GiB: int = 1024
+
+ResourceFactory = Callable[[], Resource]
+
+AWS_NAMED_RESOURCES: Mapping[str, ResourceFactory] = import_attr(
     "torchx.specs.named_resources_aws", "NAMED_RESOURCES", default={}
 )
-GENERIC_NAMED_RESOURCES: Mapping[str, Callable[[], Resource]] = import_attr(
+GENERIC_NAMED_RESOURCES: Mapping[str, ResourceFactory] = import_attr(
     "torchx.specs.named_resources_generic", "NAMED_RESOURCES", default={}
 )
-
-GiB: int = 1024
+FB_NAMED_RESOURCES: Mapping[str, ResourceFactory] = import_attr(
+    "torchx.specs.fb.named_resources", "NAMED_RESOURCES", default={}
+)
 
 
 def _load_named_resources() -> Dict[str, Callable[[], Resource]]:
@@ -69,6 +73,7 @@ def _load_named_resources() -> Dict[str, Callable[[], Resource]]:
     for name, resource in {
         **GENERIC_NAMED_RESOURCES,
         **AWS_NAMED_RESOURCES,
+        **FB_NAMED_RESOURCES,
         **resource_methods,
     }.items():
         materialized_resources[name] = resource
