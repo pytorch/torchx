@@ -236,5 +236,4 @@ The `slurm` and `local_cwd` use the current environment so you can use `pip` and
 1. Checkout other features of the [torchx CLI](cli.rst)
 2. Take a look at the [list of schedulers](schedulers.rst) supported by the runner
 3. Browse through the collection of [builtin components](components/overview.rst)
-4. See which [ML pipeline platforms](pipelines.rst) you can run components on
 5. See a [training app example](examples_apps/index.rst)

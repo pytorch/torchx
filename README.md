@@ -55,9 +55,6 @@ pip install torchx
 # install torchx sdk and CLI -- all dependencies
 pip install "torchx[dev]"
 
-# install torchx kubeflow pipelines (kfp) support
-pip install "torchx[kfp]"
-
 # install torchx Kubernetes / Volcano support
 pip install "torchx[kubernetes]"
 

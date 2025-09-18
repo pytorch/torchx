@@ -87,7 +87,6 @@ if __name__ == "__main__":
                 "google-cloud-logging>=3.0.0",
                 "google-cloud-runtimeconfig>=0.33.2",
             ],
-            "kfp": ["kfp==1.6.2"],
             "kubernetes": ["kubernetes>=11"],
             "ray": ["ray>=1.12.1"],
             "dev": dev_reqs,

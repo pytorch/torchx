@@ -341,7 +341,7 @@ else:
     code_url = f"https://github.com/pytorch/torchx/archive/refs/heads/{notebook_version}.tar.gz"
 
 first_notebook_cell = f"""
-!pip install torchx[kfp]
+!pip install torchx
 !wget --no-clobber {code_url}
 !tar xf {notebook_version}.tar.gz --strip-components=1
 
@@ -351,7 +351,6 @@ NOTEBOOK = True
 sphinx_gallery_conf = {
     "examples_dirs": [
         "../../torchx/examples/apps",
-        "../../torchx/examples/pipelines",
     ],
     "gallery_dirs": [
         "examples_apps",
