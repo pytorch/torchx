@@ -449,8 +449,7 @@
      <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
       
   <h1>Source code for torchx.specs.api</h1><div class="highlight"><pre>
-<span></span><span class="ch">#!/usr/bin/env python3</span>
-<span class="c1"># Copyright (c) Meta Platforms, Inc. and affiliates.</span>
+<span></span><span class="c1"># Copyright (c) Meta Platforms, Inc. and affiliates.</span>
 <span class="c1"># All rights reserved.</span>
 <span class="c1">#</span>
 <span class="c1"># This source code is licensed under the BSD-style license found in the</span>
@@ -534,6 +533,8 @@
 <span class="sd">        memMB: MB of ram</span>
 <span class="sd">        capabilities: additional hardware specs (interpreted by scheduler)</span>
 <span class="sd">        devices: a list of named devices with their quantities</span>
+<span class="sd">        tags: metadata tags for the resource (not interpreted by schedulers)</span>
+<span class="sd">          used to add non-functional information about resources (e.g. whether it is an alias of another resource)</span>
 
 <span class="sd">    Note: you should prefer to use named_resources instead of specifying the raw</span>
 <span class="sd">    resource requirement directly.</span>
@@ -544,6 +545,7 @@
     <span class="n">memMB</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">capabilities</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
     <span class="n">devices</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="n">tags</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Resource.copy"><a class="viewcode-back" href="../../../specs.html#torchx.specs.Resource.copy">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">copy</span><span class="p">(</span><span class="n">original</span><span class="p">:</span> <span class="s2">&quot;Resource&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">capabilities</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Resource&quot;</span><span class="p">:</span>
@@ -552,6 +554,7 @@
 <span class="sd">        are present in the original resource and as parameter, the one from parameter</span>
 <span class="sd">        will be used.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">res_capabilities</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">original</span><span class="o">.</span><span class="n">capabilities</span><span class="p">)</span>
         <span class="n">res_capabilities</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">capabilities</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Resource</span><span class="p">(</span>

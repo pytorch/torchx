@@ -447,8 +447,7 @@
      <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
       
   <h1>Source code for torchx.specs</h1><div class="highlight"><pre>
-<span></span><span class="ch">#!/usr/bin/env python3</span>
-<span class="c1"># Copyright (c) Meta Platforms, Inc. and affiliates.</span>
+<span></span><span class="c1"># Copyright (c) Meta Platforms, Inc. and affiliates.</span>
 <span class="c1"># All rights reserved.</span>
 <span class="c1">#</span>
 <span class="c1"># This source code is licensed under the BSD-style license found in the</span>
@@ -501,14 +500,19 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">torchx.util.modules</span><span class="w"> </span><span class="kn">import</span> <span class="n">import_attr</span>
 
-<span class="n">AWS_NAMED_RESOURCES</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Resource</span><span class="p">]]</span> <span class="o">=</span> <span class="n">import_attr</span><span class="p">(</span>
+<span class="n">GiB</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span>
+
+<span class="n">ResourceFactory</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Resource</span><span class="p">]</span>
+
+<span class="n">AWS_NAMED_RESOURCES</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ResourceFactory</span><span class="p">]</span> <span class="o">=</span> <span class="n">import_attr</span><span class="p">(</span>
     <span class="s2">&quot;torchx.specs.named_resources_aws&quot;</span><span class="p">,</span> <span class="s2">&quot;NAMED_RESOURCES&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">{}</span>
 <span class="p">)</span>
-<span class="n">GENERIC_NAMED_RESOURCES</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Resource</span><span class="p">]]</span> <span class="o">=</span> <span class="n">import_attr</span><span class="p">(</span>
+<span class="n">GENERIC_NAMED_RESOURCES</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ResourceFactory</span><span class="p">]</span> <span class="o">=</span> <span class="n">import_attr</span><span class="p">(</span>
     <span class="s2">&quot;torchx.specs.named_resources_generic&quot;</span><span class="p">,</span> <span class="s2">&quot;NAMED_RESOURCES&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">{}</span>
 <span class="p">)</span>
-
-<span class="n">GiB</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span>
+<span class="n">FB_NAMED_RESOURCES</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ResourceFactory</span><span class="p">]</span> <span class="o">=</span> <span class="n">import_attr</span><span class="p">(</span>
+    <span class="s2">&quot;torchx.specs.fb.named_resources&quot;</span><span class="p">,</span> <span class="s2">&quot;NAMED_RESOURCES&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">{}</span>
+<span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_load_named_resources</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Resource</span><span class="p">]]:</span>
@@ -518,6 +522,7 @@
     <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">resource</span> <span class="ow">in</span> <span class="p">{</span>
         <span class="o">**</span><span class="n">GENERIC_NAMED_RESOURCES</span><span class="p">,</span>
         <span class="o">**</span><span class="n">AWS_NAMED_RESOURCES</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">FB_NAMED_RESOURCES</span><span class="p">,</span>
         <span class="o">**</span><span class="n">resource_methods</span><span class="p">,</span>
     <span class="p">}</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">materialized_resources</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">resource</span>
