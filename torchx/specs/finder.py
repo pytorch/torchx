@@ -17,7 +17,9 @@ from dataclasses import dataclass
 from inspect import getmembers, isfunction
 from pathlib import Path
 from types import ModuleType
-from typing import Any, Callable, Dict, Generator, List, Optional, Union
+from typing import Callable, Dict, Generator, List, Optional, Union
+
+from torchx.specs import AppDef
 
 from torchx.specs.file_linter import (
     ComponentFunctionValidator,
@@ -59,8 +61,7 @@ class _Component:
     description: str
     fn_name: str
 
-    # pyre-ignore[4] TODO temporary until PipelineDef is decoupled and can be exposed as type to OSS
-    fn: Callable[..., Any]
+    fn: Callable[..., AppDef]
 
     validation_errors: List[str]
 

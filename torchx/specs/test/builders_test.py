@@ -93,6 +93,7 @@ def example_test_complex_fn(
     nnodes: int = 4,
     first_arg: Optional[str] = None,
     nested_arg: Optional[Dict[str, List[str]]] = None,
+    env: dict[str, str] | None = None,
     *roles_args: str,
 ) -> AppDef:
     """Creates complex application, testing all possible complex types
@@ -127,6 +128,7 @@ def example_test_complex_fn(
             args=args,
             resource=Resource(cpu=cpus, gpu=gpus, memMB=1),
             num_replicas=nnodes,
+            env=env or {},
         )
         roles.append(role)
     return AppDef(app_name, roles)
@@ -193,6 +195,7 @@ class AppDefLoadTest(unittest.TestCase):
             4,
             None,
             None,
+            None,
             *role_args,
         )
 
@@ -220,6 +223,7 @@ class AppDefLoadTest(unittest.TestCase):
             8,
             "first_arg",
             None,
+            {"FOO": "BAR", "HELLO": "WORLD"},
             *role_args,
         )
 
@@ -240,6 +244,8 @@ class AppDefLoadTest(unittest.TestCase):
             "8",
             "--first_arg",
             "first_arg",
+            "--env",
+            "FOO=BAR,HELLO=WORLD",
             "--",
             *role_args,
         ]
@@ -256,6 +262,7 @@ class AppDefLoadTest(unittest.TestCase):
             8,
             "first_arg",
             defaults,
+            None,
             *role_args,
         )
 

@@ -4,7 +4,7 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-# pyre-strict
+# pyre-unsafe
 
 import argparse
 import inspect
@@ -39,7 +39,7 @@ def _create_args_parser(
 
 
 def _create_args_parser_from_parameters(
-    cmpnt_fn: Callable[..., Any],  # pyre-ignore[2]
+    cmpnt_fn: Callable[..., AppDef],
     parameters: Mapping[str, inspect.Parameter],
     cmpnt_defaults: Optional[Dict[str, str]] = None,
     config: Optional[Dict[str, Any]] = None,
@@ -120,7 +120,7 @@ def _merge_config_values_with_args(
 
 
 def parse_args(
-    cmpnt_fn: Callable[..., Any],  # pyre-ignore[2]
+    cmpnt_fn: Callable[..., AppDef],
     cmpnt_args: List[str],
     cmpnt_defaults: Optional[Dict[str, Any]] = None,
     config: Optional[Dict[str, Any]] = None,
@@ -149,7 +149,7 @@ def parse_args(
 
 
 def component_args_from_str(
-    cmpnt_fn: Callable[..., Any],  # pyre-fixme[2]: Enforce AppDef type
+    cmpnt_fn: Callable[..., AppDef],
     cmpnt_args: list[str],
     cmpnt_args_defaults: Optional[Dict[str, Any]] = None,
     config: Optional[Dict[str, Any]] = None,
@@ -238,7 +238,7 @@ def component_args_from_str(
 
 
 def materialize_appdef(
-    cmpnt_fn: Callable[..., Any],  # pyre-ignore[2]
+    cmpnt_fn: Callable[..., AppDef],
     cmpnt_args: List[str],
     cmpnt_defaults: Optional[Dict[str, Any]] = None,
     config: Optional[Dict[str, Any]] = None,
