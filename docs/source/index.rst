@@ -77,7 +77,6 @@ Works With
    schedulers/aws_batch
    schedulers/aws_sagemaker
    schedulers/lsf
-   schedulers/gcp_batch
 
 .. fbcode::
 
