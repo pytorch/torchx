@@ -19,7 +19,6 @@ TorchX currently supports:
 * AWS Batch
 * Docker
 * Local
-* GCP Batch (prototype)
 
 Need a scheduler not listed? [Let us know!](https://github.com/pytorch/torchx/issues?q=is%3Aopen+is%3Aissue+label%3Ascheduler-request)
 

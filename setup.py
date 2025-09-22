@@ -82,11 +82,6 @@ if __name__ == "__main__":
         },
         extras_require={
             "aws_batch": ["boto3"],
-            "gcp_batch": [
-                "google-cloud-batch>=0.5.0",
-                "google-cloud-logging>=3.0.0",
-                "google-cloud-runtimeconfig>=0.33.2",
-            ],
             "kubernetes": ["kubernetes>=11"],
             "dev": dev_reqs,
         },
