@@ -7,9 +7,6 @@ kubernetes==25.3.0
 flake8==3.9.0
 fsspec==2024.3.1
 s3fs==2024.3.1
-google-cloud-batch==0.17.14
-google-cloud-logging==3.10.0
-google-cloud-runtimeconfig==0.34.0
 hydra-core
 ipython
 mlflow-skinny
@@ -34,10 +31,3 @@ wheel
 # lint (linter versions are managed by lintrunner)
 lintrunner
 lintrunner-adapters
-
-
-# reduce backtracking
-grpcio==1.62.1
-grpcio-status==1.48.1
-googleapis-common-protos==1.63.0
-google-api-core==2.18.0
