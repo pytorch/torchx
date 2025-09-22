@@ -24,8 +24,6 @@ jobs:
             platform: ubuntu-latest
           - scheduler: "local_docker"
             platform: linux.24_04.4x
-          - scheduler: "ray"
-            platform: ubuntu-latest
       fail-fast: false
     runs-on: ${{ matrix.platform }}
     permissions:

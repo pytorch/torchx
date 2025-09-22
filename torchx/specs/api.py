@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # Copyright (c) Meta Platforms, Inc. and affiliates.
 # All rights reserved.
 #
@@ -83,6 +82,8 @@ class Resource:
         memMB: MB of ram
         capabilities: additional hardware specs (interpreted by scheduler)
         devices: a list of named devices with their quantities
+        tags: metadata tags for the resource (not interpreted by schedulers)
+          used to add non-functional information about resources (e.g. whether it is an alias of another resource)
 
     Note: you should prefer to use named_resources instead of specifying the raw
     resource requirement directly.
@@ -93,6 +94,7 @@ class Resource:
     memMB: int
     capabilities: Dict[str, Any] = field(default_factory=dict)
     devices: Dict[str, int] = field(default_factory=dict)
+    tags: Dict[str, object] = field(default_factory=dict)
 
     @staticmethod
     def copy(original: "Resource", **capabilities: Any) -> "Resource":
@@ -101,6 +103,7 @@ class Resource:
         are present in the original resource and as parameter, the one from parameter
         will be used.
         """
+
         res_capabilities = dict(original.capabilities)
         res_capabilities.update(capabilities)
         return Resource(

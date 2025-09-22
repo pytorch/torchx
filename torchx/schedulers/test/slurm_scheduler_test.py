@@ -7,12 +7,13 @@
 # pyre-strict
 
 import datetime
-import importlib
+import json
 import os
 import subprocess
 import tempfile
 import unittest
 from contextlib import contextmanager
+from importlib import resources
 from typing import Generator
 from unittest.mock import call, MagicMock, patch
 
@@ -244,7 +245,6 @@ class SlurmSchedulerTest(unittest.TestCase):
         )
 
         script = req.materialize()
-        print(script)
         self.assertEqual(
             script,
             f"""#!/bin/bash
@@ -455,7 +455,7 @@ JobID|JobName|Partition|Account|AllocCPUS|State|ExitCode
 
     def test_describe_squeue(self) -> None:
         with (
-            importlib.resources.path(__package__, "slurm-squeue-output.json") as path,
+            resources.path(__package__, "slurm-squeue-output.json") as path,
             open(path) as fp,
         ):
             mock_output = fp.read()
@@ -1048,3 +1048,83 @@ source sbatch.sh
             ).materialize()
             self.assertNotIn("--gpus-per-node", " ".join(sbatch))
             self.assertNotIn("--gpus-per-task", " ".join(sbatch))
+
+    def test_describe_squeue_handles_none_job_resources(self) -> None:
+        """Test that describe handles job_resources=None without crashing (i.e. for SLURM 24.11.5)."""
+
+        # Mock SLURM 24.11.5 response with job_resources=None
+        mock_job_data = {
+            "jobs": [
+                {
+                    "name": "test-job-0",
+                    "job_state": ["PENDING"],
+                    "job_resources": None,  # This was causing the crash
+                    "nodes": "",
+                    "scheduled_nodes": "",
+                    "command": "/bin/echo",
+                    "current_working_directory": "/tmp",
+                }
+            ]
+        }
+
+        with patch("subprocess.check_output") as mock_subprocess:
+            mock_subprocess.return_value = json.dumps(mock_job_data)
+
+            scheduler = SlurmScheduler("test")
+            result = scheduler._describe_squeue("123")
+
+            # Should not crash and should return a valid response
+            assert result is not None
+            assert result.app_id == "123"
+            assert result.state == AppState.PENDING
+
+    def test_describe_sacct_handles_dot_separated_job_ids(self) -> None:
+        """Test that _describe_sacct handles job IDs with '.' separators (not just '+')."""
+        sacct_output = """JobID|JobName|Partition|Account|AllocCPUS|State|ExitCode
+89|mesh0-0|all|root|8|CANCELLED by 2166|0:0
+89.batch|batch||root|8|CANCELLED|0:15
+89.0|process_allocator||root|8|CANCELLED|0:15
+    """
+
+        with patch("subprocess.check_output") as mock_subprocess:
+            mock_subprocess.return_value = sacct_output
+
+            scheduler = SlurmScheduler("test")
+            result = scheduler._describe_sacct("89")
+
+            # Should process only the main job "89", not the sub-jobs
+            assert result is not None
+            assert result.app_id == "89"
+            assert result.state == AppState.CANCELLED
+            assert result.msg == "CANCELLED by 2166"
+
+            # Should have one role "mesh0" with one replica "0"
+            assert len(result.roles) == 1
+            assert result.roles[0].name == "mesh0"
+            assert result.roles[0].num_replicas == 1
+
+    def test_describe_squeue_nodes_as_string(self) -> None:
+        """Test when job_resources.nodes is a string (hostname) not a dict."""
+        mock_job_data = {
+            "jobs": [
+                {
+                    "name": "test-job-0",
+                    "job_state": ["RUNNING"],
+                    "job_resources": {
+                        "nodes": "compute-node-123"  # String, not dict
+                        # No allocated_nodes field
+                    },
+                    "command": "/bin/echo",
+                    "current_working_directory": "/tmp",
+                }
+            ]
+        }
+
+        with patch("subprocess.check_output") as mock_subprocess:
+            mock_subprocess.return_value = json.dumps(mock_job_data)
+
+            scheduler = SlurmScheduler("test")
+            result = scheduler._describe_squeue("123")
+
+            assert result is not None
+            assert result.roles_statuses[0].replicas[0].hostname == "compute-node-123"

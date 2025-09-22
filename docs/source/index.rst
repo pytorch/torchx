@@ -4,8 +4,6 @@ TorchX
 ==================
 
 TorchX is a universal job launcher for PyTorch applications.
-TorchX is designed to have fast iteration time for training/research and support
-for E2E production ML pipelines when you're ready.
 
 **GETTING STARTED?** Follow the :ref:`quickstart guide<quickstart:Quickstart>`.
 
@@ -76,7 +74,6 @@ Works With
    schedulers/kubernetes
    schedulers/kubernetes_mcad
    schedulers/slurm
-   schedulers/ray
    schedulers/aws_batch
    schedulers/aws_sagemaker
    schedulers/lsf
@@ -90,14 +87,6 @@ Works With
       :glob:
 
       schedulers/fb/*
-
-.. _Pipelines:
-.. toctree::
-   :maxdepth: 1
-   :caption: Pipelines
-
-   pipelines/kfp
-   pipelines/airflow.md
 
 .. fbcode::
 
@@ -116,7 +105,6 @@ Examples
    :caption: Examples
 
    examples_apps/index
-   examples_pipelines/index
 
 
 Components Library
@@ -165,7 +153,6 @@ Reference
    runner
    schedulers
    workspace
-   pipelines
 
 .. toctree::
    :maxdepth: 1

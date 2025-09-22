@@ -12,9 +12,6 @@ google-cloud-logging==3.10.0
 google-cloud-runtimeconfig==0.34.0
 hydra-core
 ipython
-kfp==1.8.22
-# pin protobuf to the version that is required by kfp
-protobuf==3.20.3
 mlflow-skinny
 moto~=5.0.8
 pyre-extensions
@@ -32,7 +29,6 @@ torchtext==0.18.0
 torchvision==0.23.0
 typing-extensions
 ts==0.5.1
-ray[default]
 wheel
 
 # lint (linter versions are managed by lintrunner)
@@ -45,4 +41,3 @@ grpcio==1.62.1
 grpcio-status==1.48.1
 googleapis-common-protos==1.63.0
 google-api-core==2.18.0
-protobuf==3.20.3 # kfp==1.8.22 needs protobuf < 4

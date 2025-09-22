@@ -29,8 +29,8 @@ def get_nightly_version():
 
 
 if __name__ == "__main__":
-    if sys.version_info < (3, 8):
-        sys.exit("python >= 3.8 required for torchx-sdk")
+    if sys.version_info < (3, 10):
+        sys.exit("python >= 3.10 required for torchx")
 
     name = "torchx"
     NAME_ARG = "--override-name"
@@ -87,9 +87,7 @@ if __name__ == "__main__":
                 "google-cloud-logging>=3.0.0",
                 "google-cloud-runtimeconfig>=0.33.2",
             ],
-            "kfp": ["kfp==1.6.2"],
             "kubernetes": ["kubernetes>=11"],
-            "ray": ["ray>=1.12.1"],
             "dev": dev_reqs,
         },
         # PyPI package information.

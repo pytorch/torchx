@@ -8,6 +8,7 @@
 
 import inspect
 import re
+from types import UnionType
 from typing import Any, Callable, Optional, Tuple, TypeVar, Union
 
 
@@ -234,10 +235,20 @@ def decode_optional(param_type: Any) -> Any:
         If ``param_type`` is type Optional[INNER_TYPE], method returns INNER_TYPE
         Otherwise returns ``param_type``
     """
+
     if not hasattr(param_type, "__origin__"):
-        return param_type
+        if isinstance(param_type, UnionType):
+            # handle BinOp style Optional (e.g. `T | None`)
+            if len(param_type.__args__) == 2 and param_type.__args__[1] is type(None):
+                return param_type.__args__[0]
+            else:
+                return param_type
+        else:
+            return param_type
+
     if param_type.__origin__ is not Union:
         return param_type
+
     args = param_type.__args__
     if len(args) == 2 and args[1] is type(None):
         return args[0]

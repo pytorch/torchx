@@ -22,7 +22,6 @@ DEFAULT_SCHEDULER_MODULES: Mapping[str, str] = {
     "aws_batch": "torchx.schedulers.aws_batch_scheduler",
     "aws_sagemaker": "torchx.schedulers.aws_sagemaker_scheduler",
     "gcp_batch": "torchx.schedulers.gcp_batch_scheduler",
-    "ray": "torchx.schedulers.ray_scheduler",
     "lsf": "torchx.schedulers.lsf_scheduler",
 }
 
